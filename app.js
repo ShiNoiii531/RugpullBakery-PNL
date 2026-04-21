@@ -1,5 +1,11 @@
 const numberFormatter = new Intl.NumberFormat("en-US");
 const COOKIE_RAW_UNITS_PER_COOKIE = 10_000;
+const STORAGE_KEYS = {
+  currencyMode: "bakery-public:currency-mode",
+  ethPrice: "bakery-public:eth-price",
+  manualCost: "bakery-public:manual-cost",
+  themeMode: "bakery-public:theme-mode"
+};
 
 const els = {
   statusText: document.getElementById("statusText"),
@@ -9,6 +15,8 @@ const els = {
   searchInput: document.getElementById("searchInput"),
   manualCostInput: document.getElementById("manualCostInput"),
   ethPriceInput: document.getElementById("ethPriceInput"),
+  currencyToggle: document.getElementById("currencyToggle"),
+  themeToggle: document.getElementById("themeToggle"),
   refreshButton: document.getElementById("refreshButton"),
   csvButton: document.getElementById("csvButton"),
   seasonValue: document.getElementById("seasonValue"),
@@ -27,15 +35,25 @@ const els = {
 };
 
 let dashboard = null;
+let currencyMode = "eth";
+let themeMode = "light";
 
 try {
-  const manualCost = localStorage.getItem("bakery-public:manual-cost");
-  const ethPrice = localStorage.getItem("bakery-public:eth-price");
+  const manualCost = localStorage.getItem(STORAGE_KEYS.manualCost);
+  const ethPrice = localStorage.getItem(STORAGE_KEYS.ethPrice);
+  const storedCurrencyMode = localStorage.getItem(STORAGE_KEYS.currencyMode);
+  const storedThemeMode = localStorage.getItem(STORAGE_KEYS.themeMode);
   if (manualCost !== null) {
     els.manualCostInput.value = manualCost;
   }
   if (ethPrice !== null) {
     els.ethPriceInput.value = ethPrice;
+  }
+  if (storedCurrencyMode === "usd") {
+    currencyMode = "usd";
+  }
+  if (storedThemeMode === "dark") {
+    themeMode = "dark";
   }
 } catch {
   // Optional browser storage.
@@ -77,14 +95,23 @@ function formatEth(value) {
   return `${numeric.toFixed(4)} ETH`;
 }
 
-function formatUsd(value) {
+function formatUsd(value, { signed = false } = {}) {
   const numeric = Number(value || 0);
-  if (!Number.isFinite(numeric) || numeric === 0) {
+  if (!Number.isFinite(numeric)) {
     return "--";
   }
+  if (numeric === 0) {
+    return "$0";
+  }
 
-  const prefix = numeric > 0 ? "+" : "-";
-  return `${prefix}$${numberFormatter.format(Math.abs(Math.round(numeric)))}`;
+  const absolute = Math.abs(numeric);
+  const sign = signed && numeric > 0 ? "+" : numeric < 0 ? "-" : "";
+  const amount = absolute >= 100
+    ? numberFormatter.format(Math.round(absolute))
+    : absolute >= 1
+      ? numberFormatter.format(Number(absolute.toFixed(2)))
+      : absolute.toFixed(4);
+  return `${sign}$${amount}`;
 }
 
 function formatShare(value) {
@@ -103,6 +130,37 @@ function formatPercent(value) {
     return "--";
   }
   return `${numeric.toFixed(2)}%`;
+}
+
+function setCurrencyMode(mode, shouldPersist = true) {
+  currencyMode = mode === "usd" ? "usd" : "eth";
+  els.currencyToggle.textContent = currencyMode.toUpperCase();
+  els.currencyToggle.setAttribute("aria-pressed", String(currencyMode === "usd"));
+  els.currencyToggle.title = currencyMode === "usd" ? "Showing USD values" : "Showing ETH values";
+
+  if (shouldPersist) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.currencyMode, currencyMode);
+    } catch {}
+  }
+
+  if (dashboard) {
+    renderDashboard();
+  }
+}
+
+function setThemeMode(mode, shouldPersist = true) {
+  themeMode = mode === "dark" ? "dark" : "light";
+  document.body.dataset.theme = themeMode;
+  els.themeToggle.textContent = themeMode === "dark" ? "Light" : "Dark";
+  els.themeToggle.setAttribute("aria-pressed", String(themeMode === "dark"));
+  els.themeToggle.title = themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode";
+
+  if (shouldPersist) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.themeMode, themeMode);
+    } catch {}
+  }
 }
 
 function computedRows() {
@@ -126,7 +184,7 @@ function computedRows() {
       const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
       const grossEth = Number(row.grossPrizeEth || 0);
       const costEth = manualCostPerMillion > 0
-        ? (cookiesBaked / 1_000_000) * manualCostPerMillion
+        ? (cookiesBakedRaw / 1_000_000) * manualCostPerMillion
         : Number(row.estimatedCostEth || 0);
       const pnlEth = grossEth - costEth;
       const roi = costEth > 0 ? (pnlEth / costEth) * 100 : null;
@@ -144,11 +202,12 @@ function computedRows() {
     });
 }
 
-function moneyLabel(ethValue, ethPrice) {
-  if (ethPrice > 0 && ethValue !== 0) {
-    return `${formatEth(ethValue)} ${formatUsd(ethValue * ethPrice)}`;
+function moneyLabel(ethValue, ethPrice, options = {}) {
+  const numericEth = Number(ethValue || 0);
+  if (currencyMode === "usd") {
+    return ethPrice > 0 ? formatUsd(numericEth * ethPrice, options) : "--";
   }
-  return formatEth(ethValue);
+  return formatEth(numericEth);
 }
 
 function cell(text, className = "") {
@@ -184,7 +243,7 @@ function renderTable(rows) {
       cell(formatShare(row.leaderboardSharePct), "number-cell"),
       cell(moneyLabel(row.grossEth, row.ethPrice), "number-cell"),
       cell(moneyLabel(row.costEth, row.ethPrice), "number-cell"),
-      cell(moneyLabel(row.pnlEth, row.ethPrice), "number-cell pnl-cell"),
+      cell(moneyLabel(row.pnlEth, row.ethPrice, { signed: true }), "number-cell pnl-cell"),
       cell(row.roi === null ? "--" : formatPercent(row.roi), "number-cell")
     );
     fragment.append(tr);
@@ -204,7 +263,7 @@ function renderDashboard() {
     const grossEth = Number(row.grossPrizeEth || 0);
     const manualCostPerMillion = numericInputValue(els.manualCostInput);
     const costEth = manualCostPerMillion > 0
-      ? (cookiesBaked / 1_000_000) * manualCostPerMillion
+      ? (cookiesBakedRaw / 1_000_000) * manualCostPerMillion
       : Number(row.estimatedCostEth || 0);
     return { cookiesBaked, grossEth, costEth, pnlEth: grossEth - costEth };
   });
@@ -221,22 +280,20 @@ function renderDashboard() {
   els.updatedValue.textContent = dashboard.seasonEndsAt
     ? `Ends ${new Date(dashboard.seasonEndsAt).toLocaleString()}`
     : "Active season";
-  els.prizePoolValue.textContent = formatEth(dashboard.prizePoolEth);
+  els.prizePoolValue.textContent = moneyLabel(dashboard.prizePoolEth, ethPrice);
   els.payoutSplitValue.textContent =
     `Leaderboard ${formatShare(dashboard.leaderboardBucketPct)} / Activity ${formatShare(dashboard.activityBucketPct)}`;
   els.grossValue.textContent = moneyLabel(totalGrossEth, ethPrice);
   els.costValue.textContent = moneyLabel(totalCostEth, ethPrice);
-  els.pnlValue.textContent = moneyLabel(totalPnlEth, ethPrice);
+  els.pnlValue.textContent = moneyLabel(totalPnlEth, ethPrice, { signed: true });
   els.roiValue.textContent = totalRoi === null ? "ROI --" : `ROI ${formatPercent(totalRoi)}`;
   els.cookiesValue.textContent = formatCookieCount(totalCookies);
 
   if (manualCostPerMillion > 0) {
-    els.costSourceValue.textContent = `${formatEth(manualCostPerMillion)} / 1M manual`;
+    els.costSourceValue.textContent = `${moneyLabel(manualCostPerMillion, ethPrice)} / 1M manual`;
   } else if (dashboard.costEstimate?.status === "ok") {
-    const estimatedCostPerDisplayMillion = Number(dashboard.costEstimate.estimatedCostPerMillionEth || 0)
-      * COOKIE_RAW_UNITS_PER_COOKIE;
     els.costSourceValue.textContent =
-      `${formatEth(estimatedCostPerDisplayMillion)} / 1M from ${dashboard.costEstimate.sampleTxCount} RPC txs`;
+      `${moneyLabel(dashboard.costEstimate.estimatedCostPerMillionEth, ethPrice)} / 1M raw from ${dashboard.costEstimate.sampleTxCount} RPC txs`;
   } else {
     els.costSourceValue.textContent = "RPC estimate unavailable";
   }
@@ -255,16 +312,25 @@ function renderDashboard() {
 }
 
 function rowsToCsv(rows) {
-  const header = ["Rank", "Chef", "Bakery", "Cookies", "Share %", "Gross ETH", "Cost ETH", "P&L ETH", "ROI %"];
+  const ethPrice = numericInputValue(els.ethPriceInput);
+  const useUsd = currencyMode === "usd";
+  const currencyLabel = useUsd ? "USD" : "ETH";
+  const currencyValue = (ethValue) => {
+    if (!useUsd) {
+      return ethValue;
+    }
+    return ethPrice > 0 ? ethValue * ethPrice : "";
+  };
+  const header = ["Rank", "Chef", "Bakery", "Cookies", "Share %", `Gross ${currencyLabel}`, `Cost ${currencyLabel}`, `P&L ${currencyLabel}`, "ROI %"];
   const records = rows.map((row) => [
     row.rank,
     row.chefName || row.chefAddress || "",
     row.bakeryName || "",
     row.cookiesBakedDisplay,
     row.leaderboardSharePct,
-    row.grossEth,
-    row.costEth,
-    row.pnlEth,
+    currencyValue(row.grossEth),
+    currencyValue(row.costEth),
+    currencyValue(row.pnlEth),
     row.roi === null ? "" : row.roi
   ]);
   return [header, ...records]
@@ -312,12 +378,20 @@ async function refreshDashboard() {
 for (const input of [els.searchInput, els.manualCostInput, els.ethPriceInput]) {
   input.addEventListener("input", () => {
     try {
-      localStorage.setItem("bakery-public:manual-cost", els.manualCostInput.value);
-      localStorage.setItem("bakery-public:eth-price", els.ethPriceInput.value);
+      localStorage.setItem(STORAGE_KEYS.manualCost, els.manualCostInput.value);
+      localStorage.setItem(STORAGE_KEYS.ethPrice, els.ethPriceInput.value);
     } catch {}
     renderDashboard();
   });
 }
+
+els.currencyToggle.addEventListener("click", () => {
+  setCurrencyMode(currencyMode === "usd" ? "eth" : "usd");
+});
+
+els.themeToggle.addEventListener("click", () => {
+  setThemeMode(themeMode === "dark" ? "light" : "dark");
+});
 
 els.refreshButton.addEventListener("click", () => {
   refreshDashboard();
@@ -327,4 +401,6 @@ els.csvButton.addEventListener("click", () => {
   downloadCsv();
 });
 
+setThemeMode(themeMode, false);
+setCurrencyMode(currencyMode, false);
 refreshDashboard();

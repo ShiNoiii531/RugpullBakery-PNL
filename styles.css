@@ -32,6 +32,29 @@ body {
   background-size: 108px 86px, 138px 98px, auto;
 }
 
+body[data-theme="dark"] {
+  --icing: #1f1411;
+  --pastry: #3a241d;
+  --pastry-deep: #513022;
+  --cookie: #c77b4d;
+  --cookie-dark: #f0b27e;
+  --choc: #fff1df;
+  --blue: #42b8dd;
+  --blue-dark: #78d4ef;
+  --cream-card: #2a1c17;
+  --ink: #fff3e4;
+  --muted: #d7b99e;
+  --line: #70442e;
+  --green: #75d49d;
+  --red: #ff8d7f;
+  --shadow: 0 12px 0 rgba(0, 0, 0, 0.18), 0 20px 36px rgba(0, 0, 0, 0.28);
+  background:
+    radial-gradient(circle at 18px 18px, rgba(199, 123, 77, 0.18) 0 3px, transparent 4px),
+    radial-gradient(circle at 74px 54px, rgba(66, 184, 221, 0.1) 0 3px, transparent 4px),
+    linear-gradient(180deg, #19100e 0%, #251713 54%, #352119 100%);
+  background-size: 108px 86px, 138px 98px, auto;
+}
+
 button,
 input {
   font: inherit;
@@ -54,6 +77,16 @@ input {
     radial-gradient(circle at calc(100% - 26px) 28px, rgba(185, 111, 66, 0.1) 0 3px, transparent 4px),
     var(--cream-card);
   box-shadow: var(--shadow);
+}
+
+body[data-theme="dark"] .dashboard-head,
+body[data-theme="dark"] .toolbar,
+body[data-theme="dark"] .stat-card,
+body[data-theme="dark"] .table-shell {
+  background:
+    radial-gradient(circle at 20px 18px, rgba(199, 123, 77, 0.16) 0 3px, transparent 4px),
+    radial-gradient(circle at calc(100% - 26px) 28px, rgba(199, 123, 77, 0.14) 0 3px, transparent 4px),
+    var(--cream-card);
 }
 
 .dashboard-head {
@@ -141,6 +174,11 @@ h1 {
   background: var(--pastry);
 }
 
+body[data-theme="dark"] .rules-poster {
+  border-color: #70442e;
+  background: #1f1411;
+}
+
 .link-row {
   grid-column: 1 / -1;
   display: flex;
@@ -177,9 +215,18 @@ button:disabled {
   opacity: 0.65;
 }
 
+button[aria-pressed="true"] {
+  background: linear-gradient(180deg, #ca8050, var(--cookie));
+  box-shadow: inset 0 -5px 0 rgba(124, 67, 41, 0.28), 0 5px 0 rgba(124, 67, 41, 0.18);
+}
+
+.toggle-button {
+  min-width: 82px;
+}
+
 .toolbar {
   display: grid;
-  grid-template-columns: minmax(180px, 1.4fr) minmax(180px, 1fr) minmax(150px, 0.8fr) auto auto;
+  grid-template-columns: minmax(180px, 1.4fr) minmax(180px, 1fr) minmax(150px, 0.8fr) repeat(4, auto);
   gap: 10px;
   margin-bottom: 16px;
   padding: 14px;
@@ -210,6 +257,13 @@ input {
   background: #fffefe;
   color: var(--ink);
   box-shadow: inset 0 3px 0 rgba(185, 111, 66, 0.06);
+}
+
+body[data-theme="dark"] input {
+  border-color: #70442e;
+  background: #1f1411;
+  color: var(--ink);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.12);
 }
 
 input:focus {
@@ -284,6 +338,10 @@ input:focus {
   border-bottom: 2px dashed #efc99c;
 }
 
+body[data-theme="dark"] .table-meta {
+  border-bottom-color: #70442e;
+}
+
 .table-meta strong {
   display: inline-block;
   padding: 8px 14px 10px;
@@ -312,6 +370,11 @@ td {
   vertical-align: middle;
 }
 
+body[data-theme="dark"] th,
+body[data-theme="dark"] td {
+  border-bottom-color: #5b3827;
+}
+
 th {
   position: sticky;
   top: 0;
@@ -323,8 +386,17 @@ th {
   text-transform: uppercase;
 }
 
+body[data-theme="dark"] th {
+  background: #38251d;
+  color: #f0b27e;
+}
+
 td {
   background: rgba(255, 253, 249, 0.92);
+}
+
+body[data-theme="dark"] td {
+  background: rgba(38, 26, 21, 0.94);
 }
 
 tr:last-child td {
