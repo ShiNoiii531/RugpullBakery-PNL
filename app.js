@@ -49,6 +49,16 @@ function formatNumber(value) {
   return numberFormatter.format(Number(value || 0));
 }
 
+function formatCookieMillions(value) {
+  const numeric = Number(value || 0);
+  if (!Number.isFinite(numeric)) {
+    return "--";
+  }
+  return numeric.toLocaleString("en-US", {
+    maximumFractionDigits: numeric >= 100 ? 2 : 3
+  });
+}
+
 function formatEth(value) {
   const numeric = Number(value || 0);
   if (!Number.isFinite(numeric)) {
@@ -111,17 +121,19 @@ function computedRows() {
       return `${row.chefName} ${row.chefAddress} ${row.bakeryName}`.toLowerCase().includes(query);
     })
     .map((row) => {
-      const cookiesBaked = Number(row.cookiesBaked || 0);
+      const cookiesBakedRaw = Number(row.cookiesBaked || 0);
+      const cookiesBakedMillions = cookiesBakedRaw / 1_000_000;
       const grossEth = Number(row.grossPrizeEth || 0);
       const costEth = manualCostPerMillion > 0
-        ? (cookiesBaked / 1_000_000) * manualCostPerMillion
+        ? cookiesBakedMillions * manualCostPerMillion
         : Number(row.estimatedCostEth || 0);
       const pnlEth = grossEth - costEth;
       const roi = costEth > 0 ? (pnlEth / costEth) * 100 : null;
 
       return {
         ...row,
-        cookiesBaked,
+        cookiesBaked: cookiesBakedRaw,
+        cookiesBakedMillions,
         grossEth,
         costEth,
         pnlEth,
@@ -167,7 +179,7 @@ function renderTable(rows) {
       cell(`#${row.rank}`, "rank-cell"),
       cell(row.chefName || row.chefAddress || "-", "name-cell"),
       cell(row.bakeryName || "-", "name-cell"),
-      cell(formatNumber(row.cookiesBaked), "number-cell"),
+      cell(formatCookieMillions(row.cookiesBakedMillions), "number-cell"),
       cell(formatShare(row.leaderboardSharePct), "number-cell"),
       cell(moneyLabel(row.grossEth, row.ethPrice), "number-cell"),
       cell(moneyLabel(row.costEth, row.ethPrice), "number-cell"),
@@ -186,19 +198,20 @@ function renderDashboard() {
 
   const rows = computedRows();
   const allRows = (dashboard.rows || []).map((row) => {
-    const cookiesBaked = Number(row.cookiesBaked || 0);
+    const cookiesBakedRaw = Number(row.cookiesBaked || 0);
+    const cookiesBakedMillions = cookiesBakedRaw / 1_000_000;
     const grossEth = Number(row.grossPrizeEth || 0);
     const manualCostPerMillion = numericInputValue(els.manualCostInput);
     const costEth = manualCostPerMillion > 0
-      ? (cookiesBaked / 1_000_000) * manualCostPerMillion
+      ? cookiesBakedMillions * manualCostPerMillion
       : Number(row.estimatedCostEth || 0);
-    return { cookiesBaked, grossEth, costEth, pnlEth: grossEth - costEth };
+    return { cookiesBakedMillions, grossEth, costEth, pnlEth: grossEth - costEth };
   });
   const ethPrice = numericInputValue(els.ethPriceInput);
   const totalGrossEth = allRows.reduce((total, row) => total + row.grossEth, 0);
   const totalCostEth = allRows.reduce((total, row) => total + row.costEth, 0);
   const totalPnlEth = allRows.reduce((total, row) => total + row.pnlEth, 0);
-  const totalCookies = allRows.reduce((total, row) => total + row.cookiesBaked, 0);
+  const totalCookiesMillions = allRows.reduce((total, row) => total + row.cookiesBakedMillions, 0);
   const totalRoi = totalCostEth > 0 ? (totalPnlEth / totalCostEth) * 100 : null;
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
 
@@ -214,7 +227,7 @@ function renderDashboard() {
   els.costValue.textContent = moneyLabel(totalCostEth, ethPrice);
   els.pnlValue.textContent = moneyLabel(totalPnlEth, ethPrice);
   els.roiValue.textContent = totalRoi === null ? "ROI --" : `ROI ${formatPercent(totalRoi)}`;
-  els.cookiesValue.textContent = formatNumber(totalCookies);
+  els.cookiesValue.textContent = formatCookieMillions(totalCookiesMillions);
 
   if (manualCostPerMillion > 0) {
     els.costSourceValue.textContent = `${formatEth(manualCostPerMillion)} / 1M manual`;
@@ -239,12 +252,12 @@ function renderDashboard() {
 }
 
 function rowsToCsv(rows) {
-  const header = ["Rank", "Chef", "Bakery", "Cookies", "Share %", "Gross ETH", "Cost ETH", "P&L ETH", "ROI %"];
+  const header = ["Rank", "Chef", "Bakery", "Cookies (M)", "Share %", "Gross ETH", "Cost ETH", "P&L ETH", "ROI %"];
   const records = rows.map((row) => [
     row.rank,
     row.chefName || row.chefAddress || "",
     row.bakeryName || "",
-    row.cookiesBaked,
+    row.cookiesBakedMillions,
     row.leaderboardSharePct,
     row.grossEth,
     row.costEth,
