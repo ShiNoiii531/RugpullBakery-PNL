@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rugpull Bakery Top 100 P&L</title>
+    <meta name="description" content="Public top 100 Rugpull Bakery P&L dashboard with leaderboard payouts and on-chain cost estimates." />
+    <meta property="og:title" content="Rugpull Bakery Top 100 P&L" />
+    <meta property="og:description" content="Top 100 leaderboard P&L, payout split, and Abstract RPC cost estimates." />
+    <meta property="og:image" content="https://www.rugpullbakery.com/rb-og-image.png" />
+    <link rel="icon" href="https://www.rugpullbakery.com/rb-favicon.png" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="dashboard-head">
+        <div class="brand-block">
+          <span class="number-badge">01</span>
+          <div class="brand-copy">
+            <p class="eyebrow">Solo format</p>
+            <div class="cookie-plank">
+              <h1>Top 100 P&amp;L</h1>
+            </div>
+            <p id="statusText" class="status-text">Loading live leaderboard...</p>
+          </div>
+        </div>
+        <img class="rules-poster" src="/assets/rugpull-season-rules.png" alt="Rugpull Bakery season rules" />
+        <nav class="link-row" aria-label="External links">
+          <a id="sourceLink" href="https://www.rugpullbakery.com/bakeries" target="_blank" rel="noopener noreferrer">Leaderboard</a>
+          <a id="docsLink" href="https://docs.rugpullbakery.com/#s3-payouts" target="_blank" rel="noopener noreferrer">Payouts</a>
+          <a id="botLink" href="https://t.me/bakerycookingcookies_bot" target="_blank" rel="noopener noreferrer">Telegram Bot</a>
+        </nav>
+      </header>
+
+      <section class="toolbar" aria-label="Dashboard controls">
+        <label class="field">
+          <span>Search</span>
+          <input id="searchInput" type="search" placeholder="Chef or bakery" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>Manual cost / 1M cookies</span>
+          <input id="manualCostInput" type="number" min="0" step="0.000001" value="0" />
+        </label>
+        <label class="field">
+          <span>ETH price</span>
+          <input id="ethPriceInput" type="number" min="0" step="1" placeholder="USD optional" />
+        </label>
+        <button id="refreshButton" type="button">Refresh</button>
+        <button id="csvButton" type="button">CSV</button>
+      </section>
+
+      <section class="stat-grid" aria-label="P&L summary">
+        <article class="stat-card">
+          <span>Season</span>
+          <strong id="seasonValue">--</strong>
+          <small id="updatedValue">Waiting</small>
+        </article>
+        <article class="stat-card">
+          <span>Prize Pool</span>
+          <strong id="prizePoolValue">--</strong>
+          <small id="payoutSplitValue">--</small>
+        </article>
+        <article class="stat-card">
+          <span>Top 100 Gross</span>
+          <strong id="grossValue">--</strong>
+          <small>Leaderboard bucket projection</small>
+        </article>
+        <article class="stat-card">
+          <span>Top 100 Cost</span>
+          <strong id="costValue">--</strong>
+          <small id="costSourceValue">--</small>
+        </article>
+        <article class="stat-card">
+          <span>Top 100 P&amp;L</span>
+          <strong id="pnlValue">--</strong>
+          <small id="roiValue">--</small>
+        </article>
+        <article class="stat-card">
+          <span>Cookies Baked</span>
+          <strong id="cookiesValue">--</strong>
+          <small>Visible top 100</small>
+        </article>
+      </section>
+
+      <section class="table-shell" aria-label="Top 100 P&L table">
+        <div class="table-meta">
+          <strong id="tableTitle">Top 100</strong>
+          <span id="rowCount">-- rows</span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Chef</th>
+                <th>Bakery</th>
+                <th>Cookies</th>
+                <th>Share</th>
+                <th>Gross</th>
+                <th>Cost</th>
+                <th>P&amp;L</th>
+                <th>ROI</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td colspan="9">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

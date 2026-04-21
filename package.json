@@ -1,0 +1,13 @@
+{
+  "name": "bakery-public-pnl",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node local-server.mjs",
+    "check": "node --check api/pnl-top100.js && node --check local-server.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
