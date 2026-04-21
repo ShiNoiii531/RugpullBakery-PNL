@@ -134,7 +134,7 @@ h1 {
 .rules-poster {
   width: 100%;
   aspect-ratio: 16 / 9;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   border-radius: 8px;
   border: 2px solid #f4d5ad;
