@@ -1,4 +1,5 @@
 const numberFormatter = new Intl.NumberFormat("en-US");
+const COOKIE_RAW_UNITS_PER_COOKIE = 10_000;
 
 const els = {
   statusText: document.getElementById("statusText"),
@@ -49,13 +50,13 @@ function formatNumber(value) {
   return numberFormatter.format(Number(value || 0));
 }
 
-function formatCookieMillions(value) {
+function formatCookieCount(value) {
   const numeric = Number(value || 0);
   if (!Number.isFinite(numeric)) {
     return "--";
   }
   return numeric.toLocaleString("en-US", {
-    maximumFractionDigits: numeric >= 100 ? 2 : 3
+    maximumFractionDigits: numeric >= 1_000 ? 0 : 2
   });
 }
 
@@ -122,10 +123,10 @@ function computedRows() {
     })
     .map((row) => {
       const cookiesBakedRaw = Number(row.cookiesBaked || 0);
-      const cookiesBakedMillions = cookiesBakedRaw / 1_000_000;
+      const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
       const grossEth = Number(row.grossPrizeEth || 0);
       const costEth = manualCostPerMillion > 0
-        ? cookiesBakedMillions * manualCostPerMillion
+        ? (cookiesBaked / 1_000_000) * manualCostPerMillion
         : Number(row.estimatedCostEth || 0);
       const pnlEth = grossEth - costEth;
       const roi = costEth > 0 ? (pnlEth / costEth) * 100 : null;
@@ -133,7 +134,7 @@ function computedRows() {
       return {
         ...row,
         cookiesBaked: cookiesBakedRaw,
-        cookiesBakedMillions,
+        cookiesBakedDisplay: cookiesBaked,
         grossEth,
         costEth,
         pnlEth,
@@ -179,7 +180,7 @@ function renderTable(rows) {
       cell(`#${row.rank}`, "rank-cell"),
       cell(row.chefName || row.chefAddress || "-", "name-cell"),
       cell(row.bakeryName || "-", "name-cell"),
-      cell(formatCookieMillions(row.cookiesBakedMillions), "number-cell"),
+      cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell"),
       cell(formatShare(row.leaderboardSharePct), "number-cell"),
       cell(moneyLabel(row.grossEth, row.ethPrice), "number-cell"),
       cell(moneyLabel(row.costEth, row.ethPrice), "number-cell"),
@@ -199,19 +200,19 @@ function renderDashboard() {
   const rows = computedRows();
   const allRows = (dashboard.rows || []).map((row) => {
     const cookiesBakedRaw = Number(row.cookiesBaked || 0);
-    const cookiesBakedMillions = cookiesBakedRaw / 1_000_000;
+    const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
     const grossEth = Number(row.grossPrizeEth || 0);
     const manualCostPerMillion = numericInputValue(els.manualCostInput);
     const costEth = manualCostPerMillion > 0
-      ? cookiesBakedMillions * manualCostPerMillion
+      ? (cookiesBaked / 1_000_000) * manualCostPerMillion
       : Number(row.estimatedCostEth || 0);
-    return { cookiesBakedMillions, grossEth, costEth, pnlEth: grossEth - costEth };
+    return { cookiesBaked, grossEth, costEth, pnlEth: grossEth - costEth };
   });
   const ethPrice = numericInputValue(els.ethPriceInput);
   const totalGrossEth = allRows.reduce((total, row) => total + row.grossEth, 0);
   const totalCostEth = allRows.reduce((total, row) => total + row.costEth, 0);
   const totalPnlEth = allRows.reduce((total, row) => total + row.pnlEth, 0);
-  const totalCookiesMillions = allRows.reduce((total, row) => total + row.cookiesBakedMillions, 0);
+  const totalCookies = allRows.reduce((total, row) => total + row.cookiesBaked, 0);
   const totalRoi = totalCostEth > 0 ? (totalPnlEth / totalCostEth) * 100 : null;
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
 
@@ -227,13 +228,15 @@ function renderDashboard() {
   els.costValue.textContent = moneyLabel(totalCostEth, ethPrice);
   els.pnlValue.textContent = moneyLabel(totalPnlEth, ethPrice);
   els.roiValue.textContent = totalRoi === null ? "ROI --" : `ROI ${formatPercent(totalRoi)}`;
-  els.cookiesValue.textContent = formatCookieMillions(totalCookiesMillions);
+  els.cookiesValue.textContent = formatCookieCount(totalCookies);
 
   if (manualCostPerMillion > 0) {
     els.costSourceValue.textContent = `${formatEth(manualCostPerMillion)} / 1M manual`;
   } else if (dashboard.costEstimate?.status === "ok") {
+    const estimatedCostPerDisplayMillion = Number(dashboard.costEstimate.estimatedCostPerMillionEth || 0)
+      * COOKIE_RAW_UNITS_PER_COOKIE;
     els.costSourceValue.textContent =
-      `${formatEth(dashboard.costEstimate.estimatedCostPerMillionEth)} / 1M from ${dashboard.costEstimate.sampleTxCount} RPC txs`;
+      `${formatEth(estimatedCostPerDisplayMillion)} / 1M from ${dashboard.costEstimate.sampleTxCount} RPC txs`;
   } else {
     els.costSourceValue.textContent = "RPC estimate unavailable";
   }
@@ -252,12 +255,12 @@ function renderDashboard() {
 }
 
 function rowsToCsv(rows) {
-  const header = ["Rank", "Chef", "Bakery", "Cookies (M)", "Share %", "Gross ETH", "Cost ETH", "P&L ETH", "ROI %"];
+  const header = ["Rank", "Chef", "Bakery", "Cookies", "Share %", "Gross ETH", "Cost ETH", "P&L ETH", "ROI %"];
   const records = rows.map((row) => [
     row.rank,
     row.chefName || row.chefAddress || "",
     row.bakeryName || "",
-    row.cookiesBakedMillions,
+    row.cookiesBakedDisplay,
     row.leaderboardSharePct,
     row.grossEth,
     row.costEth,
