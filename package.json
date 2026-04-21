@@ -8,6 +8,6 @@
     "check": "node --check api/pnl-top100.js && node --check local-server.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   }
 }

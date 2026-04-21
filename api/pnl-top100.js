@@ -10,8 +10,8 @@ const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187c
 
 const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
-const COST_SAMPLE_BLOCKS = Number(process.env.BAKERY_COST_SAMPLE_BLOCKS || 180);
-const COST_SAMPLE_MAX_TXS = Number(process.env.BAKERY_COST_SAMPLE_MAX_TXS || 150);
+const COST_SAMPLE_BLOCKS = positiveNumber(process.env.BAKERY_COST_SAMPLE_BLOCKS, 180);
+const COST_SAMPLE_MAX_TXS = positiveNumber(process.env.BAKERY_COST_SAMPLE_MAX_TXS, 150);
 
 const LEADERBOARD_PAYOUTS = [
   { minRank: 1, maxRank: 1, sharePct: 7.5 },
@@ -24,9 +24,9 @@ const LEADERBOARD_PAYOUTS = [
   { minRank: 8, maxRank: 8, sharePct: 2.1 },
   { minRank: 9, maxRank: 9, sharePct: 1.9 },
   { minRank: 10, maxRank: 10, sharePct: 1.7 },
-  { minRank: 11, maxRank: 25, sharePct: 22 / 15 },
-  { minRank: 26, maxRank: 50, sharePct: 22 / 25 },
-  { minRank: 51, maxRank: 100, sharePct: 21.2 / 50 }
+  { minRank: 11, maxRank: 25, sharePct: 1.4666666666666666 },
+  { minRank: 26, maxRank: 50, sharePct: 0.88 },
+  { minRank: 51, maxRank: 100, sharePct: 0.424 }
 ];
 
 const ACTIVITY_TIERS = [
@@ -36,6 +36,11 @@ const ACTIVITY_TIERS = [
 ];
 
 let memoryCache = null;
+
+function positiveNumber(value, fallback) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : fallback;
+}
 
 function shortAddress(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -51,7 +56,11 @@ function weiToEthNumber(wei) {
 
 function multiplyWeiByPercent(wei, percent) {
   const scaledPercent = BigInt(Math.round(percent * 1_000_000));
-  return ((BigInt(wei) * scaledPercent) / 100_000_000n).toString();
+  return safeDivideBigInt(BigInt(wei) * scaledPercent, 100_000_000n).toString();
+}
+
+function safeDivideBigInt(numerator, denominator) {
+  return denominator === 0n ? 0n : numerator / denominator;
 }
 
 function getLeaderboardSharePct(rank) {
@@ -201,7 +210,7 @@ async function getBakeLogs(latestBlock, seasonId, addressTopics) {
       return { logs, fromBlock, toBlock: latestBlock };
     } catch (error) {
       lastError = error;
-      blockSpan /= 2n;
+      blockSpan = blockSpan > 1n ? blockSpan / 2n : 0n;
     }
   }
 
@@ -291,7 +300,7 @@ async function getRpcCostEstimate(seasonId, chefAddresses) {
       return unavailableCostEstimate("No usable Bakery bake transactions found in the recent RPC sample");
     }
 
-    const estimatedCostPerMillionWei = (sampleCostWei * 1_000_000n) / sampleCookies;
+    const estimatedCostPerMillionWei = safeDivideBigInt(sampleCostWei * 1_000_000n, sampleCookies);
 
     return {
       status: "ok",
@@ -370,7 +379,7 @@ async function buildDashboard() {
         : "0";
       const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
-        ? ((BigInt(cookiesBaked) * estimatedCostPerMillionWei) / 1_000_000n).toString()
+        ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
 
       return {
