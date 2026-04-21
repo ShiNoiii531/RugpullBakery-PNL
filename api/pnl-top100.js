@@ -1,7 +1,6 @@
 const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const BAKERY_SOURCE_URL = `${BAKERY_APP_URL}/bakeries`;
 const BAKERY_DOCS_PAYOUT_URL = "https://docs.rugpullbakery.com/#s3-payouts";
-const BAKERY_TELEGRAM_BOT_URL = "https://t.me/bakerycookingcookies_bot";
 const ABSTRACT_RPC_URL = process.env.ABSTRACT_RPC_URL || "https://api.mainnet.abs.xyz";
 
 const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
@@ -364,7 +363,6 @@ async function buildDashboard() {
     leaderboardPayouts: LEADERBOARD_PAYOUTS,
     activityTiers: ACTIVITY_TIERS,
     totalTop100CookiesBaked,
-    telegramBotUrl: BAKERY_TELEGRAM_BOT_URL,
     sourceUrl: BAKERY_SOURCE_URL,
     docsUrl: BAKERY_DOCS_PAYOUT_URL,
     costEstimate,

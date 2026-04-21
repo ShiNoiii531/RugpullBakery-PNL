@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node local-server.mjs",
-    "check": "node --check api/pnl-top100.js && node --check local-server.mjs"
+    "check": "node --check api/pnl-top100.js && node --check api/eth-price.js && node --check local-server.mjs"
   },
   "engines": {
     "node": "20.x"

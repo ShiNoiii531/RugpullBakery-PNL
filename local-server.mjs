@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { createReadStream, existsSync } from "node:fs";
 import { extname, join, resolve } from "node:path";
+import ethPriceHandler from "./api/eth-price.js";
 import handler from "./api/pnl-top100.js";
 
 const root = resolve(import.meta.dirname);
@@ -28,6 +29,28 @@ const server = createServer(async (request, response) => {
   if (url.pathname === "/api/pnl-top100") {
     try {
       await handler(request, {
+        status(code) {
+          response.statusCode = code;
+          return this;
+        },
+        setHeader(name, value) {
+          response.setHeader(name, value);
+        },
+        json(payload) {
+          sendJson(response, response.statusCode || 200, payload);
+        }
+      });
+    } catch (error) {
+      sendJson(response, 500, {
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+    return;
+  }
+
+  if (url.pathname === "/api/eth-price") {
+    try {
+      await ethPriceHandler(request, {
         status(code) {
           response.statusCode = code;
           return this;
