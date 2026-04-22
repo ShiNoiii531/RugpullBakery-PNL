@@ -433,7 +433,7 @@ body[data-theme="dark"] .logo-character {
 
 .view-tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -596,7 +596,8 @@ body[data-theme="dark"] .simulator-toolbar {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.rug-stats {
+.rug-stats,
+.rugged-stats {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
@@ -698,9 +699,12 @@ table {
   min-width: 920px;
 }
 
-.rug-table,
-.rugged-table {
+.rug-table {
   min-width: 980px;
+}
+
+.rugged-table {
+  min-width: 1180px;
 }
 
 th,
@@ -798,7 +802,8 @@ tr:last-child td {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .rug-stats {
+  .rug-stats,
+  .rugged-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -827,8 +832,13 @@ tr:last-child td {
   .stat-grid,
   .simulator-toolbar,
   .simulator-stats,
-  .rug-stats {
+  .rug-stats,
+  .rugged-stats {
     grid-template-columns: 1fr;
+  }
+
+  .view-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .link-row a,

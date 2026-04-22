@@ -72,6 +72,7 @@
       <nav class="view-tabs" aria-label="Dashboard views">
         <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Top 100</button>
         <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
+        <button id="mostRuggedTab" class="tab-button" type="button" aria-pressed="false">Most Rugged</button>
         <button id="simulatorTab" class="tab-button" type="button" aria-pressed="false">Simulator</button>
       </nav>
 
@@ -178,11 +179,6 @@
             <strong id="totalRugsValue">--</strong>
             <small id="totalRugAttemptsValue">-- attempts</small>
           </article>
-          <article class="stat-card">
-            <span>Most Rugged</span>
-            <strong id="mostRuggedValue">--</strong>
-            <small id="mostRuggedBakeryValue">Recent received rugs</small>
-          </article>
         </section>
 
         <section class="table-shell" aria-label="Top Rug table">
@@ -212,6 +208,31 @@
             </table>
           </div>
         </section>
+      </section>
+
+      <section id="mostRuggedView" class="view-panel" hidden>
+        <section class="stat-grid rugged-stats" aria-label="Most Rugged summary">
+          <article class="stat-card">
+            <span>Most Rugged</span>
+            <strong id="mostRuggedValue">--</strong>
+            <small id="mostRuggedBakeryValue">Incoming rugs received</small>
+          </article>
+          <article class="stat-card">
+            <span>Incoming Attempts</span>
+            <strong id="ruggedAttemptsValue">--</strong>
+            <small id="ruggedCoverageValue">Scanning Top 100 bakeries</small>
+          </article>
+          <article class="stat-card">
+            <span>Successful Received</span>
+            <strong id="ruggedSuccessValue">--</strong>
+            <small>Rugs that landed</small>
+          </article>
+          <article class="stat-card">
+            <span>Failed / Blocked</span>
+            <strong id="ruggedFailedValue">--</strong>
+            <small>Incoming rugs that did not land</small>
+          </article>
+        </section>
 
         <section class="table-shell secondary-table-shell" aria-label="Most rugged Top 100 table">
           <div class="table-meta">
@@ -227,14 +248,17 @@
                   <th>Top 100 Rank</th>
                   <th>Chef</th>
                   <th>Bakery</th>
-                  <th>Rugs Received</th>
+                  <th>Incoming Attempts</th>
+                  <th>Successful Received</th>
+                  <th>Failed / Blocked</th>
+                  <th>Received Success</th>
                   <th>Rugs Sent</th>
                   <th>Cookies</th>
                 </tr>
               </thead>
               <tbody id="ruggedTableBody">
                 <tr>
-                  <td colspan="7">Loading...</td>
+                  <td colspan="10">Loading...</td>
                 </tr>
               </tbody>
             </table>

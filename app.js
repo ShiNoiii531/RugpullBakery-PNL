@@ -21,9 +21,11 @@ const els = {
   csvButton: document.getElementById("csvButton"),
   dashboardTab: document.getElementById("dashboardTab"),
   topRugTab: document.getElementById("topRugTab"),
+  mostRuggedTab: document.getElementById("mostRuggedTab"),
   simulatorTab: document.getElementById("simulatorTab"),
   dashboardView: document.getElementById("dashboardView"),
   topRugView: document.getElementById("topRugView"),
+  mostRuggedView: document.getElementById("mostRuggedView"),
   simulatorView: document.getElementById("simulatorView"),
   seasonValue: document.getElementById("seasonValue"),
   updatedValue: document.getElementById("updatedValue"),
@@ -47,6 +49,10 @@ const els = {
   totalRugAttemptsValue: document.getElementById("totalRugAttemptsValue"),
   mostRuggedValue: document.getElementById("mostRuggedValue"),
   mostRuggedBakeryValue: document.getElementById("mostRuggedBakeryValue"),
+  ruggedAttemptsValue: document.getElementById("ruggedAttemptsValue"),
+  ruggedCoverageValue: document.getElementById("ruggedCoverageValue"),
+  ruggedSuccessValue: document.getElementById("ruggedSuccessValue"),
+  ruggedFailedValue: document.getElementById("ruggedFailedValue"),
   rugReceivedSourceValue: document.getElementById("rugReceivedSourceValue"),
   rugRowCount: document.getElementById("rugRowCount"),
   rugTableBody: document.getElementById("rugTableBody"),
@@ -84,7 +90,7 @@ try {
   if (storedThemeMode === "dark") {
     themeMode = "dark";
   }
-  if (["dashboard", "rug", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "rug", "rugged", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
   }
   if (storedSimulatorPrizePool !== null) {
@@ -261,16 +267,19 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "rug", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "rug", "rugged", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
   const isRug = activeView === "rug";
+  const isRugged = activeView === "rugged";
   const isSimulator = activeView === "simulator";
 
   els.dashboardView.hidden = !isDashboard;
   els.topRugView.hidden = !isRug;
+  els.mostRuggedView.hidden = !isRugged;
   els.simulatorView.hidden = !isSimulator;
   els.dashboardTab.setAttribute("aria-pressed", String(isDashboard));
   els.topRugTab.setAttribute("aria-pressed", String(isRug));
+  els.mostRuggedTab.setAttribute("aria-pressed", String(isRugged));
   els.simulatorTab.setAttribute("aria-pressed", String(isSimulator));
 
   if (shouldPersist) {
@@ -398,19 +407,40 @@ function topRugRows(rows) {
 }
 
 function mostRuggedRows(rows) {
-  return [...rows].sort((a, b) => {
-    const receivedDelta = Number(b.recentRugsReceived || 0) - Number(a.recentRugsReceived || 0);
-    if (receivedDelta !== 0) {
-      return receivedDelta;
-    }
+  return [...rows]
+    .filter((row) => Number(row.recentRugAttemptsReceived || 0) > 0 || Number(row.recentRugsReceived || 0) > 0)
+    .sort((a, b) => {
+      const attemptsDelta = Number(b.recentRugAttemptsReceived || 0) - Number(a.recentRugAttemptsReceived || 0);
+      if (attemptsDelta !== 0) {
+        return attemptsDelta;
+      }
 
-    const sentDelta = Number(b.rugLanded || 0) - Number(a.rugLanded || 0);
-    if (sentDelta !== 0) {
-      return sentDelta;
-    }
+      const receivedDelta = Number(b.recentRugsReceived || 0) - Number(a.recentRugsReceived || 0);
+      if (receivedDelta !== 0) {
+        return receivedDelta;
+      }
 
-    return Number(a.rank || 0) - Number(b.rank || 0);
-  });
+      const sentDelta = Number(b.rugLanded || 0) - Number(a.rugLanded || 0);
+      if (sentDelta !== 0) {
+        return sentDelta;
+      }
+
+      return Number(a.rank || 0) - Number(b.rank || 0);
+    });
+}
+
+function incomingRugSuccessRate(row) {
+  const attempts = Number(row.recentRugAttemptsReceived || 0);
+  const received = Number(row.recentRugsReceived || 0);
+  return attempts > 0 ? (received / attempts) * 100 : null;
+}
+
+function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
+  if (source.label === "top100_bakery_activity_feeds") {
+    return `Incoming rug attempts against Top 100 bakeries from up to ${numberFormatter.format(source.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(source.scannedEvents || 0)} / ${numberFormatter.format(source.maxEvents || 0)}. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
+  }
+
+  return `Incoming rug attempts against Top 100 bakeries from the latest ${numberFormatter.format(source.eventLimit || 100)} global activity events. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
 }
 
 function renderTopRug(rows) {
@@ -421,6 +451,8 @@ function renderTopRug(rows) {
   const totalRugs = rows.reduce((total, row) => total + Number(row.rugLanded || 0), 0);
   const totalAttempts = rows.reduce((total, row) => total + Number(row.rugAttempts || 0), 0);
   const totalReceived = rows.reduce((total, row) => total + Number(row.recentRugsReceived || 0), 0);
+  const totalReceivedAttempts = rows.reduce((total, row) => total + Number(row.recentRugAttemptsReceived || 0), 0);
+  const totalReceivedFailed = rows.reduce((total, row) => total + Number(row.recentRugFailsReceived || 0), 0);
   const topSuccessRate = topRow ? rugSuccessRate(topRow) : null;
 
   els.topRuggerValue.textContent = topRow ? (topRow.chefName || topRow.chefAddress || "-") : "--";
@@ -430,17 +462,20 @@ function renderTopRug(rows) {
   els.rugSuccessValue.textContent = topSuccessRate === null ? "Success rate --" : `Success rate ${formatPercent(topSuccessRate)}`;
   els.totalRugsValue.textContent = numberFormatter.format(totalRugs);
   els.totalRugAttemptsValue.textContent = `${numberFormatter.format(totalAttempts)} attempts`;
-  els.mostRuggedValue.textContent = mostRuggedRow ? numberFormatter.format(Number(mostRuggedRow.recentRugsReceived || 0)) : "--";
+  els.mostRuggedValue.textContent = mostRuggedRow ? numberFormatter.format(Number(mostRuggedRow.recentRugAttemptsReceived || 0)) : "--";
   els.mostRuggedBakeryValue.textContent = mostRuggedRow
-    ? `${mostRuggedRow.bakeryName || "-"} · Top 100 #${mostRuggedRow.rank}`
-    : "Recent received rugs";
+    ? `${mostRuggedRow.bakeryName || "-"} · ${numberFormatter.format(Number(mostRuggedRow.recentRugsReceived || 0))} landed`
+    : "Incoming rugs received";
+  els.ruggedAttemptsValue.textContent = numberFormatter.format(totalReceivedAttempts);
+  els.ruggedCoverageValue.textContent = dashboard.rugReceivedSource?.scannedEvents
+    ? `${numberFormatter.format(dashboard.rugReceivedSource.scannedEvents)} events scanned`
+    : "Scanning Top 100 bakeries";
+  els.ruggedSuccessValue.textContent = numberFormatter.format(totalReceived);
+  els.ruggedFailedValue.textContent = numberFormatter.format(totalReceivedFailed);
   const rugReceivedSource = dashboard.rugReceivedSource || {};
-  const sourceText = rugReceivedSource.label === "top100_bakery_activity_feeds"
-    ? `Successful rugs received by Top 100 bakeries from up to ${numberFormatter.format(rugReceivedSource.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(rugReceivedSource.scannedEvents || 0)} / ${numberFormatter.format(rugReceivedSource.maxEvents || 0)}. Total counted: ${numberFormatter.format(totalReceived)}.`
-    : `Recent successful rugs received by Top 100 bakeries from the latest ${numberFormatter.format(rugReceivedSource.eventLimit || 100)} global activity events. Total counted: ${numberFormatter.format(totalReceived)}.`;
-  els.rugReceivedSourceValue.textContent = sourceText;
+  els.rugReceivedSourceValue.textContent = rugReceivedSourceText(rugReceivedSource, totalReceived, totalReceivedAttempts);
   els.rugRowCount.textContent = `${sortedRows.length} rows`;
-  els.ruggedRowCount.textContent = `${ruggedRows.length} rows`;
+  els.ruggedRowCount.textContent = `${ruggedRows.length} active rows`;
 
   els.rugTableBody.innerHTML = "";
   els.ruggedTableBody.innerHTML = "";
@@ -452,7 +487,7 @@ function renderTopRug(rows) {
 
     const ruggedTr = document.createElement("tr");
     ruggedTr.append(cell("No matching bakeries.", "empty-cell"));
-    ruggedTr.firstChild.colSpan = 7;
+    ruggedTr.firstChild.colSpan = 10;
     els.ruggedTableBody.append(ruggedTr);
     return;
   }
@@ -475,15 +510,27 @@ function renderTopRug(rows) {
   });
   els.rugTableBody.append(fragment);
 
+  if (ruggedRows.length === 0) {
+    const ruggedTr = document.createElement("tr");
+    ruggedTr.append(cell("No incoming rug attempts found for the current Top 100 window.", "empty-cell"));
+    ruggedTr.firstChild.colSpan = 10;
+    els.ruggedTableBody.append(ruggedTr);
+    return;
+  }
+
   const ruggedFragment = document.createDocumentFragment();
   ruggedRows.forEach((row, index) => {
+    const receivedSuccessRate = incomingRugSuccessRate(row);
     const tr = document.createElement("tr");
     tr.append(
       cell(`#${index + 1}`, "rank-cell", "Rugged Rank"),
       cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
       cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
-      cell(numberFormatter.format(Number(row.recentRugsReceived || 0)), "number-cell pnl-cell", "Rugs Received"),
+      cell(numberFormatter.format(Number(row.recentRugAttemptsReceived || 0)), "number-cell pnl-cell", "Incoming Attempts"),
+      cell(numberFormatter.format(Number(row.recentRugsReceived || 0)), "number-cell", "Successful Received"),
+      cell(numberFormatter.format(Number(row.recentRugFailsReceived || 0)), "number-cell", "Failed / Blocked"),
+      cell(receivedSuccessRate === null ? "--" : formatPercent(receivedSuccessRate), "number-cell", "Received Success"),
       cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell", "Rugs Sent"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies")
     );
@@ -694,7 +741,7 @@ async function refreshDashboard() {
     els.rugTableBody.append(rugTr);
     const ruggedTr = document.createElement("tr");
     ruggedTr.append(cell("Unable to load the public Bakery received rug stats right now.", "empty-cell"));
-    ruggedTr.firstChild.colSpan = 7;
+    ruggedTr.firstChild.colSpan = 10;
     els.ruggedTableBody.append(ruggedTr);
     const simTr = document.createElement("tr");
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
@@ -731,6 +778,10 @@ els.dashboardTab.addEventListener("click", () => {
 
 els.topRugTab.addEventListener("click", () => {
   setActiveView("rug");
+});
+
+els.mostRuggedTab.addEventListener("click", () => {
+  setActiveView("rugged");
 });
 
 els.simulatorTab.addEventListener("click", () => {

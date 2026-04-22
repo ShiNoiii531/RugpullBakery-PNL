@@ -365,12 +365,31 @@ async function getRpcCostEstimate(seasonId, chefAddresses) {
   }
 }
 
-function countSuccessfulIncomingRugs(activityFeed) {
-  return (activityFeed || []).filter((event) => (
-    event.type === "rug" &&
-    event.success &&
-    event.isOutgoing === false
-  )).length;
+function emptyIncomingRugStats() {
+  return {
+    attempts: 0,
+    successful: 0,
+    failed: 0
+  };
+}
+
+function countIncomingRugs(activityFeed) {
+  const stats = emptyIncomingRugStats();
+
+  for (const event of activityFeed || []) {
+    if (event.type !== "rug" || event.isOutgoing !== false) {
+      continue;
+    }
+
+    stats.attempts += 1;
+    if (event.success) {
+      stats.successful += 1;
+    } else {
+      stats.failed += 1;
+    }
+  }
+
+  return stats;
 }
 
 async function getGlobalRugsReceivedByBakeryId() {
@@ -378,19 +397,26 @@ async function getGlobalRugsReceivedByBakeryId() {
     "leaderboard.getGlobalActivityFeed",
     { limit: GLOBAL_ACTIVITY_FEED_LIMIT }
   );
-  const rugsReceivedByBakeryId = new Map();
+  const rugReceivedStatsByBakeryId = new Map();
 
   for (const event of globalActivityFeed || []) {
-    if (event.type !== "rug" || !event.success || !event.eventBakeryId) {
+    if (event.type !== "rug" || !event.eventBakeryId) {
       continue;
     }
 
     const bakeryId = Number(event.eventBakeryId);
-    rugsReceivedByBakeryId.set(bakeryId, (rugsReceivedByBakeryId.get(bakeryId) || 0) + 1);
+    const stats = rugReceivedStatsByBakeryId.get(bakeryId) || emptyIncomingRugStats();
+    stats.attempts += 1;
+    if (event.success) {
+      stats.successful += 1;
+    } else {
+      stats.failed += 1;
+    }
+    rugReceivedStatsByBakeryId.set(bakeryId, stats);
   }
 
   return {
-    rugsReceivedByBakeryId,
+    rugReceivedStatsByBakeryId,
     rugReceivedSource: {
       label: "recent_global_activity_feed",
       eventLimit: GLOBAL_ACTIVITY_FEED_LIMIT,
@@ -423,17 +449,17 @@ async function getTop100BakeryRugsReceived(rows, seasonId) {
     }
     const feeds = (await Promise.all(feedBatchPromises)).flat();
 
-    const rugsReceivedByBakeryId = new Map();
+    const rugReceivedStatsByBakeryId = new Map();
     let scannedEvents = 0;
     for (let index = 0; index < bakeries.length; index += 1) {
       const bakeryId = bakeries[index].bakeryId;
       const feed = feeds[index] || [];
       scannedEvents += Array.isArray(feed) ? feed.length : 0;
-      rugsReceivedByBakeryId.set(bakeryId, countSuccessfulIncomingRugs(feed));
+      rugReceivedStatsByBakeryId.set(bakeryId, countIncomingRugs(feed));
     }
 
     return {
-      rugsReceivedByBakeryId,
+      rugReceivedStatsByBakeryId,
       rugReceivedSource: {
         label: "top100_bakery_activity_feeds",
         bakeryCount: bakeries.length,
@@ -476,7 +502,7 @@ async function buildDashboard() {
       : Promise.resolve([]),
     getRpcCostEstimate(activeSeason.id, addresses)
   ]);
-  const { rugsReceivedByBakeryId, rugReceivedSource } = rugReceivedData;
+  const { rugReceivedStatsByBakeryId, rugReceivedSource } = rugReceivedData;
   const profileNameByAddress = new Map(
     profiles.map((entry) => [entry.address.toLowerCase(), entry.profile?.name || null])
   );
@@ -520,6 +546,7 @@ async function buildDashboard() {
         : "0";
       const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
       const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
+      const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
         ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
@@ -534,7 +561,9 @@ async function buildDashboard() {
         cookieBalance: row.cookieBalance || row.txCount || "0",
         rugAttempts: Number(topChefStats?.rugAttempts || 0),
         rugLanded: Number(topChefStats?.rugLanded || 0),
-        recentRugsReceived: rugsReceivedByBakeryId.get(Number(row.id)) || 0,
+        recentRugsReceived: rugReceivedStats.successful,
+        recentRugAttemptsReceived: rugReceivedStats.attempts,
+        recentRugFailsReceived: rugReceivedStats.failed,
         boostAttempts: Number(topChefStats?.boostAttempts || 0),
         boostLanded: Number(topChefStats?.boostLanded || 0),
         grossPrizeWei,
