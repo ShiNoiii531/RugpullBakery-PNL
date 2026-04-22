@@ -477,6 +477,31 @@ function myBakeryMetric(label, value, className = "") {
   return item;
 }
 
+function pnlCardChefScene() {
+  const scene = document.createElement("div");
+  scene.className = "pnl-card-chef-scene";
+  scene.setAttribute("aria-hidden", "true");
+
+  const chef = document.createElement("div");
+  chef.className = "pnl-card-chef";
+  ["hat", "face", "ear", "scarf", "body", "arm-left", "arm-right"].forEach((part) => {
+    const node = document.createElement("span");
+    node.className = `pnl-chef-${part}`;
+    chef.append(node);
+  });
+
+  const tray = document.createElement("div");
+  tray.className = "pnl-cookie-tray";
+  for (let index = 0; index < 5; index += 1) {
+    const cookie = document.createElement("span");
+    cookie.className = "pnl-tray-cookie";
+    tray.append(cookie);
+  }
+
+  scene.append(chef, tray);
+  return scene;
+}
+
 function findMyBakeryRow(rows) {
   const query = (els.myBakeryInput.value || "").trim().toLowerCase();
   if (!query) {
@@ -579,11 +604,12 @@ function renderMyBakery(rows) {
     myBakeryMetric("Cost Source", costSourceLabel(row.costSource))
   );
 
+  const chefScene = pnlCardChefScene();
   const footer = document.createElement("p");
   footer.className = "my-bakery-footnote";
   footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
 
-  els.myBakeryCard.append(head, pnl, metrics, footer);
+  els.myBakeryCard.append(head, pnl, chefScene, metrics, footer);
 }
 
 function slugify(value) {
@@ -638,6 +664,112 @@ function drawShareMetric(ctx, label, value, x, y, width) {
   ctx.fillText(value, x + 22, y + 74);
 }
 
+function drawChefCookingCookies(ctx, x, y, scale = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = "rgba(124, 67, 41, 0.18)";
+  ctx.beginPath();
+  ctx.ellipse(125, 214, 100, 18, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#4b4c45";
+  ctx.fillRect(86, 156, 28, 52);
+  ctx.fillRect(144, 156, 28, 52);
+  ctx.fillStyle = "#ffffff";
+  drawRoundRect(ctx, 60, 82, 136, 106, 26);
+  ctx.fill();
+  ctx.strokeStyle = "#d8d0c4";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  ctx.fillStyle = "#b73b3b";
+  ctx.beginPath();
+  ctx.moveTo(76, 96);
+  ctx.quadraticCurveTo(126, 116, 182, 96);
+  ctx.lineTo(166, 134);
+  ctx.quadraticCurveTo(126, 122, 88, 134);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffd0b5";
+  ctx.beginPath();
+  ctx.ellipse(128, 72, 64, 58, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(186, 76, 18, 24, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.ellipse(98, 18, 48, 34, 0, 0, Math.PI * 2);
+  ctx.ellipse(140, 6, 54, 38, 0, 0, Math.PI * 2);
+  ctx.ellipse(182, 22, 46, 32, 0, 0, Math.PI * 2);
+  ctx.fill();
+  drawRoundRect(ctx, 82, 28, 104, 42, 14);
+  ctx.fill();
+
+  ctx.fillStyle = "#493024";
+  ctx.beginPath();
+  ctx.arc(106, 68, 6, 0, Math.PI * 2);
+  ctx.arc(154, 68, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#493024";
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.arc(130, 82, 18, 0.15 * Math.PI, 0.85 * Math.PI);
+  ctx.stroke();
+  ctx.fillStyle = "#f29a93";
+  ctx.beginPath();
+  ctx.ellipse(164, 86, 22, 12, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#ffd0b5";
+  ctx.lineWidth = 18;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(68, 120);
+  ctx.lineTo(26, 154);
+  ctx.moveTo(188, 124);
+  ctx.lineTo(232, 154);
+  ctx.stroke();
+
+  ctx.fillStyle = "#6b4631";
+  drawRoundRect(ctx, 18, 142, 228, 24, 12);
+  ctx.fill();
+  ctx.fillStyle = "#c87942";
+  drawRoundRect(ctx, 30, 126, 204, 36, 16);
+  ctx.fill();
+
+  const cookies = [
+    [58, 140, 18],
+    [100, 137, 20],
+    [144, 140, 18],
+    [188, 136, 20]
+  ];
+  for (const [cx, cy, radius] of cookies) {
+    ctx.fillStyle = "#f6c96f";
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#6f3d24";
+    ctx.beginPath();
+    ctx.arc(cx - 5, cy - 4, 4, 0, Math.PI * 2);
+    ctx.arc(cx + 6, cy + 2, 4, 0, Math.PI * 2);
+    ctx.arc(cx - 1, cy + 7, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "#493024";
+  ctx.beginPath();
+  ctx.arc(108, 130, 6, 0, Math.PI * 2);
+  ctx.arc(148, 130, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
 function createPnlShareCanvas(row) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
@@ -683,6 +815,7 @@ function createPnlShareCanvas(row) {
   ctx.fillStyle = "#7d675a";
   fitCanvasText(ctx, row.bakeryName || "Bakery", 340, 28, 20, 900);
   ctx.fillText(row.bakeryName || "Bakery", 746, 194);
+  drawChefCookingCookies(ctx, 864, 216, 0.94);
 
   const pnlColor = Number(row.pnlEth || 0) >= 0 ? "#2d875e" : "#b94b42";
   ctx.fillStyle = pnlColor;
@@ -734,14 +867,14 @@ async function shareMyPnlCard() {
       throw new Error("Unable to generate share card");
     }
 
-    const filename = `rugpull-bakery-pnl-${slugify(row.chefName || row.bakeryName || row.chefAddress)}.png`;
-    const title = `${row.chefName || "My Bakery"} Rugpull Bakery P&L`;
+    const filename = `rugpull-bakery-pnl-card-${slugify(row.chefName || row.bakeryName || row.chefAddress)}.png`;
+    const title = `${row.chefName || "P&L Card"} Rugpull Bakery P&L`;
     if (typeof File !== "undefined" && navigator.canShare && navigator.share) {
       const file = new File([blob], filename, { type: "image/png" });
       if (navigator.canShare({ files: [file] })) {
         await navigator.share({
           title,
-          text: `${row.chefName || "My Bakery"} projected P&L: ${moneyLabel(row.pnlEth, { signed: true })}`,
+          text: `${row.chefName || "P&L Card"} projected P&L: ${moneyLabel(row.pnlEth, { signed: true })}`,
           files: [file]
         });
         els.shareStatus.textContent = "Share card ready.";

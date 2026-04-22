@@ -741,6 +741,8 @@ body[data-theme="dark"] .my-bakery-avatar {
   z-index: 1;
   display: grid;
   gap: 4px;
+  min-height: 118px;
+  padding-right: 250px;
 }
 
 .my-bakery-pnl span {
@@ -771,6 +773,182 @@ body[data-theme="dark"] .my-bakery-avatar {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
+}
+
+.pnl-card-chef-scene {
+  position: absolute;
+  top: 106px;
+  right: 18px;
+  z-index: 1;
+  width: 226px;
+  height: 178px;
+  pointer-events: none;
+}
+
+.pnl-card-chef-scene::before {
+  content: "";
+  position: absolute;
+  right: 16px;
+  bottom: 4px;
+  width: 180px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(124, 67, 41, 0.14);
+}
+
+.pnl-card-chef {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  width: 130px;
+  height: 142px;
+}
+
+.pnl-chef-hat {
+  position: absolute;
+  left: 24px;
+  top: 0;
+  width: 84px;
+  height: 42px;
+  border-radius: 42px 42px 14px 14px;
+  background:
+    radial-gradient(circle at 20px 20px, #fff 0 22px, transparent 23px),
+    radial-gradient(circle at 48px 10px, #fff 0 28px, transparent 29px),
+    radial-gradient(circle at 76px 22px, #fff 0 21px, transparent 22px),
+    #fff;
+  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.08);
+}
+
+.pnl-chef-face {
+  position: absolute;
+  left: 25px;
+  top: 32px;
+  width: 82px;
+  height: 72px;
+  border-radius: 48% 48% 44% 44%;
+  background:
+    radial-gradient(circle at 29px 30px, #493024 0 4px, transparent 5px),
+    radial-gradient(circle at 58px 30px, #493024 0 4px, transparent 5px),
+    radial-gradient(ellipse at 65px 50px, #f29a93 0 12px, transparent 13px),
+    #ffd0b5;
+}
+
+.pnl-chef-face::after {
+  content: "";
+  position: absolute;
+  left: 33px;
+  top: 43px;
+  width: 20px;
+  height: 11px;
+  border-right: 3px solid #493024;
+  border-bottom: 3px solid #493024;
+  border-left: 3px solid #493024;
+  border-radius: 0 0 20px 20px;
+}
+
+.pnl-chef-ear {
+  position: absolute;
+  right: 12px;
+  top: 56px;
+  width: 22px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f0b294;
+}
+
+.pnl-chef-scarf {
+  position: absolute;
+  left: 34px;
+  top: 92px;
+  width: 64px;
+  height: 26px;
+  border-radius: 0 0 26px 26px;
+  background: #b73b3b;
+}
+
+.pnl-chef-body {
+  position: absolute;
+  left: 22px;
+  top: 104px;
+  width: 88px;
+  height: 50px;
+  border-radius: 20px 20px 14px 14px;
+  background:
+    radial-gradient(circle at 34px 24px, #493024 0 4px, transparent 5px),
+    radial-gradient(circle at 58px 24px, #493024 0 4px, transparent 5px),
+    #fff;
+  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.08);
+}
+
+.pnl-chef-arm-left,
+.pnl-chef-arm-right {
+  position: absolute;
+  top: 112px;
+  width: 56px;
+  height: 18px;
+  border-radius: 18px;
+  background: #ffd0b5;
+}
+
+.pnl-chef-arm-left {
+  left: -10px;
+  transform: rotate(-23deg);
+}
+
+.pnl-chef-arm-right {
+  right: -18px;
+  transform: rotate(22deg);
+}
+
+.pnl-cookie-tray {
+  position: absolute;
+  left: 6px;
+  bottom: 27px;
+  width: 206px;
+  height: 36px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #d88b50, #9a5e34);
+  box-shadow: inset 0 -6px 0 rgba(73, 48, 36, 0.2), 0 5px 0 rgba(73, 48, 36, 0.12);
+  transform: rotate(-2deg);
+}
+
+.pnl-tray-cookie {
+  position: absolute;
+  top: -10px;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 10px 9px, #6f3d24 0 4px, transparent 5px),
+    radial-gradient(circle at 20px 15px, #6f3d24 0 4px, transparent 5px),
+    radial-gradient(circle at 14px 22px, #6f3d24 0 3px, transparent 4px),
+    #f6c96f;
+  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.16);
+}
+
+.pnl-tray-cookie:nth-child(1) {
+  left: 24px;
+}
+
+.pnl-tray-cookie:nth-child(2) {
+  left: 62px;
+  top: -15px;
+}
+
+.pnl-tray-cookie:nth-child(3) {
+  left: 103px;
+}
+
+.pnl-tray-cookie:nth-child(4) {
+  left: 143px;
+  top: -14px;
+}
+
+.pnl-tray-cookie:nth-child(5) {
+  left: 172px;
+  top: 2px;
+  width: 22px;
+  height: 22px;
 }
 
 .my-bakery-metric {
@@ -1184,6 +1362,22 @@ body[data-theme="dark"] .player-avatar {
 
   .my-bakery-card-head {
     align-items: flex-start;
+  }
+
+  .my-bakery-pnl {
+    min-height: 0;
+    padding-right: 0;
+  }
+
+  .pnl-card-chef-scene {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: min(100%, 226px);
+    height: 178px;
+    justify-self: center;
+    margin-top: -4px;
+    margin-bottom: -4px;
   }
 
   .my-bakery-rank {
