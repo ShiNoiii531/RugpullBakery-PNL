@@ -11,7 +11,12 @@ const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
 const COST_SAMPLE_BLOCKS = positiveNumber(process.env.BAKERY_COST_SAMPLE_BLOCKS, 180);
 const COST_SAMPLE_MAX_TXS = positiveNumber(process.env.BAKERY_COST_SAMPLE_MAX_TXS, 150);
-const ACTIVITY_FEED_LIMIT = 100;
+const GLOBAL_ACTIVITY_FEED_LIMIT = 100;
+const BAKERY_ACTIVITY_FEED_LIMIT = 100;
+const BAKERY_ACTIVITY_BATCH_SIZE = Math.max(
+  1,
+  Math.floor(positiveNumber(process.env.BAKERY_ACTIVITY_BATCH_SIZE, 12))
+);
 
 const LEADERBOARD_PAYOUTS = [
   { minRank: 1, maxRank: 1, sharePct: 7.5 },
@@ -119,6 +124,47 @@ async function fetchBakeryTrpc(procedure, input) {
   }
 
   return first.result.data.json;
+}
+
+async function fetchBakeryTrpcBatch(procedure, inputs) {
+  if (inputs.length === 0) {
+    return [];
+  }
+
+  const endpoint = new URL(`${BAKERY_APP_URL}/api/trpc/${inputs.map(() => procedure).join(",")}`);
+  const batchedInput = {};
+  inputs.forEach((input, index) => {
+    batchedInput[index] = { json: input };
+  });
+  endpoint.searchParams.set("batch", "1");
+  endpoint.searchParams.set("input", JSON.stringify(batchedInput));
+
+  const response = await fetch(endpoint, {
+    headers: {
+      "x-trpc-source": "nextjs-react"
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`Bakery ${procedure} batch failed with ${response.status}`);
+  }
+
+  const payload = await response.json();
+  if (!Array.isArray(payload)) {
+    throw new Error(`Bakery ${procedure} batch returned an unexpected payload`);
+  }
+
+  return payload.map((entry) => {
+    if (entry?.error) {
+      throw new Error(entry.error.message || `Bakery ${procedure} batch entry returned an error`);
+    }
+
+    if (!entry?.result?.data || !("json" in entry.result.data)) {
+      throw new Error(`Bakery ${procedure} batch entry returned an unexpected payload`);
+    }
+
+    return entry.result.data.json;
+  });
 }
 
 async function rpcCall(method, params = []) {
@@ -319,6 +365,91 @@ async function getRpcCostEstimate(seasonId, chefAddresses) {
   }
 }
 
+function countSuccessfulIncomingRugs(activityFeed) {
+  return (activityFeed || []).filter((event) => (
+    event.type === "rug" &&
+    event.success &&
+    event.isOutgoing === false
+  )).length;
+}
+
+async function getGlobalRugsReceivedByBakeryId() {
+  const globalActivityFeed = await fetchBakeryTrpc(
+    "leaderboard.getGlobalActivityFeed",
+    { limit: GLOBAL_ACTIVITY_FEED_LIMIT }
+  );
+  const rugsReceivedByBakeryId = new Map();
+
+  for (const event of globalActivityFeed || []) {
+    if (event.type !== "rug" || !event.success || !event.eventBakeryId) {
+      continue;
+    }
+
+    const bakeryId = Number(event.eventBakeryId);
+    rugsReceivedByBakeryId.set(bakeryId, (rugsReceivedByBakeryId.get(bakeryId) || 0) + 1);
+  }
+
+  return {
+    rugsReceivedByBakeryId,
+    rugReceivedSource: {
+      label: "recent_global_activity_feed",
+      eventLimit: GLOBAL_ACTIVITY_FEED_LIMIT,
+      scannedEvents: Array.isArray(globalActivityFeed) ? globalActivityFeed.length : 0,
+      updatedAt: new Date().toISOString()
+    }
+  };
+}
+
+async function getTop100BakeryRugsReceived(rows, seasonId) {
+  const bakeries = rows
+    .map((row) => ({ bakeryId: Number(row.id) }))
+    .filter((row) => Number.isFinite(row.bakeryId) && row.bakeryId > 0);
+
+  if (bakeries.length === 0) {
+    return getGlobalRugsReceivedByBakeryId();
+  }
+
+  try {
+    const inputs = bakeries.map((row) => ({
+      bakeryId: row.bakeryId,
+      seasonId,
+      limit: BAKERY_ACTIVITY_FEED_LIMIT
+    }));
+    const feedBatchPromises = [];
+
+    for (let index = 0; index < inputs.length; index += BAKERY_ACTIVITY_BATCH_SIZE) {
+      const batchInputs = inputs.slice(index, index + BAKERY_ACTIVITY_BATCH_SIZE);
+      feedBatchPromises.push(fetchBakeryTrpcBatch("leaderboard.getActivityFeed", batchInputs));
+    }
+    const feeds = (await Promise.all(feedBatchPromises)).flat();
+
+    const rugsReceivedByBakeryId = new Map();
+    let scannedEvents = 0;
+    for (let index = 0; index < bakeries.length; index += 1) {
+      const bakeryId = bakeries[index].bakeryId;
+      const feed = feeds[index] || [];
+      scannedEvents += Array.isArray(feed) ? feed.length : 0;
+      rugsReceivedByBakeryId.set(bakeryId, countSuccessfulIncomingRugs(feed));
+    }
+
+    return {
+      rugsReceivedByBakeryId,
+      rugReceivedSource: {
+        label: "top100_bakery_activity_feeds",
+        bakeryCount: bakeries.length,
+        eventLimitPerBakery: BAKERY_ACTIVITY_FEED_LIMIT,
+        maxEvents: bakeries.length * BAKERY_ACTIVITY_FEED_LIMIT,
+        scannedEvents,
+        updatedAt: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    const fallback = await getGlobalRugsReceivedByBakeryId();
+    fallback.rugReceivedSource.fallbackReason = error instanceof Error ? error.message : String(error);
+    return fallback;
+  }
+}
+
 async function buildDashboard() {
   const seasons = await fetchBakeryTrpc("leaderboard.getActiveSeason", null);
   const activeSeason = seasons.find((season) => season.isActive !== false) || seasons[0];
@@ -326,30 +457,26 @@ async function buildDashboard() {
     throw new Error("No active Bakery season found");
   }
 
-  const [leaderboard, topChefs, globalActivityFeed] = await Promise.all([
+  const [leaderboard, topChefs] = await Promise.all([
     fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 }),
-    fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId: activeSeason.id, limit: 100 }),
-    fetchBakeryTrpc("leaderboard.getGlobalActivityFeed", { limit: ACTIVITY_FEED_LIMIT })
+    fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId: activeSeason.id, limit: 100 })
   ]);
   const rows = leaderboard.items.slice(0, 100);
   const topChefStatsByAddress = new Map(
     (topChefs.items || []).map((chef) => [chef.address.toLowerCase(), chef])
   );
-  const recentRugsReceivedByBakeryId = new Map();
-  for (const event of globalActivityFeed || []) {
-    if (event.type !== "rug" || !event.success || !event.eventBakeryId) {
-      continue;
-    }
-    const bakeryId = Number(event.eventBakeryId);
-    recentRugsReceivedByBakeryId.set(bakeryId, (recentRugsReceivedByBakeryId.get(bakeryId) || 0) + 1);
-  }
   const addresses = [...new Set(rows
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
-  const profiles = addresses.length > 0
-    ? await fetchBakeryTrpc("profiles.getByAddresses", { addresses })
-    : [];
+  const [rugReceivedData, profiles, costEstimate] = await Promise.all([
+    getTop100BakeryRugsReceived(rows, activeSeason.id),
+    addresses.length > 0
+      ? fetchBakeryTrpc("profiles.getByAddresses", { addresses })
+      : Promise.resolve([]),
+    getRpcCostEstimate(activeSeason.id, addresses)
+  ]);
+  const { rugsReceivedByBakeryId, rugReceivedSource } = rugReceivedData;
   const profileNameByAddress = new Map(
     profiles.map((entry) => [entry.address.toLowerCase(), entry.profile?.name || null])
   );
@@ -361,7 +488,6 @@ async function buildDashboard() {
     (total, row) => total + BigInt(row.cookiesBaked || row.rawTxCount || "0"),
     0n
   ).toString();
-  const costEstimate = await getRpcCostEstimate(activeSeason.id, addresses);
   const estimatedCostPerMillionWei = BigInt(costEstimate.estimatedCostPerMillionWei || "0");
 
   return {
@@ -379,11 +505,7 @@ async function buildDashboard() {
     leaderboardPayouts: LEADERBOARD_PAYOUTS,
     activityTiers: ACTIVITY_TIERS,
     totalTop100CookiesBaked,
-    rugReceivedSource: {
-      label: "recent_global_activity_feed",
-      eventLimit: ACTIVITY_FEED_LIMIT,
-      updatedAt: new Date().toISOString()
-    },
+    rugReceivedSource,
     sourceUrl: BAKERY_SOURCE_URL,
     docsUrl: BAKERY_DOCS_PAYOUT_URL,
     costEstimate,
@@ -412,7 +534,7 @@ async function buildDashboard() {
         cookieBalance: row.cookieBalance || row.txCount || "0",
         rugAttempts: Number(topChefStats?.rugAttempts || 0),
         rugLanded: Number(topChefStats?.rugLanded || 0),
-        recentRugsReceived: recentRugsReceivedByBakeryId.get(Number(row.id)) || 0,
+        recentRugsReceived: rugsReceivedByBakeryId.get(Number(row.id)) || 0,
         boostAttempts: Number(topChefStats?.boostAttempts || 0),
         boostLanded: Number(topChefStats?.boostLanded || 0),
         grossPrizeWei,

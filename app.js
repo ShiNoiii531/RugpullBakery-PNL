@@ -434,8 +434,11 @@ function renderTopRug(rows) {
   els.mostRuggedBakeryValue.textContent = mostRuggedRow
     ? `${mostRuggedRow.bakeryName || "-"} · Top 100 #${mostRuggedRow.rank}`
     : "Recent received rugs";
-  els.rugReceivedSourceValue.textContent =
-    `Recent successful rugs received by Top 100 bakeries from the latest ${dashboard.rugReceivedSource?.eventLimit || 100} global activity events. Total counted: ${numberFormatter.format(totalReceived)}.`;
+  const rugReceivedSource = dashboard.rugReceivedSource || {};
+  const sourceText = rugReceivedSource.label === "top100_bakery_activity_feeds"
+    ? `Successful rugs received by Top 100 bakeries from up to ${numberFormatter.format(rugReceivedSource.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(rugReceivedSource.scannedEvents || 0)} / ${numberFormatter.format(rugReceivedSource.maxEvents || 0)}. Total counted: ${numberFormatter.format(totalReceived)}.`
+    : `Recent successful rugs received by Top 100 bakeries from the latest ${numberFormatter.format(rugReceivedSource.eventLimit || 100)} global activity events. Total counted: ${numberFormatter.format(totalReceived)}.`;
+  els.rugReceivedSourceValue.textContent = sourceText;
   els.rugRowCount.textContent = `${sortedRows.length} rows`;
   els.ruggedRowCount.textContent = `${ruggedRows.length} rows`;
 
