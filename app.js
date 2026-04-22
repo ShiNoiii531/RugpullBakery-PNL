@@ -171,8 +171,7 @@ function updateEthPriceStatus() {
   }
 
   if (currentEthPrice() > 0) {
-    const time = ethPriceUpdatedAt ? new Date(ethPriceUpdatedAt).toLocaleTimeString() : "live";
-    els.ethPriceStatus.textContent = `${formatUsd(ethPriceUsd)} ${time}`;
+    els.ethPriceStatus.textContent = formatUsd(ethPriceUsd);
     return;
   }
 
@@ -216,8 +215,8 @@ async function refreshEthPrice() {
 
 function setCurrencyMode(mode, shouldPersist = true) {
   currencyMode = mode === "usd" ? "usd" : "eth";
-  els.currencyToggle.textContent = currencyMode.toUpperCase();
   els.currencyToggle.setAttribute("aria-pressed", String(currencyMode === "usd"));
+  els.currencyToggle.setAttribute("aria-label", currencyMode === "usd" ? "Showing USD values" : "Showing ETH values");
   els.currencyToggle.title = currencyMode === "usd" ? "Showing USD values" : "Showing ETH values";
 
   if (shouldPersist) {
@@ -234,8 +233,8 @@ function setCurrencyMode(mode, shouldPersist = true) {
 function setThemeMode(mode, shouldPersist = true) {
   themeMode = mode === "dark" ? "dark" : "light";
   document.body.dataset.theme = themeMode;
-  els.themeToggle.textContent = themeMode === "dark" ? "Light" : "Dark";
   els.themeToggle.setAttribute("aria-pressed", String(themeMode === "dark"));
+  els.themeToggle.setAttribute("aria-label", themeMode === "dark" ? "Dark mode enabled" : "Light mode enabled");
   els.themeToggle.title = themeMode === "dark" ? "Switch to light mode" : "Switch to dark mode";
 
   if (shouldPersist) {
