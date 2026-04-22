@@ -251,13 +251,12 @@ async function loadCostCache() {
   }
 }
 
-function exactCostFromCache(costCache, seasonId, chefAddress) {
+function costFromCache(costCache, seasonId, chefAddress) {
   const normalizedAddress = chefAddress?.toLowerCase();
   const entry = costCache?.chefs?.[normalizedAddress];
   if (
     !entry ||
     Number(costCache.seasonId) !== Number(seasonId) ||
-    entry.complete !== true ||
     typeof entry.gasCostWei !== "string"
   ) {
     return null;
@@ -266,6 +265,7 @@ function exactCostFromCache(costCache, seasonId, chefAddress) {
   return {
     costWei: entry.gasCostWei,
     costEth: weiToEthNumber(entry.gasCostWei),
+    complete: entry.complete === true,
     cookTxCount: Number(entry.cookTxCount || 0),
     cookiesRaw: entry.cookiesRaw || "0",
     updatedAt: costCache.updatedAt || entry.updatedAt || null,
@@ -674,11 +674,22 @@ async function buildDashboard() {
       const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
       const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
       const abstractProfile = abstractProfilesByAddress.get(normalizedChefAddress);
-      const exactCost = exactCostFromCache(costCache, activeSeason.id, normalizedChefAddress);
+      const cachedCost = costFromCache(costCache, activeSeason.id, normalizedChefAddress);
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
         ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
-      const costWei = exactCost?.costWei || estimatedCostWei;
+      const cacheCookiesRaw = BigInt(cachedCost?.cookiesRaw || "0");
+      const missingCookiesRaw = cachedCost?.complete
+        ? 0n
+        : BigInt(cookiesBaked) > cacheCookiesRaw
+          ? BigInt(cookiesBaked) - cacheCookiesRaw
+          : 0n;
+      const estimatedMissingCostWei = estimatedCostPerMillionWei > 0n
+        ? safeDivideBigInt(missingCookiesRaw * estimatedCostPerMillionWei, 1_000_000n)
+        : 0n;
+      const costWei = cachedCost
+        ? (BigInt(cachedCost.costWei || "0") + estimatedMissingCostWei).toString()
+        : estimatedCostWei;
 
       return {
         rank,
@@ -702,10 +713,12 @@ async function buildDashboard() {
         leaderboardSharePct,
         estimatedCostWei: costWei,
         estimatedCostEth: weiToEthNumber(costWei),
-        costSource: exactCost ? "exact_gas_cache" : "abstract_rpc_recent_sample",
-        exactCookTxCount: exactCost?.cookTxCount || null,
-        exactCostUpdatedAt: exactCost?.updatedAt || null,
-        exactCostToBlock: exactCost?.toBlock ?? null
+        costSource: cachedCost
+          ? cachedCost.complete ? "exact_gas_cache" : "partial_gas_cache"
+          : "abstract_rpc_recent_sample",
+        exactCookTxCount: cachedCost?.cookTxCount || null,
+        exactCostUpdatedAt: cachedCost?.updatedAt || null,
+        exactCostToBlock: cachedCost?.toBlock ?? null
       };
     })
   };

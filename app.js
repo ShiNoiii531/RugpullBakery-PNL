@@ -758,10 +758,12 @@ function renderDashboard() {
 
   if (manualCostPerMillion > 0) {
     els.costSourceValue.textContent = `${moneyLabel(manualCostPerMillion)} / 1M manual`;
-  } else if ((dashboard.rows || []).some((row) => row.costSource === "exact_gas_cache")) {
+  } else if ((dashboard.rows || []).some((row) => row.costSource === "exact_gas_cache" || row.costSource === "partial_gas_cache")) {
     const exactRows = (dashboard.rows || []).filter((row) => row.costSource === "exact_gas_cache").length;
-    els.costSourceValue.textContent =
-      `Exact gas cache ${exactRows}/${(dashboard.rows || []).length} · ${formatShortDateTime(dashboard.costCache?.updatedAt)}`;
+    const partialRows = (dashboard.rows || []).filter((row) => row.costSource === "partial_gas_cache").length;
+    els.costSourceValue.textContent = partialRows > 0
+      ? `Gas cache ${exactRows} exact / ${partialRows} partial · ${formatShortDateTime(dashboard.costCache?.updatedAt)}`
+      : `Exact gas cache ${exactRows}/${(dashboard.rows || []).length} · ${formatShortDateTime(dashboard.costCache?.updatedAt)}`;
   } else if (dashboard.costCache?.status === "partial") {
     els.costSourceValue.textContent =
       `Exact gas cache syncing ${dashboard.costCache.completeChefCount || 0}/${dashboard.costCache.top100AddressCount || 100} · estimate fallback`;

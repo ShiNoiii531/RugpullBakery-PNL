@@ -26,11 +26,13 @@ jobs:
 
       - name: Update cache
         env:
-          COST_CACHE_MAX_BLOCKS: 60000
-          COST_CACHE_MAX_TXS: 30000
-          COST_CACHE_LOG_BLOCK_SPAN: 250
-          COST_CACHE_RECEIPT_BATCH_SIZE: 100
-          COST_CACHE_THROTTLE_MS: 80
+          COST_CACHE_MAX_BLOCKS: 30000
+          COST_CACHE_MAX_TXS: 300000
+          COST_CACHE_LOG_BLOCK_SPAN: 1000
+          COST_CACHE_BLOCK_RECEIPT_BATCH_SIZE: 12
+          COST_CACHE_RECEIPT_BATCH_SIZE: 50
+          COST_CACHE_CHECKPOINT_CHUNKS: 1
+          COST_CACHE_THROTTLE_MS: 25
         run: npm run update:cost-cache
 
       - name: Commit cache

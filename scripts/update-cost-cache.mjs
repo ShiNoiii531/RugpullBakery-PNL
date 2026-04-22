@@ -14,6 +14,8 @@ const MAX_BLOCKS_PER_RUN = positiveInteger(process.env.COST_CACHE_MAX_BLOCKS, 60
 const MAX_TXS_PER_RUN = positiveInteger(process.env.COST_CACHE_MAX_TXS, 30_000);
 const LOG_BLOCK_SPAN = BigInt(positiveInteger(process.env.COST_CACHE_LOG_BLOCK_SPAN, 250));
 const RECEIPT_BATCH_SIZE = positiveInteger(process.env.COST_CACHE_RECEIPT_BATCH_SIZE, 100);
+const BLOCK_RECEIPT_BATCH_SIZE = positiveInteger(process.env.COST_CACHE_BLOCK_RECEIPT_BATCH_SIZE, 20);
+const CHECKPOINT_CHUNK_INTERVAL = positiveInteger(process.env.COST_CACHE_CHECKPOINT_CHUNKS, 10);
 const THROTTLE_MS = positiveInteger(process.env.COST_CACHE_THROTTLE_MS, 80);
 
 function positiveInteger(value, fallback) {
@@ -67,8 +69,19 @@ function blockNumber(log) {
 
 async function fetchJson(url, options = {}, label = "request") {
   for (let attempt = 1; attempt <= 5; attempt += 1) {
-    const response = await fetch(url, options);
-    const text = await response.text();
+    let response;
+    let text;
+    try {
+      response = await fetch(url, options);
+      text = await response.text();
+    } catch (error) {
+      if (attempt < 5) {
+        await sleep(750 * attempt);
+        continue;
+      }
+      throw new Error(`${label} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
     if (!response.ok) {
       if ((response.status === 429 || response.status >= 500) && attempt < 5) {
         await sleep(500 * attempt);
@@ -128,7 +141,7 @@ async function rpcCall(method, params = []) {
   return payload.result;
 }
 
-async function rpcBatch(calls) {
+async function rpcBatch(calls, allowSplit = true) {
   if (calls.length === 0) {
     return [];
   }
@@ -148,6 +161,13 @@ async function rpcBatch(calls) {
     }, "Abstract RPC batch");
 
     if (!Array.isArray(payload)) {
+      if (allowSplit && calls.length > 1) {
+        const middle = Math.ceil(calls.length / 2);
+        return [
+          ...await rpcBatch(calls.slice(0, middle), true),
+          ...await rpcBatch(calls.slice(middle), true)
+        ];
+      }
       if (attempt < 5) {
         await sleep(500 * attempt);
         continue;
@@ -239,6 +259,11 @@ async function readCache() {
   }
 }
 
+async function writeCache(cache) {
+  await mkdir(dirname(CACHE_PATH), { recursive: true });
+  await writeFile(CACHE_PATH, `${JSON.stringify(cache, null, 2)}\n`);
+}
+
 function emptyEntry(address, seasonStartBlock) {
   return {
     address,
@@ -294,6 +319,61 @@ async function fetchReceiptsByHash(hashes) {
   return receiptsByHash;
 }
 
+async function fetchReceiptsByBlockNumbers(blockNumbers) {
+  const receiptsByHash = new Map();
+  const uniqueBlockNumbers = [...new Set(blockNumbers)]
+    .filter((value) => Number.isFinite(value) && value > 0)
+    .sort((a, b) => a - b);
+
+  for (let index = 0; index < uniqueBlockNumbers.length; index += BLOCK_RECEIPT_BATCH_SIZE) {
+    const batch = uniqueBlockNumbers.slice(index, index + BLOCK_RECEIPT_BATCH_SIZE);
+    const blockReceipts = await rpcBatch(batch.map((block) => ({
+      method: "eth_getBlockReceipts",
+      params: [bigintToHex(BigInt(block))]
+    })));
+
+    blockReceipts.forEach((receipts, blockIndex) => {
+      if (!Array.isArray(receipts)) {
+        throw new Error(`Abstract RPC eth_getBlockReceipts returned no receipts for block ${batch[blockIndex]}`);
+      }
+
+      for (const receipt of receipts) {
+        const hash = receipt?.transactionHash?.toLowerCase();
+        if (hash) {
+          receiptsByHash.set(hash, receipt);
+        }
+      }
+    });
+
+    if (THROTTLE_MS > 0 && index + BLOCK_RECEIPT_BATCH_SIZE < uniqueBlockNumbers.length) {
+      await sleep(THROTTLE_MS);
+    }
+  }
+
+  return receiptsByHash;
+}
+
+async function fetchReceiptsForLogs(logs, hashes) {
+  if (hashes.length === 0) {
+    return new Map();
+  }
+
+  try {
+    const receiptsByHash = await fetchReceiptsByBlockNumbers(logs.map(blockNumber));
+    const missingHashes = hashes.filter((hash) => !receiptsByHash.has(hash));
+    if (missingHashes.length > 0) {
+      const fallbackReceipts = await fetchReceiptsByHash(missingHashes);
+      for (const [hash, receipt] of fallbackReceipts.entries()) {
+        receiptsByHash.set(hash, receipt);
+      }
+    }
+    return receiptsByHash;
+  } catch (error) {
+    console.warn(`Block receipt lookup failed, falling back to tx receipts: ${error.message}`);
+    return fetchReceiptsByHash(hashes);
+  }
+}
+
 function receiptGasCostWei(receipt) {
   if (!receipt || receipt.status !== "0x1") {
     return null;
@@ -327,6 +407,23 @@ function cacheSummary(cache, top100Addresses, latestBlock) {
   cache.top100AddressCount = top100Addresses.length;
   cache.completeChefCount = completeChefCount;
   cache.status = completeChefCount === top100Addresses.length ? "ready" : "partial";
+}
+
+function updateRunMetadata(cache, startedAt, top100Addresses, latestBlock, blocksScanned, txsProcessed, stoppedByBudget) {
+  cache.latestKnownBlock = Number(latestBlock);
+  cache.updatedAt = new Date().toISOString();
+  cache.lastRun = {
+    startedAt,
+    completedAt: cache.updatedAt,
+    blocksScanned,
+    txsProcessed,
+    stoppedByBudget,
+    maxBlocksPerRun: MAX_BLOCKS_PER_RUN,
+    maxTxsPerRun: MAX_TXS_PER_RUN,
+    blockReceiptBatchSize: BLOCK_RECEIPT_BATCH_SIZE,
+    checkpointChunkInterval: CHECKPOINT_CHUNK_INTERVAL
+  };
+  cacheSummary(cache, top100Addresses, latestBlock);
 }
 
 async function main() {
@@ -364,6 +461,7 @@ async function main() {
   let blocksScanned = 0;
   let txsProcessed = 0;
   let stoppedByBudget = false;
+  let chunksProcessed = 0;
 
   const groups = new Map();
   for (const address of pendingAddresses) {
@@ -401,7 +499,7 @@ async function main() {
         break;
       }
 
-      const receiptsByHash = await fetchReceiptsByHash(hashes);
+      const receiptsByHash = await fetchReceiptsForLogs(logs, hashes);
       const seenHashes = new Set();
       let chunkTxs = 0;
 
@@ -433,7 +531,13 @@ async function main() {
 
       blocksScanned += Number(toBlock - cursor + 1n);
       txsProcessed += chunkTxs;
+      chunksProcessed += 1;
       cursor = toBlock + 1n;
+
+      if (chunksProcessed % CHECKPOINT_CHUNK_INTERVAL === 0) {
+        updateRunMetadata(cache, startedAt, top100Addresses, latestBlock, blocksScanned, txsProcessed, stoppedByBudget);
+        await writeCache(cache);
+      }
 
       if (THROTTLE_MS > 0) {
         await sleep(THROTTLE_MS);
@@ -441,21 +545,8 @@ async function main() {
     }
   }
 
-  cache.latestKnownBlock = Number(latestBlock);
-  cache.updatedAt = new Date().toISOString();
-  cache.lastRun = {
-    startedAt,
-    completedAt: cache.updatedAt,
-    blocksScanned,
-    txsProcessed,
-    stoppedByBudget,
-    maxBlocksPerRun: MAX_BLOCKS_PER_RUN,
-    maxTxsPerRun: MAX_TXS_PER_RUN
-  };
-  cacheSummary(cache, top100Addresses, latestBlock);
-
-  await mkdir(dirname(CACHE_PATH), { recursive: true });
-  await writeFile(CACHE_PATH, `${JSON.stringify(cache, null, 2)}\n`);
+  updateRunMetadata(cache, startedAt, top100Addresses, latestBlock, blocksScanned, txsProcessed, stoppedByBudget);
+  await writeCache(cache);
 
   console.log(JSON.stringify({
     status: cache.status,
