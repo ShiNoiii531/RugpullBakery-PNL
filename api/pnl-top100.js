@@ -17,6 +17,7 @@ const BAKERY_ACTIVITY_BATCH_SIZE = Math.max(
   1,
   Math.floor(positiveNumber(process.env.BAKERY_ACTIVITY_BATCH_SIZE, 12))
 );
+const MOST_RUGGED_ENABLED = process.env.BAKERY_ENABLE_MOST_RUGGED === "1";
 
 const LEADERBOARD_PAYOUTS = [
   { minRank: 1, maxRank: 1, sharePct: 7.5 },
@@ -476,6 +477,16 @@ async function getTop100BakeryRugsReceived(rows, seasonId) {
   }
 }
 
+function getDisabledRugReceivedData() {
+  return {
+    rugReceivedStatsByBakeryId: new Map(),
+    rugReceivedSource: {
+      label: "disabled",
+      updatedAt: new Date().toISOString()
+    }
+  };
+}
+
 async function buildDashboard() {
   const seasons = await fetchBakeryTrpc("leaderboard.getActiveSeason", null);
   const activeSeason = seasons.find((season) => season.isActive !== false) || seasons[0];
@@ -496,7 +507,9 @@ async function buildDashboard() {
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
   const [rugReceivedData, profiles, costEstimate] = await Promise.all([
-    getTop100BakeryRugsReceived(rows, activeSeason.id),
+    MOST_RUGGED_ENABLED
+      ? getTop100BakeryRugsReceived(rows, activeSeason.id)
+      : Promise.resolve(getDisabledRugReceivedData()),
     addresses.length > 0
       ? fetchBakeryTrpc("profiles.getByAddresses", { addresses })
       : Promise.resolve([]),

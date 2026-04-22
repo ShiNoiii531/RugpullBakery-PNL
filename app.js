@@ -90,7 +90,7 @@ try {
   if (storedThemeMode === "dark") {
     themeMode = "dark";
   }
-  if (["dashboard", "rug", "rugged", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "rug", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
   }
   if (storedSimulatorPrizePool !== null) {
@@ -267,7 +267,7 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "rug", "rugged", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "rug", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
   const isRug = activeView === "rug";
   const isRugged = activeView === "rugged";
