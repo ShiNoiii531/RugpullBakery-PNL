@@ -351,6 +351,67 @@ function cell(text, className = "", label = "") {
   return td;
 }
 
+function chefCell(row, label = "Chef") {
+  const td = document.createElement("td");
+  td.className = "name-cell chef-cell";
+  td.dataset.label = label;
+
+  const wrap = document.createElement("span");
+  wrap.className = "player-profile";
+
+  if (row.profileImageUrl) {
+    const img = document.createElement("img");
+    img.className = "player-avatar";
+    img.src = row.profileImageUrl;
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => {
+      img.remove();
+      wrap.classList.add("player-profile-no-avatar");
+    }, { once: true });
+    wrap.append(img);
+  } else {
+    wrap.classList.add("player-profile-no-avatar");
+  }
+
+  const name = document.createElement("span");
+  name.className = "player-name";
+  name.textContent = row.chefName || row.chefAddress || "-";
+  wrap.append(name);
+  td.append(wrap);
+
+  return td;
+}
+
+function addMobileDetailsToggle(row, visibleCellCount) {
+  const cells = [...row.children];
+  cells.forEach((td, index) => {
+    if (index >= visibleCellCount) {
+      td.classList.add("mobile-detail-cell");
+    }
+  });
+
+  const td = document.createElement("td");
+  td.className = "mobile-toggle-cell";
+  const button = document.createElement("button");
+  button.className = "mobile-detail-button";
+  button.type = "button";
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-label", "Show player details");
+  button.title = "Show player details";
+  button.innerHTML = '<span class="mobile-detail-chevron" aria-hidden="true"></span>';
+  button.addEventListener("click", () => {
+    const expanded = row.classList.toggle("mobile-row-expanded");
+    button.setAttribute("aria-expanded", String(expanded));
+    button.setAttribute("aria-label", expanded ? "Hide player details" : "Show player details");
+    button.title = expanded ? "Hide player details" : "Show player details";
+  });
+  td.append(button);
+  row.append(td);
+}
+
 function renderTable(rows) {
   els.tableBody.innerHTML = "";
   els.rowCount.textContent = `${rows.length} rows`;
@@ -369,7 +430,7 @@ function renderTable(rows) {
     tr.className = row.pnlEth >= 0 ? "profit-row" : "loss-row";
     tr.append(
       cell(`#${row.rank}`, "rank-cell", "Rank"),
-      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies"),
       cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
@@ -378,6 +439,7 @@ function renderTable(rows) {
       cell(moneyLabel(row.pnlEth, { signed: true }), "number-cell pnl-cell", "P&L"),
       cell(row.roi === null ? "--" : formatPercent(row.roi), "number-cell", "ROI")
     );
+    addMobileDetailsToggle(tr, 3);
     fragment.append(tr);
   }
   els.tableBody.append(fragment);
@@ -499,13 +561,14 @@ function renderTopRug(rows) {
     tr.append(
       cell(`#${index + 1}`, "rank-cell", "Rug Rank"),
       cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
-      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell pnl-cell", "Successful Rugs"),
       cell(numberFormatter.format(Number(row.rugAttempts || 0)), "number-cell", "Attempts"),
       cell(successRate === null ? "--" : formatPercent(successRate), "number-cell", "Success"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies")
     );
+    addMobileDetailsToggle(tr, 4);
     fragment.append(tr);
   });
   els.rugTableBody.append(fragment);
@@ -525,7 +588,7 @@ function renderTopRug(rows) {
     tr.append(
       cell(`#${index + 1}`, "rank-cell", "Rugged Rank"),
       cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
-      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.recentRugAttemptsReceived || 0)), "number-cell pnl-cell", "Incoming Attempts"),
       cell(numberFormatter.format(Number(row.recentRugsReceived || 0)), "number-cell", "Successful Received"),
@@ -534,6 +597,7 @@ function renderTopRug(rows) {
       cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell", "Rugs Sent"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies")
     );
+    addMobileDetailsToggle(tr, 4);
     ruggedFragment.append(tr);
   });
   els.ruggedTableBody.append(ruggedFragment);
@@ -661,13 +725,14 @@ function renderSimulator(rows) {
     tr.className = delta >= 0 ? "profit-row" : "loss-row";
     tr.append(
       cell(`#${row.rank}`, "rank-cell", "Rank"),
-      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
       cell(moneyLabel(row.grossEth), "number-cell", "Live Gross"),
       cell(moneyLabel(simulatedGross), "number-cell", "Simulated Gross"),
       cell(moneyLabel(delta, { signed: true }), "number-cell pnl-cell", "Delta")
     );
+    addMobileDetailsToggle(tr, 3);
     fragment.append(tr);
   }
   els.simTableBody.append(fragment);

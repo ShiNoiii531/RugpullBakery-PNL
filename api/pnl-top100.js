@@ -2,6 +2,8 @@ const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const BAKERY_SOURCE_URL = `${BAKERY_APP_URL}/bakeries`;
 const BAKERY_DOCS_PAYOUT_URL = "https://docs.rugpullbakery.com/#s3-payouts";
 const ABSTRACT_RPC_URL = process.env.ABSTRACT_RPC_URL || "https://api.mainnet.abs.xyz";
+const ABSTRACT_PROFILE_API_URL = "https://backend.portal.abs.xyz/api/user/address";
+const ABSTRACT_ASSET_URL = "https://abstract-assets.abs.xyz";
 
 const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
 const BAKERY_BAKE_SELECTOR = "0xb0de262e";
@@ -16,6 +18,10 @@ const BAKERY_ACTIVITY_FEED_LIMIT = 100;
 const BAKERY_ACTIVITY_BATCH_SIZE = Math.max(
   1,
   Math.floor(positiveNumber(process.env.BAKERY_ACTIVITY_BATCH_SIZE, 12))
+);
+const ABSTRACT_PROFILE_BATCH_SIZE = Math.max(
+  1,
+  Math.floor(positiveNumber(process.env.ABSTRACT_PROFILE_BATCH_SIZE, 16))
 );
 const MOST_RUGGED_ENABLED = process.env.BAKERY_ENABLE_MOST_RUGGED === "1";
 
@@ -166,6 +172,68 @@ async function fetchBakeryTrpcBatch(procedure, inputs) {
 
     return entry.result.data.json;
   });
+}
+
+function abstractProfileImageUrl(user) {
+  if (typeof user?.overrideProfilePictureUrl === "string" && user.overrideProfilePictureUrl) {
+    return user.overrideProfilePictureUrl;
+  }
+
+  const avatar = user?.avatar;
+  if (avatar && avatar.season && avatar.tier && avatar.key) {
+    return `${ABSTRACT_ASSET_URL}/avatars/${avatar.season}-${avatar.tier}-${avatar.key}.png`;
+  }
+
+  return null;
+}
+
+async function fetchAbstractProfile(address) {
+  const response = await fetch(`${ABSTRACT_PROFILE_API_URL}/${address}`, {
+    headers: {
+      "accept": "application/json",
+      "user-agent": "Bakery Public PnL"
+    },
+    signal: AbortSignal.timeout(2500)
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`Abstract profile failed with ${response.status}`);
+  }
+
+  const payload = await response.json();
+  return payload?.user || null;
+}
+
+async function getAbstractProfilesByAddress(addresses) {
+  const normalizedAddresses = [...new Set(addresses
+    .filter((address) => /^0x[a-fA-F0-9]{40}$/.test(address))
+    .map((address) => address.toLowerCase()))];
+  const profilesByAddress = new Map();
+  const profileBatchPromises = [];
+
+  for (let index = 0; index < normalizedAddresses.length; index += ABSTRACT_PROFILE_BATCH_SIZE) {
+    const batch = normalizedAddresses.slice(index, index + ABSTRACT_PROFILE_BATCH_SIZE);
+    profileBatchPromises.push(Promise.all(batch.map(async (address) => {
+      try {
+        return [address, await fetchAbstractProfile(address)];
+      } catch {
+        return [address, null];
+      }
+    })));
+  }
+
+  const results = (await Promise.all(profileBatchPromises)).flat();
+  for (const [address, profile] of results) {
+    if (profile) {
+      profilesByAddress.set(address, profile);
+    }
+  }
+
+  return profilesByAddress;
 }
 
 async function rpcCall(method, params = []) {
@@ -506,13 +574,14 @@ async function buildDashboard() {
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
-  const [rugReceivedData, profiles, costEstimate] = await Promise.all([
+  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate] = await Promise.all([
     MOST_RUGGED_ENABLED
       ? getTop100BakeryRugsReceived(rows, activeSeason.id)
       : Promise.resolve(getDisabledRugReceivedData()),
     addresses.length > 0
       ? fetchBakeryTrpc("profiles.getByAddresses", { addresses })
       : Promise.resolve([]),
+    getAbstractProfilesByAddress(addresses),
     getRpcCostEstimate(activeSeason.id, addresses)
   ]);
   const { rugReceivedStatsByBakeryId, rugReceivedSource } = rugReceivedData;
@@ -560,6 +629,7 @@ async function buildDashboard() {
       const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
       const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
       const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
+      const abstractProfile = abstractProfilesByAddress.get(normalizedChefAddress);
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
         ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
@@ -569,7 +639,8 @@ async function buildDashboard() {
         bakeryId: row.id,
         bakeryName: row.name,
         chefAddress,
-        chefName: profileNameByAddress.get(normalizedChefAddress) || (chefAddress ? shortAddress(chefAddress) : "-"),
+        chefName: profileNameByAddress.get(normalizedChefAddress) || abstractProfile?.name || (chefAddress ? shortAddress(chefAddress) : "-"),
+        profileImageUrl: abstractProfileImageUrl(abstractProfile),
         cookiesBaked,
         cookieBalance: row.cookieBalance || row.txCount || "0",
         rugAttempts: Number(topChefStats?.rugAttempts || 0),
