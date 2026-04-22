@@ -194,6 +194,18 @@ function formatPercent(value) {
   return `${numeric.toFixed(2)}%`;
 }
 
+function formatShortDateTime(value) {
+  if (!value) {
+    return "unknown time";
+  }
+  return new Date(value).toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 function currentEthPrice() {
   return Number.isFinite(ethPriceUsd) && ethPriceUsd > 0 ? ethPriceUsd : 0;
 }
@@ -746,6 +758,13 @@ function renderDashboard() {
 
   if (manualCostPerMillion > 0) {
     els.costSourceValue.textContent = `${moneyLabel(manualCostPerMillion)} / 1M manual`;
+  } else if ((dashboard.rows || []).some((row) => row.costSource === "exact_gas_cache")) {
+    const exactRows = (dashboard.rows || []).filter((row) => row.costSource === "exact_gas_cache").length;
+    els.costSourceValue.textContent =
+      `Exact gas cache ${exactRows}/${(dashboard.rows || []).length} · ${formatShortDateTime(dashboard.costCache?.updatedAt)}`;
+  } else if (dashboard.costCache?.status === "partial") {
+    els.costSourceValue.textContent =
+      `Exact gas cache syncing ${dashboard.costCache.completeChefCount || 0}/${dashboard.costCache.top100AddressCount || 100} · estimate fallback`;
   } else if (dashboard.costEstimate?.status === "ok") {
     els.costSourceValue.textContent =
       `${moneyLabel(dashboard.costEstimate.estimatedCostPerMillionEth)} / 1M raw from ${dashboard.costEstimate.sampleTxCount} RPC txs`;

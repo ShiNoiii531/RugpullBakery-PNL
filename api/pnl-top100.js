@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const BAKERY_SOURCE_URL = `${BAKERY_APP_URL}/bakeries`;
 const BAKERY_DOCS_PAYOUT_URL = "https://docs.rugpullbakery.com/#s3-payouts";
@@ -8,6 +10,7 @@ const ABSTRACT_ASSET_URL = "https://abstract-assets.abs.xyz";
 const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
 const BAKERY_BAKE_SELECTOR = "0xb0de262e";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
+const COST_CACHE_URL = new URL("../data/cost-cache.json", import.meta.url);
 
 const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
@@ -236,6 +239,40 @@ async function getAbstractProfilesByAddress(addresses) {
   return profilesByAddress;
 }
 
+async function loadCostCache() {
+  try {
+    const payload = JSON.parse(await readFile(COST_CACHE_URL, "utf8"));
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function exactCostFromCache(costCache, seasonId, chefAddress) {
+  const normalizedAddress = chefAddress?.toLowerCase();
+  const entry = costCache?.chefs?.[normalizedAddress];
+  if (
+    !entry ||
+    Number(costCache.seasonId) !== Number(seasonId) ||
+    entry.complete !== true ||
+    typeof entry.gasCostWei !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    costWei: entry.gasCostWei,
+    costEth: weiToEthNumber(entry.gasCostWei),
+    cookTxCount: Number(entry.cookTxCount || 0),
+    cookiesRaw: entry.cookiesRaw || "0",
+    updatedAt: costCache.updatedAt || entry.updatedAt || null,
+    toBlock: entry.toBlock ?? costCache.latestKnownBlock ?? null
+  };
+}
+
 async function rpcCall(method, params = []) {
   const response = await fetch(ABSTRACT_RPC_URL, {
     method: "POST",
@@ -397,17 +434,14 @@ async function getRpcCostEstimate(seasonId, chefAddresses) {
 
       const gasUsed = hexToBigInt(receipt.gasUsed);
       const gasPrice = hexToBigInt(receipt.effectiveGasPrice || transaction.gasPrice);
-      const value = hexToBigInt(transaction.value);
       const rawCookies = decodeLogUint256(log.data, 0);
-      const effectiveCookies = decodeLogUint256(log.data, 1);
-      const cookies = effectiveCookies > 0n ? effectiveCookies : rawCookies;
 
-      if (gasUsed === 0n || gasPrice === 0n || cookies === 0n) {
+      if (gasUsed === 0n || gasPrice === 0n || rawCookies === 0n) {
         continue;
       }
 
-      sampleCookies += cookies;
-      sampleCostWei += gasUsed * gasPrice + value;
+      sampleCookies += rawCookies;
+      sampleCostWei += gasUsed * gasPrice;
       sampleTxCount += 1;
     }
 
@@ -574,7 +608,7 @@ async function buildDashboard() {
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
-  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate] = await Promise.all([
+  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate, costCache] = await Promise.all([
     MOST_RUGGED_ENABLED
       ? getTop100BakeryRugsReceived(rows, activeSeason.id)
       : Promise.resolve(getDisabledRugReceivedData()),
@@ -582,7 +616,8 @@ async function buildDashboard() {
       ? fetchBakeryTrpc("profiles.getByAddresses", { addresses })
       : Promise.resolve([]),
     getAbstractProfilesByAddress(addresses),
-    getRpcCostEstimate(activeSeason.id, addresses)
+    getRpcCostEstimate(activeSeason.id, addresses),
+    loadCostCache()
   ]);
   const { rugReceivedStatsByBakeryId, rugReceivedSource } = rugReceivedData;
   const profileNameByAddress = new Map(
@@ -617,6 +652,15 @@ async function buildDashboard() {
     sourceUrl: BAKERY_SOURCE_URL,
     docsUrl: BAKERY_DOCS_PAYOUT_URL,
     costEstimate,
+    costCache: costCache
+      ? {
+        status: costCache.status || "unknown",
+        updatedAt: costCache.updatedAt || null,
+        latestKnownBlock: costCache.latestKnownBlock ?? null,
+        completeChefCount: costCache.completeChefCount ?? 0,
+        top100AddressCount: costCache.top100AddressCount ?? 0
+      }
+      : null,
     rows: rows.map((row, index) => {
       const rank = row.rank ?? index + 1;
       const chefAddress = row.topCook || row.creator || row.leader || "";
@@ -630,9 +674,11 @@ async function buildDashboard() {
       const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
       const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
       const abstractProfile = abstractProfilesByAddress.get(normalizedChefAddress);
+      const exactCost = exactCostFromCache(costCache, activeSeason.id, normalizedChefAddress);
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
         ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
+      const costWei = exactCost?.costWei || estimatedCostWei;
 
       return {
         rank,
@@ -654,8 +700,12 @@ async function buildDashboard() {
         grossPrizeEth: weiToEthNumber(grossPrizeWei),
         prizeBps,
         leaderboardSharePct,
-        estimatedCostWei,
-        estimatedCostEth: weiToEthNumber(estimatedCostWei)
+        estimatedCostWei: costWei,
+        estimatedCostEth: weiToEthNumber(costWei),
+        costSource: exactCost ? "exact_gas_cache" : "abstract_rpc_recent_sample",
+        exactCookTxCount: exactCost?.cookTxCount || null,
+        exactCostUpdatedAt: exactCost?.updatedAt || null,
+        exactCostToBlock: exactCost?.toBlock ?? null
       };
     })
   };

@@ -1,0 +1,46 @@
+name: Update gas cost cache
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bakery-gas-cost-cache
+  cancel-in-progress: false
+
+jobs:
+  update-cost-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update cache
+        env:
+          COST_CACHE_MAX_BLOCKS: 60000
+          COST_CACHE_MAX_TXS: 30000
+          COST_CACHE_LOG_BLOCK_SPAN: 250
+          COST_CACHE_RECEIPT_BATCH_SIZE: 100
+          COST_CACHE_THROTTLE_MS: 80
+        run: npm run update:cost-cache
+
+      - name: Commit cache
+        run: |
+          if git diff --quiet -- data/cost-cache.json; then
+            echo "No cache changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cost-cache.json
+          git commit -m "Update Bakery gas cost cache"
+          git push
