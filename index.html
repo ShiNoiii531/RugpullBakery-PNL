@@ -71,6 +71,7 @@
 
       <nav class="view-tabs" aria-label="Dashboard views">
         <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Top 100</button>
+        <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
         <button id="simulatorTab" class="tab-button" type="button" aria-pressed="false">Simulator</button>
       </nav>
 
@@ -148,6 +149,59 @@
               <tbody id="tableBody">
                 <tr>
                   <td colspan="9">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="topRugView" class="view-panel" hidden>
+        <section class="stat-grid rug-stats" aria-label="Top Rug summary">
+          <article class="stat-card">
+            <span>Top Rugger</span>
+            <strong id="topRuggerValue">--</strong>
+            <small id="topRuggerBakeryValue">Waiting</small>
+          </article>
+          <article class="stat-card">
+            <span>Successful Rugs</span>
+            <strong id="rugLandedValue">--</strong>
+            <small>Most landed in current Top 100</small>
+          </article>
+          <article class="stat-card">
+            <span>Rug Attempts</span>
+            <strong id="rugAttemptsValue">--</strong>
+            <small id="rugSuccessValue">Success rate --</small>
+          </article>
+          <article class="stat-card">
+            <span>Total Top 100 Rugs</span>
+            <strong id="totalRugsValue">--</strong>
+            <small id="totalRugAttemptsValue">-- attempts</small>
+          </article>
+        </section>
+
+        <section class="table-shell" aria-label="Top Rug table">
+          <div class="table-meta">
+            <strong>Top Rug</strong>
+            <span id="rugRowCount">-- rows</span>
+          </div>
+          <div class="table-scroll">
+            <table class="rug-table">
+              <thead>
+                <tr>
+                  <th>Rug Rank</th>
+                  <th>Top 100 Rank</th>
+                  <th>Chef</th>
+                  <th>Bakery</th>
+                  <th>Successful Rugs</th>
+                  <th>Attempts</th>
+                  <th>Success</th>
+                  <th>Cookies</th>
+                </tr>
+              </thead>
+              <tbody id="rugTableBody">
+                <tr>
+                  <td colspan="8">Loading...</td>
                 </tr>
               </tbody>
             </table>

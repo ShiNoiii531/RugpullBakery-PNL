@@ -325,8 +325,14 @@ async function buildDashboard() {
     throw new Error("No active Bakery season found");
   }
 
-  const leaderboard = await fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 });
+  const [leaderboard, topChefs] = await Promise.all([
+    fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 }),
+    fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId: activeSeason.id, limit: 100 })
+  ]);
   const rows = leaderboard.items.slice(0, 100);
+  const topChefStatsByAddress = new Map(
+    (topChefs.items || []).map((chef) => [chef.address.toLowerCase(), chef])
+  );
   const addresses = [...new Set(rows
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
@@ -376,6 +382,7 @@ async function buildDashboard() {
         ? multiplyWeiByPercent(leaderboardBucketWei, leaderboardSharePct)
         : "0";
       const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
+      const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
       const estimatedCostWei = estimatedCostPerMillionWei > 0n
         ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
         : "0";
@@ -388,6 +395,10 @@ async function buildDashboard() {
         chefName: profileNameByAddress.get(normalizedChefAddress) || (chefAddress ? shortAddress(chefAddress) : "-"),
         cookiesBaked,
         cookieBalance: row.cookieBalance || row.txCount || "0",
+        rugAttempts: Number(topChefStats?.rugAttempts || 0),
+        rugLanded: Number(topChefStats?.rugLanded || 0),
+        boostAttempts: Number(topChefStats?.boostAttempts || 0),
+        boostLanded: Number(topChefStats?.boostLanded || 0),
         grossPrizeWei,
         grossPrizeEth: weiToEthNumber(grossPrizeWei),
         prizeBps,

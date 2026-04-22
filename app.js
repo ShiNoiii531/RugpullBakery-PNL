@@ -20,8 +20,10 @@ const els = {
   refreshButton: document.getElementById("refreshButton"),
   csvButton: document.getElementById("csvButton"),
   dashboardTab: document.getElementById("dashboardTab"),
+  topRugTab: document.getElementById("topRugTab"),
   simulatorTab: document.getElementById("simulatorTab"),
   dashboardView: document.getElementById("dashboardView"),
+  topRugView: document.getElementById("topRugView"),
   simulatorView: document.getElementById("simulatorView"),
   seasonValue: document.getElementById("seasonValue"),
   updatedValue: document.getElementById("updatedValue"),
@@ -36,6 +38,15 @@ const els = {
   tableTitle: document.getElementById("tableTitle"),
   rowCount: document.getElementById("rowCount"),
   tableBody: document.getElementById("tableBody"),
+  topRuggerValue: document.getElementById("topRuggerValue"),
+  topRuggerBakeryValue: document.getElementById("topRuggerBakeryValue"),
+  rugLandedValue: document.getElementById("rugLandedValue"),
+  rugAttemptsValue: document.getElementById("rugAttemptsValue"),
+  rugSuccessValue: document.getElementById("rugSuccessValue"),
+  totalRugsValue: document.getElementById("totalRugsValue"),
+  totalRugAttemptsValue: document.getElementById("totalRugAttemptsValue"),
+  rugRowCount: document.getElementById("rugRowCount"),
+  rugTableBody: document.getElementById("rugTableBody"),
   simPrizePoolInput: document.getElementById("simPrizePoolInput"),
   syncPrizePoolButton: document.getElementById("syncPrizePoolButton"),
   simPrizePoolValue: document.getElementById("simPrizePoolValue"),
@@ -68,8 +79,8 @@ try {
   if (storedThemeMode === "dark") {
     themeMode = "dark";
   }
-  if (storedActiveView === "simulator") {
-    activeView = "simulator";
+  if (["dashboard", "rug", "simulator"].includes(storedActiveView)) {
+    activeView = storedActiveView;
   }
   if (storedSimulatorPrizePool !== null) {
     els.simPrizePoolInput.value = storedSimulatorPrizePool;
@@ -245,12 +256,16 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = view === "simulator" ? "simulator" : "dashboard";
+  activeView = ["dashboard", "rug", "simulator"].includes(view) ? view : "dashboard";
+  const isDashboard = activeView === "dashboard";
+  const isRug = activeView === "rug";
   const isSimulator = activeView === "simulator";
 
-  els.dashboardView.hidden = isSimulator;
+  els.dashboardView.hidden = !isDashboard;
+  els.topRugView.hidden = !isRug;
   els.simulatorView.hidden = !isSimulator;
-  els.dashboardTab.setAttribute("aria-pressed", String(!isSimulator));
+  els.dashboardTab.setAttribute("aria-pressed", String(isDashboard));
+  els.topRugTab.setAttribute("aria-pressed", String(isRug));
   els.simulatorTab.setAttribute("aria-pressed", String(isSimulator));
 
   if (shouldPersist) {
@@ -354,6 +369,73 @@ function renderTable(rows) {
   els.tableBody.append(fragment);
 }
 
+function rugSuccessRate(row) {
+  const attempts = Number(row.rugAttempts || 0);
+  const landed = Number(row.rugLanded || 0);
+  return attempts > 0 ? (landed / attempts) * 100 : null;
+}
+
+function topRugRows(rows) {
+  return [...rows].sort((a, b) => {
+    const landedDelta = Number(b.rugLanded || 0) - Number(a.rugLanded || 0);
+    if (landedDelta !== 0) {
+      return landedDelta;
+    }
+
+    const successA = rugSuccessRate(a) || 0;
+    const successB = rugSuccessRate(b) || 0;
+    if (successB !== successA) {
+      return successB - successA;
+    }
+
+    return Number(a.rank || 0) - Number(b.rank || 0);
+  });
+}
+
+function renderTopRug(rows) {
+  const sortedRows = topRugRows(rows);
+  const topRow = sortedRows[0] || null;
+  const totalRugs = rows.reduce((total, row) => total + Number(row.rugLanded || 0), 0);
+  const totalAttempts = rows.reduce((total, row) => total + Number(row.rugAttempts || 0), 0);
+  const topSuccessRate = topRow ? rugSuccessRate(topRow) : null;
+
+  els.topRuggerValue.textContent = topRow ? (topRow.chefName || topRow.chefAddress || "-") : "--";
+  els.topRuggerBakeryValue.textContent = topRow ? `${topRow.bakeryName || "-"} · Top 100 #${topRow.rank}` : "Waiting";
+  els.rugLandedValue.textContent = topRow ? numberFormatter.format(Number(topRow.rugLanded || 0)) : "--";
+  els.rugAttemptsValue.textContent = topRow ? numberFormatter.format(Number(topRow.rugAttempts || 0)) : "--";
+  els.rugSuccessValue.textContent = topSuccessRate === null ? "Success rate --" : `Success rate ${formatPercent(topSuccessRate)}`;
+  els.totalRugsValue.textContent = numberFormatter.format(totalRugs);
+  els.totalRugAttemptsValue.textContent = `${numberFormatter.format(totalAttempts)} attempts`;
+  els.rugRowCount.textContent = `${sortedRows.length} rows`;
+
+  els.rugTableBody.innerHTML = "";
+  if (sortedRows.length === 0) {
+    const tr = document.createElement("tr");
+    tr.append(cell("No matching bakeries.", "empty-cell"));
+    tr.firstChild.colSpan = 8;
+    els.rugTableBody.append(tr);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  sortedRows.forEach((row, index) => {
+    const successRate = rugSuccessRate(row);
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(`#${index + 1}`, "rank-cell", "Rug Rank"),
+      cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
+      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      cell(row.bakeryName || "-", "name-cell", "Bakery"),
+      cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell pnl-cell", "Successful Rugs"),
+      cell(numberFormatter.format(Number(row.rugAttempts || 0)), "number-cell", "Attempts"),
+      cell(successRate === null ? "--" : formatPercent(successRate), "number-cell", "Success"),
+      cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies")
+    );
+    fragment.append(tr);
+  });
+  els.rugTableBody.append(fragment);
+}
+
 function renderDashboard() {
   if (!dashboard) {
     return;
@@ -407,6 +489,7 @@ function renderDashboard() {
     els.docsLink.href = dashboard.docsUrl;
   }
   renderTable(rows);
+  renderTopRug(rows);
   renderSimulator(rows);
 }
 
@@ -542,10 +625,20 @@ async function refreshDashboard() {
   } catch (error) {
     els.statusText.textContent = error instanceof Error ? error.message : String(error);
     els.tableBody.innerHTML = "";
+    els.rugTableBody.innerHTML = "";
+    els.simTableBody.innerHTML = "";
     const tr = document.createElement("tr");
     tr.append(cell("Unable to load the public Bakery P&L right now.", "empty-cell"));
     tr.firstChild.colSpan = 9;
     els.tableBody.append(tr);
+    const rugTr = document.createElement("tr");
+    rugTr.append(cell("Unable to load the public Bakery rug stats right now.", "empty-cell"));
+    rugTr.firstChild.colSpan = 8;
+    els.rugTableBody.append(rugTr);
+    const simTr = document.createElement("tr");
+    simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
+    simTr.firstChild.colSpan = 7;
+    els.simTableBody.append(simTr);
   } finally {
     els.refreshButton.disabled = false;
   }
@@ -573,6 +666,10 @@ els.syncPrizePoolButton.addEventListener("click", () => {
 
 els.dashboardTab.addEventListener("click", () => {
   setActiveView("dashboard");
+});
+
+els.topRugTab.addEventListener("click", () => {
+  setActiveView("rug");
 });
 
 els.simulatorTab.addEventListener("click", () => {
