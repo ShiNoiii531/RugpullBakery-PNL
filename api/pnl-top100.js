@@ -11,6 +11,7 @@ const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
 const COST_SAMPLE_BLOCKS = positiveNumber(process.env.BAKERY_COST_SAMPLE_BLOCKS, 180);
 const COST_SAMPLE_MAX_TXS = positiveNumber(process.env.BAKERY_COST_SAMPLE_MAX_TXS, 150);
+const ACTIVITY_FEED_LIMIT = 100;
 
 const LEADERBOARD_PAYOUTS = [
   { minRank: 1, maxRank: 1, sharePct: 7.5 },
@@ -325,14 +326,23 @@ async function buildDashboard() {
     throw new Error("No active Bakery season found");
   }
 
-  const [leaderboard, topChefs] = await Promise.all([
+  const [leaderboard, topChefs, globalActivityFeed] = await Promise.all([
     fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 }),
-    fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId: activeSeason.id, limit: 100 })
+    fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId: activeSeason.id, limit: 100 }),
+    fetchBakeryTrpc("leaderboard.getGlobalActivityFeed", { limit: ACTIVITY_FEED_LIMIT })
   ]);
   const rows = leaderboard.items.slice(0, 100);
   const topChefStatsByAddress = new Map(
     (topChefs.items || []).map((chef) => [chef.address.toLowerCase(), chef])
   );
+  const recentRugsReceivedByBakeryId = new Map();
+  for (const event of globalActivityFeed || []) {
+    if (event.type !== "rug" || !event.success || !event.eventBakeryId) {
+      continue;
+    }
+    const bakeryId = Number(event.eventBakeryId);
+    recentRugsReceivedByBakeryId.set(bakeryId, (recentRugsReceivedByBakeryId.get(bakeryId) || 0) + 1);
+  }
   const addresses = [...new Set(rows
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
@@ -369,6 +379,11 @@ async function buildDashboard() {
     leaderboardPayouts: LEADERBOARD_PAYOUTS,
     activityTiers: ACTIVITY_TIERS,
     totalTop100CookiesBaked,
+    rugReceivedSource: {
+      label: "recent_global_activity_feed",
+      eventLimit: ACTIVITY_FEED_LIMIT,
+      updatedAt: new Date().toISOString()
+    },
     sourceUrl: BAKERY_SOURCE_URL,
     docsUrl: BAKERY_DOCS_PAYOUT_URL,
     costEstimate,
@@ -397,6 +412,7 @@ async function buildDashboard() {
         cookieBalance: row.cookieBalance || row.txCount || "0",
         rugAttempts: Number(topChefStats?.rugAttempts || 0),
         rugLanded: Number(topChefStats?.rugLanded || 0),
+        recentRugsReceived: recentRugsReceivedByBakeryId.get(Number(row.id)) || 0,
         boostAttempts: Number(topChefStats?.boostAttempts || 0),
         boostLanded: Number(topChefStats?.boostLanded || 0),
         grossPrizeWei,

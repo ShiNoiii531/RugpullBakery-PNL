@@ -650,6 +650,10 @@ body[data-theme="dark"] .simulator-toolbar {
   overflow: hidden;
 }
 
+.secondary-table-shell {
+  margin-top: 16px;
+}
+
 .table-meta {
   display: flex;
   align-items: center;
@@ -672,6 +676,13 @@ body[data-theme="dark"] .table-meta {
   box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.22);
 }
 
+.table-note {
+  padding: 0 16px 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
 .table-scroll {
   width: 100%;
   overflow: auto;
@@ -687,7 +698,8 @@ table {
   min-width: 920px;
 }
 
-.rug-table {
+.rug-table,
+.rugged-table {
   min-width: 980px;
 }
 
@@ -905,7 +917,8 @@ tr:last-child td {
 
   table,
   .simulator-table,
-  .rug-table {
+  .rug-table,
+  .rugged-table {
     min-width: 0;
   }
 

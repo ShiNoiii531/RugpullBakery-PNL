@@ -45,8 +45,13 @@ const els = {
   rugSuccessValue: document.getElementById("rugSuccessValue"),
   totalRugsValue: document.getElementById("totalRugsValue"),
   totalRugAttemptsValue: document.getElementById("totalRugAttemptsValue"),
+  mostRuggedValue: document.getElementById("mostRuggedValue"),
+  mostRuggedBakeryValue: document.getElementById("mostRuggedBakeryValue"),
+  rugReceivedSourceValue: document.getElementById("rugReceivedSourceValue"),
   rugRowCount: document.getElementById("rugRowCount"),
   rugTableBody: document.getElementById("rugTableBody"),
+  ruggedRowCount: document.getElementById("ruggedRowCount"),
+  ruggedTableBody: document.getElementById("ruggedTableBody"),
   simPrizePoolInput: document.getElementById("simPrizePoolInput"),
   syncPrizePoolButton: document.getElementById("syncPrizePoolButton"),
   simPrizePoolValue: document.getElementById("simPrizePoolValue"),
@@ -392,11 +397,30 @@ function topRugRows(rows) {
   });
 }
 
+function mostRuggedRows(rows) {
+  return [...rows].sort((a, b) => {
+    const receivedDelta = Number(b.recentRugsReceived || 0) - Number(a.recentRugsReceived || 0);
+    if (receivedDelta !== 0) {
+      return receivedDelta;
+    }
+
+    const sentDelta = Number(b.rugLanded || 0) - Number(a.rugLanded || 0);
+    if (sentDelta !== 0) {
+      return sentDelta;
+    }
+
+    return Number(a.rank || 0) - Number(b.rank || 0);
+  });
+}
+
 function renderTopRug(rows) {
   const sortedRows = topRugRows(rows);
+  const ruggedRows = mostRuggedRows(rows);
   const topRow = sortedRows[0] || null;
+  const mostRuggedRow = ruggedRows[0] || null;
   const totalRugs = rows.reduce((total, row) => total + Number(row.rugLanded || 0), 0);
   const totalAttempts = rows.reduce((total, row) => total + Number(row.rugAttempts || 0), 0);
+  const totalReceived = rows.reduce((total, row) => total + Number(row.recentRugsReceived || 0), 0);
   const topSuccessRate = topRow ? rugSuccessRate(topRow) : null;
 
   els.topRuggerValue.textContent = topRow ? (topRow.chefName || topRow.chefAddress || "-") : "--";
@@ -406,14 +430,27 @@ function renderTopRug(rows) {
   els.rugSuccessValue.textContent = topSuccessRate === null ? "Success rate --" : `Success rate ${formatPercent(topSuccessRate)}`;
   els.totalRugsValue.textContent = numberFormatter.format(totalRugs);
   els.totalRugAttemptsValue.textContent = `${numberFormatter.format(totalAttempts)} attempts`;
+  els.mostRuggedValue.textContent = mostRuggedRow ? numberFormatter.format(Number(mostRuggedRow.recentRugsReceived || 0)) : "--";
+  els.mostRuggedBakeryValue.textContent = mostRuggedRow
+    ? `${mostRuggedRow.bakeryName || "-"} · Top 100 #${mostRuggedRow.rank}`
+    : "Recent received rugs";
+  els.rugReceivedSourceValue.textContent =
+    `Recent successful rugs received by Top 100 bakeries from the latest ${dashboard.rugReceivedSource?.eventLimit || 100} global activity events. Total counted: ${numberFormatter.format(totalReceived)}.`;
   els.rugRowCount.textContent = `${sortedRows.length} rows`;
+  els.ruggedRowCount.textContent = `${ruggedRows.length} rows`;
 
   els.rugTableBody.innerHTML = "";
+  els.ruggedTableBody.innerHTML = "";
   if (sortedRows.length === 0) {
     const tr = document.createElement("tr");
     tr.append(cell("No matching bakeries.", "empty-cell"));
     tr.firstChild.colSpan = 8;
     els.rugTableBody.append(tr);
+
+    const ruggedTr = document.createElement("tr");
+    ruggedTr.append(cell("No matching bakeries.", "empty-cell"));
+    ruggedTr.firstChild.colSpan = 7;
+    els.ruggedTableBody.append(ruggedTr);
     return;
   }
 
@@ -434,6 +471,22 @@ function renderTopRug(rows) {
     fragment.append(tr);
   });
   els.rugTableBody.append(fragment);
+
+  const ruggedFragment = document.createDocumentFragment();
+  ruggedRows.forEach((row, index) => {
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(`#${index + 1}`, "rank-cell", "Rugged Rank"),
+      cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
+      cell(row.chefName || row.chefAddress || "-", "name-cell", "Chef"),
+      cell(row.bakeryName || "-", "name-cell", "Bakery"),
+      cell(numberFormatter.format(Number(row.recentRugsReceived || 0)), "number-cell pnl-cell", "Rugs Received"),
+      cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell", "Rugs Sent"),
+      cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies")
+    );
+    ruggedFragment.append(tr);
+  });
+  els.ruggedTableBody.append(ruggedFragment);
 }
 
 function renderDashboard() {
@@ -626,6 +679,7 @@ async function refreshDashboard() {
     els.statusText.textContent = error instanceof Error ? error.message : String(error);
     els.tableBody.innerHTML = "";
     els.rugTableBody.innerHTML = "";
+    els.ruggedTableBody.innerHTML = "";
     els.simTableBody.innerHTML = "";
     const tr = document.createElement("tr");
     tr.append(cell("Unable to load the public Bakery P&L right now.", "empty-cell"));
@@ -635,6 +689,10 @@ async function refreshDashboard() {
     rugTr.append(cell("Unable to load the public Bakery rug stats right now.", "empty-cell"));
     rugTr.firstChild.colSpan = 8;
     els.rugTableBody.append(rugTr);
+    const ruggedTr = document.createElement("tr");
+    ruggedTr.append(cell("Unable to load the public Bakery received rug stats right now.", "empty-cell"));
+    ruggedTr.firstChild.colSpan = 7;
+    els.ruggedTableBody.append(ruggedTr);
     const simTr = document.createElement("tr");
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
     simTr.firstChild.colSpan = 7;

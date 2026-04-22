@@ -178,6 +178,11 @@
             <strong id="totalRugsValue">--</strong>
             <small id="totalRugAttemptsValue">-- attempts</small>
           </article>
+          <article class="stat-card">
+            <span>Most Rugged</span>
+            <strong id="mostRuggedValue">--</strong>
+            <small id="mostRuggedBakeryValue">Recent received rugs</small>
+          </article>
         </section>
 
         <section class="table-shell" aria-label="Top Rug table">
@@ -202,6 +207,34 @@
               <tbody id="rugTableBody">
                 <tr>
                   <td colspan="8">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="table-shell secondary-table-shell" aria-label="Most rugged Top 100 table">
+          <div class="table-meta">
+            <strong>Most Rugged</strong>
+            <span id="ruggedRowCount">-- rows</span>
+          </div>
+          <div class="table-note" id="rugReceivedSourceValue">Recent successful rugs from the latest global activity feed.</div>
+          <div class="table-scroll">
+            <table class="rugged-table">
+              <thead>
+                <tr>
+                  <th>Rugged Rank</th>
+                  <th>Top 100 Rank</th>
+                  <th>Chef</th>
+                  <th>Bakery</th>
+                  <th>Rugs Received</th>
+                  <th>Rugs Sent</th>
+                  <th>Cookies</th>
+                </tr>
+              </thead>
+              <tbody id="ruggedTableBody">
+                <tr>
+                  <td colspan="7">Loading...</td>
                 </tr>
               </tbody>
             </table>
