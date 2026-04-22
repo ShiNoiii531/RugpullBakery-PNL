@@ -363,13 +363,28 @@ function cell(text, className = "", label = "") {
   return td;
 }
 
+function abstractPortalProfileUrl(address) {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
+    return null;
+  }
+  return `https://portal.abs.xyz/profile/${encodeURIComponent(address)}`;
+}
+
 function chefCell(row, label = "Chef") {
   const td = document.createElement("td");
   td.className = "name-cell chef-cell";
   td.dataset.label = label;
 
-  const wrap = document.createElement("span");
+  const portalUrl = abstractPortalProfileUrl(row.chefAddress);
+  const wrap = document.createElement(portalUrl ? "a" : "span");
   wrap.className = "player-profile";
+  if (portalUrl) {
+    wrap.classList.add("player-profile-link");
+    wrap.href = portalUrl;
+    wrap.target = "_blank";
+    wrap.rel = "noopener noreferrer";
+    wrap.title = `Open ${row.chefName || row.chefAddress} on Abstract Portal`;
+  }
 
   if (row.profileImageUrl) {
     const img = document.createElement("img");

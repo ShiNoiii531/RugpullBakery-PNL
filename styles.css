@@ -834,6 +834,23 @@ tr:last-child td {
   vertical-align: middle;
 }
 
+.player-profile-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.player-profile-link:hover .player-name {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.player-profile-link:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid rgba(55, 159, 199, 0.7);
+  outline-offset: 3px;
+}
+
 .player-avatar {
   width: 28px;
   height: 28px;
