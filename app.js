@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   activeView: "bakery-public:active-view",
   currencyMode: "bakery-public:currency-mode",
   manualCost: "bakery-public:manual-cost",
+  myBakeryQuery: "bakery-public:my-bakery-query",
   simulatorPrizePool: "bakery-public:simulator-prize-pool",
   themeMode: "bakery-public:theme-mode"
 };
@@ -20,10 +21,12 @@ const els = {
   refreshButton: document.getElementById("refreshButton"),
   csvButton: document.getElementById("csvButton"),
   dashboardTab: document.getElementById("dashboardTab"),
+  myBakeryTab: document.getElementById("myBakeryTab"),
   topRugTab: document.getElementById("topRugTab"),
   mostRuggedTab: document.getElementById("mostRuggedTab"),
   simulatorTab: document.getElementById("simulatorTab"),
   dashboardView: document.getElementById("dashboardView"),
+  myBakeryView: document.getElementById("myBakeryView"),
   topRugView: document.getElementById("topRugView"),
   mostRuggedView: document.getElementById("mostRuggedView"),
   simulatorView: document.getElementById("simulatorView"),
@@ -58,6 +61,10 @@ const els = {
   rugTableBody: document.getElementById("rugTableBody"),
   ruggedRowCount: document.getElementById("ruggedRowCount"),
   ruggedTableBody: document.getElementById("ruggedTableBody"),
+  myBakeryInput: document.getElementById("myBakeryInput"),
+  myBakeryCard: document.getElementById("myBakeryCard"),
+  sharePnlButton: document.getElementById("sharePnlButton"),
+  shareStatus: document.getElementById("shareStatus"),
   simPrizePoolInput: document.getElementById("simPrizePoolInput"),
   syncPrizePoolButton: document.getElementById("syncPrizePoolButton"),
   simPrizePoolValue: document.getElementById("simPrizePoolValue"),
@@ -75,6 +82,7 @@ let ethPriceUsd = 0;
 let ethPriceUpdatedAt = null;
 let ethPriceLoading = false;
 let topRugSort = { key: "rugRank", direction: "asc" };
+let currentMyBakeryRow = null;
 
 const TOP_RUG_SORT_LABELS = {
   rugRank: "Rug Rank",
@@ -92,6 +100,7 @@ try {
   const storedCurrencyMode = localStorage.getItem(STORAGE_KEYS.currencyMode);
   const storedThemeMode = localStorage.getItem(STORAGE_KEYS.themeMode);
   const storedActiveView = localStorage.getItem(STORAGE_KEYS.activeView);
+  const storedMyBakeryQuery = localStorage.getItem(STORAGE_KEYS.myBakeryQuery);
   const storedSimulatorPrizePool = localStorage.getItem(STORAGE_KEYS.simulatorPrizePool);
   if (manualCost !== null) {
     els.manualCostInput.value = manualCost;
@@ -102,8 +111,11 @@ try {
   if (storedThemeMode === "dark") {
     themeMode = "dark";
   }
-  if (["dashboard", "rug", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "my", "rug", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
+  }
+  if (storedMyBakeryQuery !== null) {
+    els.myBakeryInput.value = storedMyBakeryQuery;
   }
   if (storedSimulatorPrizePool !== null) {
     els.simPrizePoolInput.value = storedSimulatorPrizePool;
@@ -128,6 +140,13 @@ function numericInputValueOrNull(input) {
 
 function formatNumber(value) {
   return numberFormatter.format(Number(value || 0));
+}
+
+function shortAddress(address) {
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
+    return address || "-";
+  }
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
 function formatCookieCount(value) {
@@ -291,17 +310,20 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "rug", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "my", "rug", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
+  const isMyBakery = activeView === "my";
   const isRug = activeView === "rug";
   const isRugged = activeView === "rugged";
   const isSimulator = activeView === "simulator";
 
   els.dashboardView.hidden = !isDashboard;
+  els.myBakeryView.hidden = !isMyBakery;
   els.topRugView.hidden = !isRug;
   els.mostRuggedView.hidden = !isRugged;
   els.simulatorView.hidden = !isSimulator;
   els.dashboardTab.setAttribute("aria-pressed", String(isDashboard));
+  els.myBakeryTab.setAttribute("aria-pressed", String(isMyBakery));
   els.topRugTab.setAttribute("aria-pressed", String(isRug));
   els.mostRuggedTab.setAttribute("aria-pressed", String(isRugged));
   els.simulatorTab.setAttribute("aria-pressed", String(isSimulator));
@@ -317,21 +339,14 @@ function setActiveView(view, shouldPersist = true) {
   }
 }
 
-function computedRows() {
+function computedAllRows() {
   if (!dashboard) {
     return [];
   }
 
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
-  const query = (els.searchInput.value || "").trim().toLowerCase();
 
   return (dashboard.rows || [])
-    .filter((row) => {
-      if (!query) {
-        return true;
-      }
-      return `${row.chefName} ${row.chefAddress} ${row.bakeryName}`.toLowerCase().includes(query);
-    })
     .map((row) => {
       const cookiesBakedRaw = Number(row.cookiesBaked || 0);
       const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
@@ -356,6 +371,16 @@ function computedRows() {
         roi
       };
     });
+}
+
+function computedRows() {
+  const query = (els.searchInput.value || "").trim().toLowerCase();
+  return computedAllRows().filter((row) => {
+    if (!query) {
+      return true;
+    }
+    return `${row.chefName} ${row.chefAddress} ${row.bakeryName}`.toLowerCase().includes(query);
+  });
 }
 
 function moneyLabel(ethValue, options = {}) {
@@ -426,6 +451,318 @@ function chefCell(row, label = "Chef") {
   td.append(wrap);
 
   return td;
+}
+
+function costSourceLabel(source) {
+  if (source === "exact_gas_cache") {
+    return "Exact gas cache";
+  }
+  if (source === "partial_gas_cache") {
+    return "Partial gas cache";
+  }
+  return "RPC estimate";
+}
+
+function myBakeryMetric(label, value, className = "") {
+  const item = document.createElement("div");
+  item.className = `my-bakery-metric${className ? ` ${className}` : ""}`;
+
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = value;
+
+  item.append(labelNode, valueNode);
+  return item;
+}
+
+function findMyBakeryRow(rows) {
+  const query = (els.myBakeryInput.value || "").trim().toLowerCase();
+  if (!query) {
+    return null;
+  }
+
+  const normalizedQuery = query.replace(/^@/, "");
+  const exact = rows.find((row) => (
+    row.chefAddress?.toLowerCase() === normalizedQuery ||
+    row.chefName?.toLowerCase() === normalizedQuery ||
+    row.bakeryName?.toLowerCase() === normalizedQuery
+  ));
+  if (exact) {
+    return exact;
+  }
+
+  return rows.find((row) => (
+    `${row.chefName || ""} ${row.chefAddress || ""} ${row.bakeryName || ""}`
+      .toLowerCase()
+      .includes(normalizedQuery)
+  )) || null;
+}
+
+function renderMyBakery(rows) {
+  const query = (els.myBakeryInput.value || "").trim();
+  const row = findMyBakeryRow(rows);
+  currentMyBakeryRow = row;
+  els.sharePnlButton.disabled = !row;
+
+  els.myBakeryCard.innerHTML = "";
+  els.myBakeryCard.className = row
+    ? `my-bakery-card ${row.pnlEth >= 0 ? "my-bakery-profit" : "my-bakery-loss"}`
+    : "my-bakery-card my-bakery-empty";
+
+  if (!query) {
+    const empty = document.createElement("p");
+    empty.textContent = "Enter a Top 100 chef, bakery or wallet.";
+    els.myBakeryCard.append(empty);
+    els.shareStatus.textContent = "";
+    return;
+  }
+
+  if (!row) {
+    const empty = document.createElement("p");
+    empty.textContent = "No Top 100 bakery matched this search.";
+    els.myBakeryCard.append(empty);
+    els.shareStatus.textContent = "";
+    return;
+  }
+
+  const head = document.createElement("div");
+  head.className = "my-bakery-card-head";
+
+  const identity = document.createElement("div");
+  identity.className = "my-bakery-identity";
+  if (row.profileImageUrl) {
+    const avatar = document.createElement("img");
+    avatar.className = "my-bakery-avatar";
+    avatar.src = row.profileImageUrl;
+    avatar.alt = "";
+    avatar.loading = "lazy";
+    avatar.decoding = "async";
+    avatar.referrerPolicy = "no-referrer";
+    avatar.addEventListener("error", () => avatar.remove(), { once: true });
+    identity.append(avatar);
+  }
+
+  const nameWrap = document.createElement("div");
+  nameWrap.className = "my-bakery-title";
+  const name = document.createElement("strong");
+  name.textContent = row.chefName || shortAddress(row.chefAddress);
+  const bakery = document.createElement("span");
+  bakery.textContent = row.bakeryName || "Bakery";
+  nameWrap.append(name, bakery);
+  identity.append(nameWrap);
+
+  const rank = document.createElement("div");
+  rank.className = "my-bakery-rank";
+  rank.textContent = `#${row.rank}`;
+  head.append(identity, rank);
+
+  const pnl = document.createElement("div");
+  pnl.className = "my-bakery-pnl";
+  const pnlLabel = document.createElement("span");
+  pnlLabel.textContent = "Projected P&L";
+  const pnlValue = document.createElement("strong");
+  pnlValue.textContent = moneyLabel(row.pnlEth, { signed: true });
+  pnl.append(pnlLabel, pnlValue);
+
+  const metrics = document.createElement("div");
+  metrics.className = "my-bakery-metrics";
+  metrics.append(
+    myBakeryMetric("Cookies", formatCookieCount(row.cookiesBakedDisplay)),
+    myBakeryMetric("Remaining", formatCookieCount(row.cookieBalanceDisplay)),
+    myBakeryMetric("Reward", moneyLabel(row.grossEth)),
+    myBakeryMetric("Gas Cost", moneyLabel(row.costEth)),
+    myBakeryMetric("ROI", row.roi === null ? "--" : formatPercent(row.roi)),
+    myBakeryMetric("Share", formatShare(row.leaderboardSharePct)),
+    myBakeryMetric("Rugs", numberFormatter.format(Number(row.rugLanded || 0))),
+    myBakeryMetric("Cost Source", costSourceLabel(row.costSource))
+  );
+
+  const footer = document.createElement("p");
+  footer.className = "my-bakery-footnote";
+  footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
+
+  els.myBakeryCard.append(head, pnl, metrics, footer);
+}
+
+function slugify(value) {
+  return String(value || "bakery")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48) || "bakery";
+}
+
+function drawRoundRect(ctx, x, y, width, height, radius) {
+  if (typeof ctx.roundRect === "function") {
+    ctx.beginPath();
+    ctx.roundRect(x, y, width, height, radius);
+    return;
+  }
+
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+}
+
+function fitCanvasText(ctx, text, maxWidth, startSize, minSize, weight = 900) {
+  let size = startSize;
+  do {
+    ctx.font = `${weight} ${size}px Trebuchet MS, Verdana, sans-serif`;
+    if (ctx.measureText(text).width <= maxWidth || size <= minSize) {
+      return size;
+    }
+    size -= 2;
+  } while (size >= minSize);
+  return minSize;
+}
+
+function drawShareMetric(ctx, label, value, x, y, width) {
+  drawRoundRect(ctx, x, y, width, 96, 18);
+  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
+  ctx.fill();
+  ctx.strokeStyle = "#efc99c";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = "#7c4329";
+  ctx.font = "900 22px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(label.toUpperCase(), x + 22, y + 34);
+  ctx.fillStyle = "#1e7fa6";
+  fitCanvasText(ctx, value, width - 44, 34, 22, 900);
+  ctx.fillText(value, x + 22, y + 74);
+}
+
+function createPnlShareCanvas(row) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1200;
+  canvas.height = 630;
+  const ctx = canvas.getContext("2d");
+
+  const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  bg.addColorStop(0, "#fff8ee");
+  bg.addColorStop(0.55, "#fff1dc");
+  bg.addColorStop(1, "#ffe5c0");
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "rgba(185, 111, 66, 0.18)";
+  for (let y = 36; y < canvas.height; y += 86) {
+    for (let x = 42; x < canvas.width; x += 118) {
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  drawRoundRect(ctx, 58, 50, 1084, 530, 28);
+  ctx.fillStyle = "#fffaf2";
+  ctx.fill();
+  ctx.strokeStyle = "#e8caa6";
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  drawRoundRect(ctx, 86, 78, 590, 112, 24);
+  ctx.fillStyle = "#b96f42";
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 48px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("Rugpull Bakery P&L", 118, 147);
+
+  ctx.fillStyle = "#1e7fa6";
+  ctx.font = "900 34px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(`Top 100 #${row.rank}`, 744, 102);
+  ctx.fillStyle = "#493024";
+  fitCanvasText(ctx, row.chefName || shortAddress(row.chefAddress), 360, 54, 30, 900);
+  ctx.fillText(row.chefName || shortAddress(row.chefAddress), 744, 158);
+  ctx.fillStyle = "#7d675a";
+  fitCanvasText(ctx, row.bakeryName || "Bakery", 340, 28, 20, 900);
+  ctx.fillText(row.bakeryName || "Bakery", 746, 194);
+
+  const pnlColor = Number(row.pnlEth || 0) >= 0 ? "#2d875e" : "#b94b42";
+  ctx.fillStyle = pnlColor;
+  fitCanvasText(ctx, moneyLabel(row.pnlEth, { signed: true }), 1000, 86, 52, 900);
+  ctx.fillText(moneyLabel(row.pnlEth, { signed: true }), 92, 300);
+  ctx.fillStyle = "#7c4329";
+  ctx.font = "900 28px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("PROJECTED P&L", 96, 226);
+
+  const metrics = [
+    ["Cookies", formatCookieCount(row.cookiesBakedDisplay)],
+    ["Remaining", formatCookieCount(row.cookieBalanceDisplay)],
+    ["Reward", moneyLabel(row.grossEth)],
+    ["Gas Cost", moneyLabel(row.costEth)],
+    ["ROI", row.roi === null ? "--" : formatPercent(row.roi)],
+    ["Share", formatShare(row.leaderboardSharePct)]
+  ];
+  metrics.forEach(([label, value], index) => {
+    const col = index % 3;
+    const rowIndex = Math.floor(index / 3);
+    drawShareMetric(ctx, label, value, 92 + col * 338, 334 + rowIndex * 112, 304);
+  });
+
+  ctx.fillStyle = "#7d675a";
+  ctx.font = "900 22px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("Projected leaderboard reward - gas cost. Activity rewards not included.", 96, 558);
+  return canvas;
+}
+
+function canvasToBlob(canvas) {
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), "image/png");
+  });
+}
+
+async function shareMyPnlCard() {
+  const row = currentMyBakeryRow;
+  if (!row) {
+    return;
+  }
+
+  els.sharePnlButton.disabled = true;
+  els.shareStatus.textContent = "Generating share card...";
+
+  try {
+    const canvas = createPnlShareCanvas(row);
+    const blob = await canvasToBlob(canvas);
+    if (!blob) {
+      throw new Error("Unable to generate share card");
+    }
+
+    const filename = `rugpull-bakery-pnl-${slugify(row.chefName || row.bakeryName || row.chefAddress)}.png`;
+    const title = `${row.chefName || "My Bakery"} Rugpull Bakery P&L`;
+    if (typeof File !== "undefined" && navigator.canShare && navigator.share) {
+      const file = new File([blob], filename, { type: "image/png" });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title,
+          text: `${row.chefName || "My Bakery"} projected P&L: ${moneyLabel(row.pnlEth, { signed: true })}`,
+          files: [file]
+        });
+        els.shareStatus.textContent = "Share card ready.";
+        return;
+      }
+    }
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    els.shareStatus.textContent = "Share card downloaded.";
+  } catch (error) {
+    els.shareStatus.textContent = error instanceof Error ? error.message : String(error);
+  } finally {
+    els.sharePnlButton.disabled = !currentMyBakeryRow;
+  }
 }
 
 function addMobileDetailsToggle(row, visibleCellCount) {
@@ -730,6 +1067,7 @@ function renderDashboard() {
   }
 
   const rows = computedRows();
+  const myRows = computedAllRows();
   const allRows = (dashboard.rows || []).map((row) => {
     const cookiesBakedRaw = Number(row.cookiesBaked || 0);
     const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
@@ -786,6 +1124,7 @@ function renderDashboard() {
     els.docsLink.href = dashboard.docsUrl;
   }
   renderTable(rows);
+  renderMyBakery(myRows);
   renderTopRug(rows);
   renderSimulator(rows);
 }
@@ -926,6 +1265,9 @@ async function refreshDashboard() {
     els.tableBody.innerHTML = "";
     els.rugTableBody.innerHTML = "";
     els.ruggedTableBody.innerHTML = "";
+    els.myBakeryCard.innerHTML = "";
+    els.shareStatus.textContent = "";
+    els.sharePnlButton.disabled = true;
     els.simTableBody.innerHTML = "";
     const tr = document.createElement("tr");
     tr.append(cell("Unable to load the public Bakery P&L right now.", "empty-cell"));
@@ -968,8 +1310,21 @@ els.syncPrizePoolButton.addEventListener("click", () => {
   syncSimulatorPrizePool();
 });
 
+els.myBakeryInput.addEventListener("input", () => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.myBakeryQuery, els.myBakeryInput.value);
+  } catch {}
+  if (dashboard) {
+    renderMyBakery(computedAllRows());
+  }
+});
+
 els.dashboardTab.addEventListener("click", () => {
   setActiveView("dashboard");
+});
+
+els.myBakeryTab.addEventListener("click", () => {
+  setActiveView("my");
 });
 
 els.topRugTab.addEventListener("click", () => {
@@ -1016,6 +1371,10 @@ els.refreshButton.addEventListener("click", () => {
 
 els.csvButton.addEventListener("click", () => {
   downloadCsv();
+});
+
+els.sharePnlButton.addEventListener("click", () => {
+  shareMyPnlCard();
 });
 
 setThemeMode(themeMode, false);
