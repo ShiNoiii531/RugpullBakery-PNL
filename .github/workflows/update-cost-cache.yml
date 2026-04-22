@@ -37,12 +37,12 @@ jobs:
 
       - name: Commit cache
         run: |
-          if git diff --quiet -- data/cost-cache.json; then
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/cost-cache.json data/rank-cache.json
+          if git diff --cached --quiet; then
             echo "No cache changes to commit."
             exit 0
           fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/cost-cache.json
           git commit -m "Update Bakery gas cost cache"
           git push

@@ -73,6 +73,7 @@
         <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Top 100</button>
         <button id="myBakeryTab" class="tab-button" type="button" aria-pressed="false">P&amp;L Card</button>
         <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
+        <button id="hallPainTab" class="tab-button" type="button" aria-pressed="false">Hall of Pain</button>
         <button id="mostRuggedTab" class="tab-button tab-button-disabled" type="button" aria-pressed="false" disabled>
           <span>Most Rugged</span>
           <small>Available next season</small>
@@ -285,6 +286,16 @@
               </tbody>
             </table>
           </div>
+        </section>
+      </section>
+
+      <section id="hallPainView" class="view-panel" hidden>
+        <section class="table-shell hall-pain-shell" aria-label="Hall of Pain worst ROI podium">
+          <div class="table-meta">
+            <strong>Hall of Pain</strong>
+            <span id="hallPainRowCount">Top 3 worst ROI</span>
+          </div>
+          <div id="hallPainPodium" class="hall-pain-podium" aria-live="polite"></div>
         </section>
       </section>
 

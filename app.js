@@ -23,11 +23,13 @@ const els = {
   dashboardTab: document.getElementById("dashboardTab"),
   myBakeryTab: document.getElementById("myBakeryTab"),
   topRugTab: document.getElementById("topRugTab"),
+  hallPainTab: document.getElementById("hallPainTab"),
   mostRuggedTab: document.getElementById("mostRuggedTab"),
   simulatorTab: document.getElementById("simulatorTab"),
   dashboardView: document.getElementById("dashboardView"),
   myBakeryView: document.getElementById("myBakeryView"),
   topRugView: document.getElementById("topRugView"),
+  hallPainView: document.getElementById("hallPainView"),
   mostRuggedView: document.getElementById("mostRuggedView"),
   simulatorView: document.getElementById("simulatorView"),
   seasonValue: document.getElementById("seasonValue"),
@@ -61,6 +63,8 @@ const els = {
   rugTableBody: document.getElementById("rugTableBody"),
   ruggedRowCount: document.getElementById("ruggedRowCount"),
   ruggedTableBody: document.getElementById("ruggedTableBody"),
+  hallPainRowCount: document.getElementById("hallPainRowCount"),
+  hallPainPodium: document.getElementById("hallPainPodium"),
   myBakeryInput: document.getElementById("myBakeryInput"),
   myBakeryCard: document.getElementById("myBakeryCard"),
   sharePnlButton: document.getElementById("sharePnlButton"),
@@ -111,7 +115,7 @@ try {
   if (storedThemeMode === "dark") {
     themeMode = "dark";
   }
-  if (["dashboard", "my", "rug", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "my", "rug", "pain", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
   }
   if (storedMyBakeryQuery !== null) {
@@ -310,21 +314,24 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "my", "rug", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "my", "rug", "pain", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
   const isMyBakery = activeView === "my";
   const isRug = activeView === "rug";
+  const isPain = activeView === "pain";
   const isRugged = activeView === "rugged";
   const isSimulator = activeView === "simulator";
 
   els.dashboardView.hidden = !isDashboard;
   els.myBakeryView.hidden = !isMyBakery;
   els.topRugView.hidden = !isRug;
+  els.hallPainView.hidden = !isPain;
   els.mostRuggedView.hidden = !isRugged;
   els.simulatorView.hidden = !isSimulator;
   els.dashboardTab.setAttribute("aria-pressed", String(isDashboard));
   els.myBakeryTab.setAttribute("aria-pressed", String(isMyBakery));
   els.topRugTab.setAttribute("aria-pressed", String(isRug));
+  els.hallPainTab.setAttribute("aria-pressed", String(isPain));
   els.mostRuggedTab.setAttribute("aria-pressed", String(isRugged));
   els.simulatorTab.setAttribute("aria-pressed", String(isSimulator));
 
@@ -404,6 +411,49 @@ function cell(text, className = "", label = "") {
   return td;
 }
 
+function rankMovementBadge(row) {
+  const movement = row?.rankMovement || {};
+  const direction = ["up", "down", "same"].includes(movement.direction) ? movement.direction : "same";
+  const delta = Number(movement.delta || 0);
+  const previousRank = Number(movement.previousRank || 0);
+  const absDelta = Math.abs(delta);
+  const badge = document.createElement("span");
+  badge.className = `rank-move rank-move-${direction}`;
+
+  if (direction === "up") {
+    badge.textContent = "↑";
+    badge.title = previousRank
+      ? `Up ${absDelta} rank${absDelta > 1 ? "s" : ""} since last snapshot (was #${previousRank})`
+      : "Rank up since last snapshot";
+  } else if (direction === "down") {
+    badge.textContent = "↓";
+    badge.title = previousRank
+      ? `Down ${absDelta} rank${absDelta > 1 ? "s" : ""} since last snapshot (was #${previousRank})`
+      : "Rank down since last snapshot";
+  } else {
+    badge.textContent = "=";
+    badge.title = previousRank ? `No rank change since last snapshot (#${previousRank})` : "No previous rank snapshot yet";
+  }
+
+  return badge;
+}
+
+function rankCell(row, label = "Rank") {
+  const td = document.createElement("td");
+  td.className = "rank-cell";
+  td.dataset.label = label;
+
+  const wrap = document.createElement("span");
+  wrap.className = "rank-cell-inner";
+
+  const value = document.createElement("span");
+  value.textContent = `#${row.rank}`;
+  wrap.append(value, rankMovementBadge(row));
+  td.append(wrap);
+
+  return td;
+}
+
 function abstractPortalProfileUrl(address) {
   if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
     return null;
@@ -453,6 +503,72 @@ function chefCell(row, label = "Chef") {
   return td;
 }
 
+function mobileSummaryCell(row) {
+  const td = document.createElement("td");
+  td.className = "mobile-summary-cell";
+  td.dataset.label = "Player";
+
+  const portalUrl = abstractPortalProfileUrl(row.chefAddress);
+  const profile = document.createElement(portalUrl ? "a" : "span");
+  profile.className = "mobile-summary-profile";
+  if (portalUrl) {
+    profile.href = portalUrl;
+    profile.target = "_blank";
+    profile.rel = "noopener noreferrer";
+    profile.title = `Open ${row.chefName || row.chefAddress} on Abstract Portal`;
+  }
+
+  if (row.profileImageUrl) {
+    const img = document.createElement("img");
+    img.className = "mobile-summary-avatar";
+    img.src = row.profileImageUrl;
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => img.remove(), { once: true });
+    profile.append(img);
+  } else {
+    profile.classList.add("mobile-summary-profile-no-avatar");
+  }
+
+  const text = document.createElement("span");
+  text.className = "mobile-summary-title";
+
+  const name = document.createElement("strong");
+  name.textContent = row.chefName || shortAddress(row.chefAddress);
+
+  const bakery = document.createElement("span");
+  bakery.textContent = row.bakeryName || "Bakery";
+
+  text.append(name, bakery);
+  profile.append(text);
+
+  const rank = document.createElement("span");
+  rank.className = "mobile-summary-rank";
+  rank.append(`#${row.rank}`, rankMovementBadge(row));
+
+  const stats = document.createElement("div");
+  stats.className = "mobile-summary-stats";
+  [
+    ["P&L", moneyLabel(row.pnlEth, { signed: true }), row.pnlEth >= 0 ? "positive" : "negative"],
+    ["Cookies", formatCookieCount(row.cookiesBakedDisplay), ""],
+    ["Remaining", formatCookieCount(row.cookieBalanceDisplay), ""]
+  ].forEach(([label, value, tone]) => {
+    const item = document.createElement("span");
+    item.className = tone ? `mobile-summary-stat ${tone}` : "mobile-summary-stat";
+    const itemLabel = document.createElement("small");
+    itemLabel.textContent = label;
+    const itemValue = document.createElement("strong");
+    itemValue.textContent = value;
+    item.append(itemLabel, itemValue);
+    stats.append(item);
+  });
+
+  td.append(profile, rank, stats);
+  return td;
+}
+
 function costSourceLabel(source) {
   if (source === "exact_gas_cache") {
     return "Exact gas cache";
@@ -475,31 +591,6 @@ function myBakeryMetric(label, value, className = "") {
 
   item.append(labelNode, valueNode);
   return item;
-}
-
-function pnlCardChefScene() {
-  const scene = document.createElement("div");
-  scene.className = "pnl-card-chef-scene";
-  scene.setAttribute("aria-hidden", "true");
-
-  const chef = document.createElement("div");
-  chef.className = "pnl-card-chef";
-  ["hat", "face", "ear", "scarf", "body", "arm-left", "arm-right"].forEach((part) => {
-    const node = document.createElement("span");
-    node.className = `pnl-chef-${part}`;
-    chef.append(node);
-  });
-
-  const tray = document.createElement("div");
-  tray.className = "pnl-cookie-tray";
-  for (let index = 0; index < 5; index += 1) {
-    const cookie = document.createElement("span");
-    cookie.className = "pnl-tray-cookie";
-    tray.append(cookie);
-  }
-
-  scene.append(chef, tray);
-  return scene;
 }
 
 function findMyBakeryRow(rows) {
@@ -580,7 +671,7 @@ function renderMyBakery(rows) {
 
   const rank = document.createElement("div");
   rank.className = "my-bakery-rank";
-  rank.textContent = `#${row.rank}`;
+  rank.append(`#${row.rank}`, rankMovementBadge(row));
   head.append(identity, rank);
 
   const pnl = document.createElement("div");
@@ -604,12 +695,11 @@ function renderMyBakery(rows) {
     myBakeryMetric("Cost Source", costSourceLabel(row.costSource))
   );
 
-  const chefScene = pnlCardChefScene();
   const footer = document.createElement("p");
   footer.className = "my-bakery-footnote";
   footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
 
-  els.myBakeryCard.append(head, pnl, chefScene, metrics, footer);
+  els.myBakeryCard.append(head, pnl, metrics, footer);
 }
 
 function slugify(value) {
@@ -664,112 +754,6 @@ function drawShareMetric(ctx, label, value, x, y, width) {
   ctx.fillText(value, x + 22, y + 74);
 }
 
-function drawChefCookingCookies(ctx, x, y, scale = 1) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.scale(scale, scale);
-
-  ctx.fillStyle = "rgba(124, 67, 41, 0.18)";
-  ctx.beginPath();
-  ctx.ellipse(125, 214, 100, 18, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#4b4c45";
-  ctx.fillRect(86, 156, 28, 52);
-  ctx.fillRect(144, 156, 28, 52);
-  ctx.fillStyle = "#ffffff";
-  drawRoundRect(ctx, 60, 82, 136, 106, 26);
-  ctx.fill();
-  ctx.strokeStyle = "#d8d0c4";
-  ctx.lineWidth = 4;
-  ctx.stroke();
-
-  ctx.fillStyle = "#b73b3b";
-  ctx.beginPath();
-  ctx.moveTo(76, 96);
-  ctx.quadraticCurveTo(126, 116, 182, 96);
-  ctx.lineTo(166, 134);
-  ctx.quadraticCurveTo(126, 122, 88, 134);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#ffd0b5";
-  ctx.beginPath();
-  ctx.ellipse(128, 72, 64, 58, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(186, 76, 18, 24, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.ellipse(98, 18, 48, 34, 0, 0, Math.PI * 2);
-  ctx.ellipse(140, 6, 54, 38, 0, 0, Math.PI * 2);
-  ctx.ellipse(182, 22, 46, 32, 0, 0, Math.PI * 2);
-  ctx.fill();
-  drawRoundRect(ctx, 82, 28, 104, 42, 14);
-  ctx.fill();
-
-  ctx.fillStyle = "#493024";
-  ctx.beginPath();
-  ctx.arc(106, 68, 6, 0, Math.PI * 2);
-  ctx.arc(154, 68, 6, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = "#493024";
-  ctx.lineWidth = 5;
-  ctx.beginPath();
-  ctx.arc(130, 82, 18, 0.15 * Math.PI, 0.85 * Math.PI);
-  ctx.stroke();
-  ctx.fillStyle = "#f29a93";
-  ctx.beginPath();
-  ctx.ellipse(164, 86, 22, 12, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "#ffd0b5";
-  ctx.lineWidth = 18;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(68, 120);
-  ctx.lineTo(26, 154);
-  ctx.moveTo(188, 124);
-  ctx.lineTo(232, 154);
-  ctx.stroke();
-
-  ctx.fillStyle = "#6b4631";
-  drawRoundRect(ctx, 18, 142, 228, 24, 12);
-  ctx.fill();
-  ctx.fillStyle = "#c87942";
-  drawRoundRect(ctx, 30, 126, 204, 36, 16);
-  ctx.fill();
-
-  const cookies = [
-    [58, 140, 18],
-    [100, 137, 20],
-    [144, 140, 18],
-    [188, 136, 20]
-  ];
-  for (const [cx, cy, radius] of cookies) {
-    ctx.fillStyle = "#f6c96f";
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#6f3d24";
-    ctx.beginPath();
-    ctx.arc(cx - 5, cy - 4, 4, 0, Math.PI * 2);
-    ctx.arc(cx + 6, cy + 2, 4, 0, Math.PI * 2);
-    ctx.arc(cx - 1, cy + 7, 3, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  ctx.fillStyle = "#493024";
-  ctx.beginPath();
-  ctx.arc(108, 130, 6, 0, Math.PI * 2);
-  ctx.arc(148, 130, 6, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
-}
-
 function createPnlShareCanvas(row) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
@@ -815,7 +799,6 @@ function createPnlShareCanvas(row) {
   ctx.fillStyle = "#7d675a";
   fitCanvasText(ctx, row.bakeryName || "Bakery", 340, 28, 20, 900);
   ctx.fillText(row.bakeryName || "Bakery", 746, 194);
-  drawChefCookingCookies(ctx, 864, 216, 0.94);
 
   const pnlColor = Number(row.pnlEth || 0) >= 0 ? "#2d875e" : "#b94b42";
   ctx.fillStyle = pnlColor;
@@ -942,7 +925,8 @@ function renderTable(rows) {
     const tr = document.createElement("tr");
     tr.className = row.pnlEth >= 0 ? "profit-row" : "loss-row";
     tr.append(
-      cell(`#${row.rank}`, "rank-cell", "Rank"),
+      mobileSummaryCell(row),
+      rankCell(row),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies"),
@@ -953,7 +937,7 @@ function renderTable(rows) {
       cell(moneyLabel(row.pnlEth, { signed: true }), "number-cell pnl-cell", "P&L"),
       cell(row.roi === null ? "--" : formatPercent(row.roi), "number-cell", "ROI")
     );
-    addMobileDetailsToggle(tr, 3);
+    addMobileDetailsToggle(tr, 1);
     fragment.append(tr);
   }
   els.tableBody.append(fragment);
@@ -1151,7 +1135,7 @@ function renderTopRug(rows) {
     const tr = document.createElement("tr");
     tr.append(
       cell(`#${rugRank}`, "rank-cell", "Rug Rank"),
-      cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
+      rankCell(row, "Top 100 Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell pnl-cell", "Successful Rugs"),
@@ -1178,7 +1162,7 @@ function renderTopRug(rows) {
     const tr = document.createElement("tr");
     tr.append(
       cell(`#${index + 1}`, "rank-cell", "Rugged Rank"),
-      cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
+      rankCell(row, "Top 100 Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.recentRugAttemptsReceived || 0)), "number-cell pnl-cell", "Incoming Attempts"),
@@ -1192,6 +1176,108 @@ function renderTopRug(rows) {
     ruggedFragment.append(tr);
   });
   els.ruggedTableBody.append(ruggedFragment);
+}
+
+function hallOfPainRows(rows) {
+  return [...rows]
+    .filter((row) => Number.isFinite(Number(row.roi)))
+    .sort((a, b) => Number(a.roi) - Number(b.roi))
+    .slice(0, 3);
+}
+
+function painPodiumAvatar(row, place) {
+  const portalUrl = abstractPortalProfileUrl(row.chefAddress);
+  const wrap = document.createElement(portalUrl ? "a" : "span");
+  wrap.className = "pain-profile";
+  if (portalUrl) {
+    wrap.href = portalUrl;
+    wrap.target = "_blank";
+    wrap.rel = "noopener noreferrer";
+    wrap.title = `Open ${row.chefName || row.chefAddress} on Abstract Portal`;
+  }
+
+  if (place === 1) {
+    const crown = document.createElement("span");
+    crown.className = "pain-crown";
+    crown.setAttribute("aria-label", "Worst ROI crown");
+    crown.textContent = "♛";
+    wrap.append(crown);
+  }
+
+  if (row.profileImageUrl) {
+    const img = document.createElement("img");
+    img.className = "pain-avatar";
+    img.src = row.profileImageUrl;
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => img.remove(), { once: true });
+    wrap.append(img);
+  } else {
+    const fallback = document.createElement("span");
+    fallback.className = "pain-avatar pain-avatar-fallback";
+    fallback.textContent = (row.chefName || row.chefAddress || "?").slice(0, 2).toUpperCase();
+    wrap.append(fallback);
+  }
+
+  return wrap;
+}
+
+function renderHallOfPain(rows) {
+  const ranked = hallOfPainRows(rows).map((row, index) => ({
+    row,
+    place: index + 1
+  }));
+  const podium = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
+
+  els.hallPainPodium.innerHTML = "";
+  els.hallPainRowCount.textContent = ranked.length === 0 ? "No ROI data" : `${ranked.length} worst ROI`;
+
+  if (ranked.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-cell";
+    empty.textContent = "No ROI data available for Hall of Pain.";
+    els.hallPainPodium.append(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const { row, place } of podium) {
+    const card = document.createElement("article");
+    card.className = `pain-podium-card pain-place-${place}`;
+
+    const placeBadge = document.createElement("span");
+    placeBadge.className = "pain-place";
+    placeBadge.textContent = `#${place}`;
+
+    const avatar = painPodiumAvatar(row, place);
+
+    const name = document.createElement("strong");
+    name.className = "pain-name";
+    name.textContent = row.chefName || shortAddress(row.chefAddress);
+
+    const bakery = document.createElement("span");
+    bakery.className = "pain-bakery";
+    bakery.textContent = row.bakeryName || "Bakery";
+
+    const roi = document.createElement("strong");
+    roi.className = "pain-roi";
+    roi.textContent = formatPercent(row.roi);
+
+    const pnl = document.createElement("span");
+    pnl.className = row.pnlEth >= 0 ? "pain-pnl positive" : "pain-pnl negative";
+    pnl.textContent = `${moneyLabel(row.pnlEth, { signed: true })} P&L`;
+
+    const meta = document.createElement("span");
+    meta.className = "pain-meta";
+    meta.append(`Top 100 #${row.rank}`, rankMovementBadge(row), ` · Cost ${moneyLabel(row.costEth)}`);
+
+    card.append(placeBadge, avatar, name, bakery, roi, pnl, meta);
+    fragment.append(card);
+  }
+
+  els.hallPainPodium.append(fragment);
 }
 
 function renderDashboard() {
@@ -1259,6 +1345,7 @@ function renderDashboard() {
   renderTable(rows);
   renderMyBakery(myRows);
   renderTopRug(rows);
+  renderHallOfPain(myRows);
   renderSimulator(rows);
 }
 
@@ -1326,7 +1413,7 @@ function renderSimulator(rows) {
     const tr = document.createElement("tr");
     tr.className = delta >= 0 ? "profit-row" : "loss-row";
     tr.append(
-      cell(`#${row.rank}`, "rank-cell", "Rank"),
+      rankCell(row),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
@@ -1398,6 +1485,7 @@ async function refreshDashboard() {
     els.tableBody.innerHTML = "";
     els.rugTableBody.innerHTML = "";
     els.ruggedTableBody.innerHTML = "";
+    els.hallPainPodium.innerHTML = "";
     els.myBakeryCard.innerHTML = "";
     els.shareStatus.textContent = "";
     els.sharePnlButton.disabled = true;
@@ -1414,6 +1502,10 @@ async function refreshDashboard() {
     ruggedTr.append(cell("Unable to load the public Bakery received rug stats right now.", "empty-cell"));
     ruggedTr.firstChild.colSpan = 10;
     els.ruggedTableBody.append(ruggedTr);
+    const painEmpty = document.createElement("p");
+    painEmpty.className = "empty-cell";
+    painEmpty.textContent = "Unable to load the Hall of Pain right now.";
+    els.hallPainPodium.append(painEmpty);
     const simTr = document.createElement("tr");
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
     simTr.firstChild.colSpan = 7;
@@ -1462,6 +1554,10 @@ els.myBakeryTab.addEventListener("click", () => {
 
 els.topRugTab.addEventListener("click", () => {
   setActiveView("rug");
+});
+
+els.hallPainTab.addEventListener("click", () => {
+  setActiveView("pain");
 });
 
 els.mostRuggedTab.addEventListener("click", () => {

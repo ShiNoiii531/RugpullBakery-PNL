@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE_PATH = resolve(ROOT_DIR, "data", "cost-cache.json");
+const RANK_CACHE_PATH = resolve(ROOT_DIR, "data", "rank-cache.json");
 
 const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const ABSTRACT_RPC_URL = process.env.ABSTRACT_RPC_URL || "https://api.mainnet.abs.xyz";
@@ -264,6 +265,52 @@ async function writeCache(cache) {
   await writeFile(CACHE_PATH, `${JSON.stringify(cache, null, 2)}\n`);
 }
 
+async function readRankCache() {
+  try {
+    return JSON.parse(await readFile(RANK_CACHE_PATH, "utf8"));
+  } catch {
+    return {
+      version: 1,
+      seasonId: null,
+      updatedAt: null,
+      previousUpdatedAt: null,
+      currentRanks: {},
+      previousRanks: {}
+    };
+  }
+}
+
+async function writeRankSnapshot(seasonId, leaderboardItems) {
+  const currentRanks = {};
+  (leaderboardItems || []).slice(0, 100).forEach((row, index) => {
+    const address = row.topCook || row.creator || row.leader;
+    if (!/^0x[a-fA-F0-9]{40}$/.test(address || "")) {
+      return;
+    }
+    currentRanks[address.toLowerCase()] = Number(row.rank ?? index + 1);
+  });
+
+  if (Object.keys(currentRanks).length === 0) {
+    return;
+  }
+
+  const previous = await readRankCache();
+  const sameSeason = Number(previous.seasonId) === Number(seasonId);
+  const rankCache = {
+    version: 1,
+    seasonId,
+    updatedAt: new Date().toISOString(),
+    previousUpdatedAt: sameSeason ? previous.updatedAt || null : null,
+    currentRanks,
+    previousRanks: sameSeason && previous.currentRanks && typeof previous.currentRanks === "object"
+      ? previous.currentRanks
+      : {}
+  };
+
+  await mkdir(dirname(RANK_CACHE_PATH), { recursive: true });
+  await writeFile(RANK_CACHE_PATH, `${JSON.stringify(rankCache, null, 2)}\n`);
+}
+
 function emptyEntry(address, seasonStartBlock) {
   return {
     address,
@@ -435,6 +482,7 @@ async function main() {
   }
 
   const leaderboard = await fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 });
+  await writeRankSnapshot(activeSeason.id, leaderboard.items || []);
   const top100Addresses = [...new Set((leaderboard.items || [])
     .slice(0, 100)
     .map((row) => row.topCook || row.creator || row.leader)

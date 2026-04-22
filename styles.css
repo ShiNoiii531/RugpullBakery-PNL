@@ -437,7 +437,7 @@ body[data-theme="dark"] .logo-character {
 
 .view-tabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -741,8 +741,6 @@ body[data-theme="dark"] .my-bakery-avatar {
   z-index: 1;
   display: grid;
   gap: 4px;
-  min-height: 118px;
-  padding-right: 250px;
 }
 
 .my-bakery-pnl span {
@@ -773,182 +771,6 @@ body[data-theme="dark"] .my-bakery-avatar {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-}
-
-.pnl-card-chef-scene {
-  position: absolute;
-  top: 106px;
-  right: 18px;
-  z-index: 1;
-  width: 226px;
-  height: 178px;
-  pointer-events: none;
-}
-
-.pnl-card-chef-scene::before {
-  content: "";
-  position: absolute;
-  right: 16px;
-  bottom: 4px;
-  width: 180px;
-  height: 26px;
-  border-radius: 50%;
-  background: rgba(124, 67, 41, 0.14);
-}
-
-.pnl-card-chef {
-  position: absolute;
-  right: 22px;
-  bottom: 18px;
-  width: 130px;
-  height: 142px;
-}
-
-.pnl-chef-hat {
-  position: absolute;
-  left: 24px;
-  top: 0;
-  width: 84px;
-  height: 42px;
-  border-radius: 42px 42px 14px 14px;
-  background:
-    radial-gradient(circle at 20px 20px, #fff 0 22px, transparent 23px),
-    radial-gradient(circle at 48px 10px, #fff 0 28px, transparent 29px),
-    radial-gradient(circle at 76px 22px, #fff 0 21px, transparent 22px),
-    #fff;
-  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.08);
-}
-
-.pnl-chef-face {
-  position: absolute;
-  left: 25px;
-  top: 32px;
-  width: 82px;
-  height: 72px;
-  border-radius: 48% 48% 44% 44%;
-  background:
-    radial-gradient(circle at 29px 30px, #493024 0 4px, transparent 5px),
-    radial-gradient(circle at 58px 30px, #493024 0 4px, transparent 5px),
-    radial-gradient(ellipse at 65px 50px, #f29a93 0 12px, transparent 13px),
-    #ffd0b5;
-}
-
-.pnl-chef-face::after {
-  content: "";
-  position: absolute;
-  left: 33px;
-  top: 43px;
-  width: 20px;
-  height: 11px;
-  border-right: 3px solid #493024;
-  border-bottom: 3px solid #493024;
-  border-left: 3px solid #493024;
-  border-radius: 0 0 20px 20px;
-}
-
-.pnl-chef-ear {
-  position: absolute;
-  right: 12px;
-  top: 56px;
-  width: 22px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f0b294;
-}
-
-.pnl-chef-scarf {
-  position: absolute;
-  left: 34px;
-  top: 92px;
-  width: 64px;
-  height: 26px;
-  border-radius: 0 0 26px 26px;
-  background: #b73b3b;
-}
-
-.pnl-chef-body {
-  position: absolute;
-  left: 22px;
-  top: 104px;
-  width: 88px;
-  height: 50px;
-  border-radius: 20px 20px 14px 14px;
-  background:
-    radial-gradient(circle at 34px 24px, #493024 0 4px, transparent 5px),
-    radial-gradient(circle at 58px 24px, #493024 0 4px, transparent 5px),
-    #fff;
-  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.08);
-}
-
-.pnl-chef-arm-left,
-.pnl-chef-arm-right {
-  position: absolute;
-  top: 112px;
-  width: 56px;
-  height: 18px;
-  border-radius: 18px;
-  background: #ffd0b5;
-}
-
-.pnl-chef-arm-left {
-  left: -10px;
-  transform: rotate(-23deg);
-}
-
-.pnl-chef-arm-right {
-  right: -18px;
-  transform: rotate(22deg);
-}
-
-.pnl-cookie-tray {
-  position: absolute;
-  left: 6px;
-  bottom: 27px;
-  width: 206px;
-  height: 36px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, #d88b50, #9a5e34);
-  box-shadow: inset 0 -6px 0 rgba(73, 48, 36, 0.2), 0 5px 0 rgba(73, 48, 36, 0.12);
-  transform: rotate(-2deg);
-}
-
-.pnl-tray-cookie {
-  position: absolute;
-  top: -10px;
-  width: 31px;
-  height: 31px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 10px 9px, #6f3d24 0 4px, transparent 5px),
-    radial-gradient(circle at 20px 15px, #6f3d24 0 4px, transparent 5px),
-    radial-gradient(circle at 14px 22px, #6f3d24 0 3px, transparent 4px),
-    #f6c96f;
-  box-shadow: inset 0 -4px 0 rgba(124, 67, 41, 0.16);
-}
-
-.pnl-tray-cookie:nth-child(1) {
-  left: 24px;
-}
-
-.pnl-tray-cookie:nth-child(2) {
-  left: 62px;
-  top: -15px;
-}
-
-.pnl-tray-cookie:nth-child(3) {
-  left: 103px;
-}
-
-.pnl-tray-cookie:nth-child(4) {
-  left: 143px;
-  top: -14px;
-}
-
-.pnl-tray-cookie:nth-child(5) {
-  left: 172px;
-  top: 2px;
-  width: 22px;
-  height: 22px;
 }
 
 .my-bakery-metric {
@@ -993,6 +815,160 @@ body[data-theme="dark"] .my-bakery-metric {
   min-height: 20px;
   margin: -6px 2px 0;
   font-size: 0.92rem;
+}
+
+.hall-pain-shell {
+  overflow: hidden;
+}
+
+.hall-pain-podium {
+  min-height: 430px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 14px;
+  padding: 18px;
+}
+
+.pain-podium-card {
+  min-height: 300px;
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  gap: 8px;
+  padding: 18px 12px;
+  border: 2px solid #e8caa6;
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(255, 235, 207, 0.94)),
+    var(--cream-card);
+  box-shadow: inset 0 -8px 0 rgba(185, 111, 66, 0.14);
+  text-align: center;
+}
+
+body[data-theme="dark"] .pain-podium-card {
+  border-color: #5b3827;
+  background:
+    linear-gradient(180deg, rgba(56, 37, 29, 0.96), rgba(38, 26, 21, 0.94)),
+    var(--cream-card);
+}
+
+.pain-place-1 {
+  min-height: 390px;
+  border-color: #d5a449;
+  box-shadow: inset 0 -12px 0 rgba(213, 164, 73, 0.24), 0 12px 28px rgba(124, 67, 41, 0.14);
+}
+
+.pain-place-2 {
+  min-height: 330px;
+}
+
+.pain-place-3 {
+  min-height: 285px;
+}
+
+.pain-place {
+  min-width: 46px;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 900;
+}
+
+.pain-profile {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  gap: 4px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.pain-crown {
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: #d5a449;
+  font-size: 2.1rem;
+  line-height: 1;
+  text-shadow: 0 3px 0 rgba(124, 67, 41, 0.15);
+}
+
+.pain-avatar {
+  width: 96px;
+  height: 96px;
+  border: 4px solid #f0d3ae;
+  border-radius: 999px;
+  background: #ffe1b9;
+  object-fit: cover;
+  box-shadow: 0 7px 0 rgba(124, 67, 41, 0.11);
+}
+
+.pain-place-1 .pain-avatar {
+  width: 118px;
+  height: 118px;
+  border-color: #d5a449;
+}
+
+.pain-avatar-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--cookie-dark);
+  font-weight: 900;
+}
+
+.pain-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--choc);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.05;
+}
+
+.pain-bakery,
+.pain-meta {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.pain-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pain-meta .rank-move {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+  font-size: 0.66rem;
+}
+
+.pain-roi {
+  color: var(--red);
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  line-height: 1;
+}
+
+.pain-pnl {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.pain-pnl.positive {
+  color: var(--green);
+}
+
+.pain-pnl.negative {
+  color: var(--red);
 }
 
 .stat-card {
@@ -1198,6 +1174,48 @@ tr:last-child td {
   font-weight: 900;
 }
 
+.rank-cell-inner,
+.my-bakery-rank,
+.mobile-summary-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.rank-move {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 22px;
+  border-radius: 999px;
+  background: rgba(125, 103, 90, 0.12);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.rank-move-up {
+  background: rgba(45, 135, 94, 0.14);
+  color: var(--green);
+}
+
+.rank-move-down {
+  background: rgba(185, 75, 66, 0.14);
+  color: var(--red);
+}
+
+.my-bakery-rank .rank-move {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.mobile-summary-cell {
+  display: none;
+}
+
 .name-cell {
   max-width: 230px;
   overflow-wrap: anywhere;
@@ -1301,6 +1319,12 @@ body[data-theme="dark"] .player-avatar {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .hall-pain-podium {
+    min-height: 380px;
+    gap: 10px;
+    padding: 14px;
+  }
+
   .my-bakery-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1336,7 +1360,7 @@ body[data-theme="dark"] .player-avatar {
   }
 
   .view-tabs {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
   }
 
@@ -1364,26 +1388,35 @@ body[data-theme="dark"] .player-avatar {
     align-items: flex-start;
   }
 
-  .my-bakery-pnl {
-    min-height: 0;
-    padding-right: 0;
-  }
-
-  .pnl-card-chef-scene {
-    position: relative;
-    top: auto;
-    right: auto;
-    width: min(100%, 226px);
-    height: 178px;
-    justify-self: center;
-    margin-top: -4px;
-    margin-bottom: -4px;
-  }
-
   .my-bakery-rank {
     min-width: 58px;
     min-height: 48px;
     font-size: 1.1rem;
+  }
+
+  .hall-pain-podium {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .pain-podium-card,
+  .pain-place-1,
+  .pain-place-2,
+  .pain-place-3 {
+    min-height: 0;
+    border-radius: 8px;
+  }
+
+  .pain-place-1 {
+    order: 1;
+  }
+
+  .pain-place-2 {
+    order: 2;
+  }
+
+  .pain-place-3 {
+    order: 3;
   }
 }
 
@@ -1515,6 +1548,115 @@ body[data-theme="dark"] .player-avatar {
     font-weight: 900;
     text-align: left;
     text-transform: uppercase;
+  }
+
+  .mobile-summary-cell {
+    display: grid;
+    gap: 10px;
+    min-height: 0;
+    padding: 12px;
+    text-align: left;
+  }
+
+  .mobile-summary-cell::before {
+    content: "";
+    display: none;
+  }
+
+  .mobile-summary-profile {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .mobile-summary-profile-no-avatar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .mobile-summary-avatar {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #f0d3ae;
+    border-radius: 999px;
+    background: #ffe1b9;
+    object-fit: cover;
+  }
+
+  .mobile-summary-title {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+  }
+
+  .mobile-summary-title strong,
+  .mobile-summary-title span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .mobile-summary-title strong {
+    color: var(--choc);
+    line-height: 1.05;
+  }
+
+  .mobile-summary-title span {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+
+  .mobile-summary-rank {
+    justify-self: start;
+    min-height: 30px;
+    padding: 0 9px;
+    border-radius: 8px;
+    background: rgba(75, 185, 223, 0.12);
+    color: var(--blue-dark);
+    font-weight: 900;
+  }
+
+  .mobile-summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .mobile-summary-stat {
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255, 239, 216, 0.68);
+  }
+
+  body[data-theme="dark"] .mobile-summary-stat {
+    background: rgba(56, 37, 29, 0.86);
+  }
+
+  .mobile-summary-stat small {
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .mobile-summary-stat strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--blue-dark);
+    font-size: 0.82rem;
+    line-height: 1.05;
+  }
+
+  .mobile-summary-stat.positive strong {
+    color: var(--green);
+  }
+
+  .mobile-summary-stat.negative strong {
+    color: var(--red);
   }
 
   .mobile-detail-cell {

@@ -11,6 +11,7 @@ const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
 const BAKERY_BAKE_SELECTOR = "0xb0de262e";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
 const COST_CACHE_URL = new URL("../data/cost-cache.json", import.meta.url);
+const RANK_CACHE_URL = new URL("../data/rank-cache.json", import.meta.url);
 
 const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
@@ -249,6 +250,42 @@ async function loadCostCache() {
   } catch {
     return null;
   }
+}
+
+async function loadRankCache() {
+  try {
+    const payload = JSON.parse(await readFile(RANK_CACHE_URL, "utf8"));
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+function rankMovementFromCache(rankCache, seasonId, chefAddress, currentRank) {
+  const normalizedAddress = chefAddress?.toLowerCase();
+  const previousRank = Number(rankCache?.previousRanks?.[normalizedAddress] || 0);
+  if (
+    !normalizedAddress ||
+    Number(rankCache?.seasonId) !== Number(seasonId) ||
+    !Number.isFinite(previousRank) ||
+    previousRank <= 0
+  ) {
+    return {
+      direction: "same",
+      previousRank: null,
+      delta: 0
+    };
+  }
+
+  const delta = previousRank - Number(currentRank || 0);
+  return {
+    direction: delta > 0 ? "up" : delta < 0 ? "down" : "same",
+    previousRank,
+    delta
+  };
 }
 
 function costFromCache(costCache, seasonId, chefAddress) {
@@ -608,7 +645,7 @@ async function buildDashboard() {
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
-  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate, costCache] = await Promise.all([
+  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate, costCache, rankCache] = await Promise.all([
     MOST_RUGGED_ENABLED
       ? getTop100BakeryRugsReceived(rows, activeSeason.id)
       : Promise.resolve(getDisabledRugReceivedData()),
@@ -617,7 +654,8 @@ async function buildDashboard() {
       : Promise.resolve([]),
     getAbstractProfilesByAddress(addresses),
     getRpcCostEstimate(activeSeason.id, addresses),
-    loadCostCache()
+    loadCostCache(),
+    loadRankCache()
   ]);
   const { rugReceivedStatsByBakeryId, rugReceivedSource } = rugReceivedData;
   const profileNameByAddress = new Map(
@@ -661,6 +699,12 @@ async function buildDashboard() {
         top100AddressCount: costCache.top100AddressCount ?? 0
       }
       : null,
+    rankCache: rankCache
+      ? {
+        updatedAt: rankCache.updatedAt || null,
+        previousUpdatedAt: rankCache.previousUpdatedAt || null
+      }
+      : null,
     rows: rows.map((row, index) => {
       const rank = row.rank ?? index + 1;
       const chefAddress = row.topCook || row.creator || row.leader || "";
@@ -698,6 +742,7 @@ async function buildDashboard() {
         chefAddress,
         chefName: profileNameByAddress.get(normalizedChefAddress) || abstractProfile?.name || (chefAddress ? shortAddress(chefAddress) : "-"),
         profileImageUrl: abstractProfileImageUrl(abstractProfile),
+        rankMovement: rankMovementFromCache(rankCache, activeSeason.id, normalizedChefAddress, rank),
         cookiesBaked,
         cookieBalance: row.cookieBalance || row.txCount || "0",
         rugAttempts: Number(topChefStats?.rugAttempts || 0),
