@@ -335,6 +335,8 @@ function computedRows() {
     .map((row) => {
       const cookiesBakedRaw = Number(row.cookiesBaked || 0);
       const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
+      const cookieBalanceRaw = Number(row.cookieBalance || 0);
+      const cookieBalance = cookieBalanceRaw / COOKIE_RAW_UNITS_PER_COOKIE;
       const grossEth = Number(row.grossPrizeEth || 0);
       const costEth = manualCostPerMillion > 0
         ? (cookiesBakedRaw / 1_000_000) * manualCostPerMillion
@@ -346,6 +348,8 @@ function computedRows() {
         ...row,
         cookiesBaked: cookiesBakedRaw,
         cookiesBakedDisplay: cookiesBaked,
+        cookieBalance: cookieBalanceRaw,
+        cookieBalanceDisplay: cookieBalance,
         grossEth,
         costEth,
         pnlEth,
@@ -458,7 +462,7 @@ function renderTable(rows) {
   if (rows.length === 0) {
     const tr = document.createElement("tr");
     tr.append(cell("No matching bakeries.", "empty-cell"));
-    tr.firstChild.colSpan = 9;
+    tr.firstChild.colSpan = 10;
     els.tableBody.append(tr);
     return;
   }
@@ -472,6 +476,7 @@ function renderTable(rows) {
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies"),
+      cell(formatCookieCount(row.cookieBalanceDisplay), "number-cell", "Remaining"),
       cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
       cell(moneyLabel(row.grossEth), "number-cell", "Gross"),
       cell(moneyLabel(row.costEth), "number-cell", "Cost"),
@@ -873,12 +878,13 @@ function rowsToCsv(rows) {
     const price = currentEthPrice();
     return price > 0 ? ethValue * price : "";
   };
-  const header = ["Rank", "Chef", "Bakery", "Cookies", "Share %", `Gross ${currencyLabel}`, `Cost ${currencyLabel}`, `P&L ${currencyLabel}`, "ROI %"];
+  const header = ["Rank", "Chef", "Bakery", "Cookies", "Remaining Cookies", "Share %", `Gross ${currencyLabel}`, `Cost ${currencyLabel}`, `P&L ${currencyLabel}`, "ROI %"];
   const records = rows.map((row) => [
     row.rank,
     row.chefName || row.chefAddress || "",
     row.bakeryName || "",
     row.cookiesBakedDisplay,
+    row.cookieBalanceDisplay,
     row.leaderboardSharePct,
     currencyValue(row.grossEth),
     currencyValue(row.costEth),
@@ -923,7 +929,7 @@ async function refreshDashboard() {
     els.simTableBody.innerHTML = "";
     const tr = document.createElement("tr");
     tr.append(cell("Unable to load the public Bakery P&L right now.", "empty-cell"));
-    tr.firstChild.colSpan = 9;
+    tr.firstChild.colSpan = 10;
     els.tableBody.append(tr);
     const rugTr = document.createElement("tr");
     rugTr.append(cell("Unable to load the public Bakery rug stats right now.", "empty-cell"));
