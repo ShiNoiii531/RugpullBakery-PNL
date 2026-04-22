@@ -753,6 +753,57 @@ body[data-theme="dark"] th {
   color: #f0b27e;
 }
 
+th .sort-button {
+  width: 100%;
+  min-height: 0;
+  justify-content: flex-start;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: 1.2;
+  text-align: left;
+  text-transform: inherit;
+}
+
+th .sort-button:hover,
+th .sort-button:focus-visible {
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+th .sort-button:focus-visible {
+  outline: 2px solid rgba(55, 159, 199, 0.7);
+  outline-offset: 3px;
+}
+
+.sort-arrow {
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid currentColor;
+  opacity: 0.34;
+  transform: translateY(1px);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.sort-button.sort-active .sort-arrow {
+  opacity: 1;
+}
+
+.sort-button[data-direction="asc"] .sort-arrow {
+  transform: rotate(180deg) translateY(-1px);
+}
+
 td {
   background: rgba(255, 253, 249, 0.92);
 }

@@ -74,6 +74,18 @@ let themeMode = "light";
 let ethPriceUsd = 0;
 let ethPriceUpdatedAt = null;
 let ethPriceLoading = false;
+let topRugSort = { key: "rugRank", direction: "asc" };
+
+const TOP_RUG_SORT_LABELS = {
+  rugRank: "Rug Rank",
+  topRank: "Top 100 Rank",
+  chef: "Chef",
+  bakery: "Bakery",
+  successfulRugs: "Successful Rugs",
+  attempts: "Attempts",
+  success: "Success",
+  cookies: "Cookies"
+};
 
 try {
   const manualCost = localStorage.getItem(STORAGE_KEYS.manualCost);
@@ -451,7 +463,7 @@ function rugSuccessRate(row) {
   return attempts > 0 ? (landed / attempts) * 100 : null;
 }
 
-function topRugRows(rows) {
+function defaultTopRugRows(rows) {
   return [...rows].sort((a, b) => {
     const landedDelta = Number(b.rugLanded || 0) - Number(a.rugLanded || 0);
     if (landedDelta !== 0) {
@@ -465,6 +477,79 @@ function topRugRows(rows) {
     }
 
     return Number(a.rank || 0) - Number(b.rank || 0);
+  });
+}
+
+function defaultTopRugSortDirection(key) {
+  return ["rugRank", "topRank", "chef", "bakery"].includes(key) ? "asc" : "desc";
+}
+
+function topRugSortValue(row, key) {
+  if (key === "topRank") {
+    return Number(row.rank || 0);
+  }
+  if (key === "chef") {
+    return row.chefName || row.chefAddress || "";
+  }
+  if (key === "bakery") {
+    return row.bakeryName || "";
+  }
+  if (key === "successfulRugs") {
+    return Number(row.rugLanded || 0);
+  }
+  if (key === "attempts") {
+    return Number(row.rugAttempts || 0);
+  }
+  if (key === "success") {
+    return rugSuccessRate(row) || 0;
+  }
+  if (key === "cookies") {
+    return Number(row.cookiesBakedDisplay ?? row.cookiesBaked ?? 0);
+  }
+  return 0;
+}
+
+function compareTopRugValues(valueA, valueB) {
+  if (typeof valueA === "string" || typeof valueB === "string") {
+    return String(valueA || "").localeCompare(String(valueB || ""), undefined, {
+      numeric: true,
+      sensitivity: "base"
+    });
+  }
+  return Number(valueA || 0) - Number(valueB || 0);
+}
+
+function topRugRows(rows) {
+  const defaultRows = defaultTopRugRows(rows);
+  if (topRugSort.key === "rugRank") {
+    return topRugSort.direction === "asc" ? defaultRows : [...defaultRows].reverse();
+  }
+
+  const defaultRank = new Map(defaultRows.map((row, index) => [row, index]));
+  const directionMultiplier = topRugSort.direction === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    const result = compareTopRugValues(
+      topRugSortValue(a, topRugSort.key),
+      topRugSortValue(b, topRugSort.key)
+    );
+    if (result !== 0) {
+      return result * directionMultiplier;
+    }
+    return (defaultRank.get(a) || 0) - (defaultRank.get(b) || 0);
+  });
+}
+
+function updateTopRugSortButtons() {
+  document.querySelectorAll("[data-rug-sort]").forEach((button) => {
+    const key = button.dataset.rugSort;
+    const active = key === topRugSort.key;
+    const th = button.closest("th");
+    const label = TOP_RUG_SORT_LABELS[key] || "column";
+    const orderLabel = topRugSort.direction === "asc" ? "ascending" : "descending";
+    button.classList.toggle("sort-active", active);
+    button.dataset.direction = active ? topRugSort.direction : "none";
+    button.setAttribute("aria-label", active ? `${label}, sorted ${orderLabel}` : `Sort by ${label}`);
+    th?.setAttribute("aria-sort", active ? orderLabel : "none");
   });
 }
 
@@ -507,8 +592,10 @@ function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
 
 function renderTopRug(rows) {
   const sortedRows = topRugRows(rows);
+  const rugRankRows = defaultTopRugRows(rows);
+  const rugRankMap = new Map(rugRankRows.map((row, index) => [row, index + 1]));
   const ruggedRows = mostRuggedRows(rows);
-  const topRow = sortedRows[0] || null;
+  const topRow = rugRankRows[0] || null;
   const mostRuggedRow = ruggedRows[0] || null;
   const totalRugs = rows.reduce((total, row) => total + Number(row.rugLanded || 0), 0);
   const totalAttempts = rows.reduce((total, row) => total + Number(row.rugAttempts || 0), 0);
@@ -538,6 +625,7 @@ function renderTopRug(rows) {
   els.rugReceivedSourceValue.textContent = rugReceivedSourceText(rugReceivedSource, totalReceived, totalReceivedAttempts);
   els.rugRowCount.textContent = `${sortedRows.length} rows`;
   els.ruggedRowCount.textContent = `${ruggedRows.length} active rows`;
+  updateTopRugSortButtons();
 
   els.rugTableBody.innerHTML = "";
   els.ruggedTableBody.innerHTML = "";
@@ -557,9 +645,10 @@ function renderTopRug(rows) {
   const fragment = document.createDocumentFragment();
   sortedRows.forEach((row, index) => {
     const successRate = rugSuccessRate(row);
+    const rugRank = rugRankMap.get(row) || index + 1;
     const tr = document.createElement("tr");
     tr.append(
-      cell(`#${index + 1}`, "rank-cell", "Rug Rank"),
+      cell(`#${rugRank}`, "rank-cell", "Rug Rank"),
       cell(`#${row.rank}`, "rank-cell", "Top 100 Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
@@ -851,6 +940,20 @@ els.mostRuggedTab.addEventListener("click", () => {
 
 els.simulatorTab.addEventListener("click", () => {
   setActiveView("simulator");
+});
+
+document.querySelectorAll("[data-rug-sort]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const key = button.dataset.rugSort;
+    if (!key) {
+      return;
+    }
+    const direction = topRugSort.key === key
+      ? (topRugSort.direction === "asc" ? "desc" : "asc")
+      : defaultTopRugSortDirection(key);
+    topRugSort = { key, direction };
+    renderDashboard();
+  });
 });
 
 els.currencyToggle.addEventListener("click", async () => {
