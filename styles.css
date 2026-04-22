@@ -409,13 +409,13 @@ body[data-theme="dark"] .rules-poster {
 
 .logo-character-left {
   left: 0;
-  bottom: -4%;
+  bottom: 0;
   width: clamp(92px, 21%, 170px);
 }
 
 .logo-character-right {
   right: -2%;
-  bottom: -5%;
+  bottom: -8px;
   width: clamp(150px, 34%, 280px);
 }
 
@@ -872,13 +872,13 @@ tr:last-child td {
 
   .logo-character-left {
     left: -2px;
-    bottom: -2%;
+    bottom: 0;
     width: clamp(70px, 22%, 92px);
   }
 
   .logo-character-right {
     right: -8px;
-    bottom: -3%;
+    bottom: -5px;
     width: clamp(100px, 34%, 132px);
   }
 
