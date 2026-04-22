@@ -374,21 +374,53 @@ h1 {
   text-align: center;
 }
 
+.logo-stage {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 760px);
+  margin-bottom: 10px;
+}
+
 .rules-poster {
   width: 100%;
-  max-width: 760px;
   aspect-ratio: 16 / 9;
   object-fit: contain;
   object-position: center;
   border-radius: 8px;
   border: 2px solid #f4d5ad;
   background: var(--pastry);
-  justify-self: center;
+  display: block;
 }
 
 body[data-theme="dark"] .rules-poster {
   border-color: #70442e;
   background: #1f1411;
+}
+
+.logo-character {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter: drop-shadow(0 10px 10px rgba(73, 48, 36, 0.16));
+}
+
+.logo-character-left {
+  left: 0;
+  bottom: -4%;
+  width: clamp(92px, 21%, 170px);
+}
+
+.logo-character-right {
+  right: -2%;
+  bottom: -5%;
+  width: clamp(150px, 34%, 280px);
+}
+
+body[data-theme="dark"] .logo-character {
+  filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.26));
 }
 
 .link-row {
@@ -832,6 +864,22 @@ tr:last-child td {
 
   .rules-poster {
     max-height: 220px;
+  }
+
+  .logo-stage {
+    margin-bottom: 4px;
+  }
+
+  .logo-character-left {
+    left: -2px;
+    bottom: -2%;
+    width: clamp(70px, 22%, 92px);
+  }
+
+  .logo-character-right {
+    right: -8px;
+    bottom: -3%;
+    width: clamp(100px, 34%, 132px);
   }
 
   .toolbar {
