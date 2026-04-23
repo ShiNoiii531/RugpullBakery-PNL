@@ -5,11 +5,28 @@ import { fileURLToPath } from "node:url";
 const ROOT_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE_PATH = resolve(ROOT_DIR, "data", "cost-cache.json");
 const RANK_CACHE_PATH = resolve(ROOT_DIR, "data", "rank-cache.json");
+const SEASON_HISTORY_DIR = resolve(ROOT_DIR, "data", "season-history");
 
 const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const ABSTRACT_RPC_URL = process.env.ABSTRACT_RPC_URL || "https://api.mainnet.abs.xyz";
 const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
+const LEADERBOARD_BUCKET_PCT = 70;
+const LEADERBOARD_PAYOUTS = [
+  { minRank: 1, maxRank: 1, sharePct: 7.5 },
+  { minRank: 2, maxRank: 2, sharePct: 5.5 },
+  { minRank: 3, maxRank: 3, sharePct: 4.5 },
+  { minRank: 4, maxRank: 4, sharePct: 3.5 },
+  { minRank: 5, maxRank: 5, sharePct: 3 },
+  { minRank: 6, maxRank: 6, sharePct: 2.7 },
+  { minRank: 7, maxRank: 7, sharePct: 2.4 },
+  { minRank: 8, maxRank: 8, sharePct: 2.1 },
+  { minRank: 9, maxRank: 9, sharePct: 1.9 },
+  { minRank: 10, maxRank: 10, sharePct: 1.7 },
+  { minRank: 11, maxRank: 25, sharePct: 1.4666666666666666 },
+  { minRank: 26, maxRank: 50, sharePct: 0.88 },
+  { minRank: 51, maxRank: 100, sharePct: 0.424 }
+];
 
 const MAX_BLOCKS_PER_RUN = positiveInteger(process.env.COST_CACHE_MAX_BLOCKS, 60_000);
 const MAX_TXS_PER_RUN = positiveInteger(process.env.COST_CACHE_MAX_TXS, 30_000);
@@ -18,6 +35,8 @@ const RECEIPT_BATCH_SIZE = positiveInteger(process.env.COST_CACHE_RECEIPT_BATCH_
 const BLOCK_RECEIPT_BATCH_SIZE = positiveInteger(process.env.COST_CACHE_BLOCK_RECEIPT_BATCH_SIZE, 20);
 const CHECKPOINT_CHUNK_INTERVAL = positiveInteger(process.env.COST_CACHE_CHECKPOINT_CHUNKS, 10);
 const THROTTLE_MS = positiveInteger(process.env.COST_CACHE_THROTTLE_MS, 80);
+const SEASON_SNAPSHOT_WINDOW_MINUTES = positiveInteger(process.env.SEASON_SNAPSHOT_WINDOW_MINUTES, 90);
+const FORCE_SEASON_SNAPSHOT = process.env.SEASON_SNAPSHOT_FORCE === "1";
 
 function positiveInteger(value, fallback) {
   const numeric = Number(value);
@@ -39,6 +58,10 @@ function hexToBigInt(value) {
   return BigInt(value);
 }
 
+function safeDivideBigInt(numerator, denominator) {
+  return denominator === 0n ? 0n : numerator / denominator;
+}
+
 function topicForAddress(address) {
   return `0x000000000000000000000000${address.toLowerCase().replace(/^0x/, "")}`;
 }
@@ -52,6 +75,20 @@ function addressFromTopic(topic) {
 
 function topicForUint256(value) {
   return `0x${BigInt(value).toString(16).padStart(64, "0")}`;
+}
+
+function multiplyWeiByPercent(wei, percent) {
+  const scaledPercent = BigInt(Math.round(percent * 1_000_000));
+  return safeDivideBigInt(BigInt(wei) * scaledPercent, 100_000_000n).toString();
+}
+
+function getLeaderboardSharePct(rank) {
+  return LEADERBOARD_PAYOUTS.find((payout) => rank >= payout.minRank && rank <= payout.maxRank)?.sharePct || 0;
+}
+
+function unixSecondsToIso(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) && numeric > 0 ? new Date(numeric * 1000).toISOString() : null;
 }
 
 function decodeLogUint256(data, index) {
@@ -309,6 +346,151 @@ async function writeRankSnapshot(seasonId, leaderboardItems) {
 
   await mkdir(dirname(RANK_CACHE_PATH), { recursive: true });
   await writeFile(RANK_CACHE_PATH, `${JSON.stringify(rankCache, null, 2)}\n`);
+}
+
+function seasonSnapshotDecision(activeSeason, nowMs = Date.now()) {
+  const endMs = Number(activeSeason?.endTime || 0) * 1000;
+  if (!Number.isFinite(endMs) || endMs <= 0) {
+    return {
+      shouldWrite: false,
+      reason: "missing_season_end_time",
+      secondsUntilEnd: null
+    };
+  }
+
+  const secondsUntilEnd = Math.floor((endMs - nowMs) / 1000);
+  const windowSeconds = SEASON_SNAPSHOT_WINDOW_MINUTES * 60;
+  const isBeforeEndWindow = secondsUntilEnd >= 0 && secondsUntilEnd <= windowSeconds;
+
+  return {
+    shouldWrite: FORCE_SEASON_SNAPSHOT || isBeforeEndWindow,
+    reason: FORCE_SEASON_SNAPSHOT ? "forced" : isBeforeEndWindow ? "pre_season_end_window" : "outside_snapshot_window",
+    secondsUntilEnd
+  };
+}
+
+async function getProfilesByAddress(addresses) {
+  if (addresses.length === 0) {
+    return new Map();
+  }
+
+  try {
+    const profiles = await fetchBakeryTrpc("profiles.getByAddresses", { addresses });
+    return new Map((profiles || []).map((entry) => [
+      entry.address.toLowerCase(),
+      entry.profile?.name || null
+    ]));
+  } catch (error) {
+    console.warn(`Season snapshot profile lookup failed: ${error.message}`);
+    return new Map();
+  }
+}
+
+async function getTopChefStatsByAddress(seasonId) {
+  try {
+    const topChefs = await fetchBakeryTrpc("leaderboard.getTopChefs", { seasonId, limit: 100 });
+    return new Map((topChefs.items || []).map((chef) => [chef.address.toLowerCase(), chef]));
+  } catch (error) {
+    console.warn(`Season snapshot top chef lookup failed: ${error.message}`);
+    return new Map();
+  }
+}
+
+async function maybeWriteSeasonHistorySnapshot({ activeSeason, leaderboardItems, top100Addresses, cache, latestBlock, startedAt }) {
+  const decision = seasonSnapshotDecision(activeSeason);
+  if (!decision.shouldWrite) {
+    return {
+      written: false,
+      reason: decision.reason,
+      secondsUntilEnd: decision.secondsUntilEnd
+    };
+  }
+
+  const [profileNameByAddress, topChefStatsByAddress] = await Promise.all([
+    getProfilesByAddress(top100Addresses),
+    getTopChefStatsByAddress(activeSeason.id)
+  ]);
+
+  const snapshotAt = new Date().toISOString();
+  const prizePoolWei = activeSeason.finalizedPrizePool || activeSeason.prizePool || "0";
+  const leaderboardBucketWei = multiplyWeiByPercent(prizePoolWei, LEADERBOARD_BUCKET_PCT);
+  const rows = (leaderboardItems || []).slice(0, 100).map((row, index) => {
+    const rank = Number(row.rank ?? index + 1);
+    const chefAddress = row.topCook || row.creator || row.leader || "";
+    const normalizedChefAddress = chefAddress.toLowerCase();
+    const chefStats = topChefStatsByAddress.get(normalizedChefAddress);
+    const costEntry = cache.chefs?.[normalizedChefAddress] || null;
+    const leaderboardSharePct = getLeaderboardSharePct(rank);
+    const grossPrizeWei = leaderboardSharePct > 0
+      ? multiplyWeiByPercent(leaderboardBucketWei, leaderboardSharePct)
+      : "0";
+    const gasCostWei = costEntry?.gasCostWei || "0";
+
+    return {
+      rank,
+      bakeryId: row.id ?? null,
+      bakeryName: row.name || null,
+      chefAddress,
+      chefName: profileNameByAddress.get(normalizedChefAddress) || null,
+      cookiesBaked: row.cookiesBaked || row.rawTxCount || "0",
+      cookieBalance: row.cookieBalance || row.txCount || "0",
+      leaderboardSharePct,
+      grossPrizeWei,
+      rugAttempts: Number(chefStats?.rugAttempts || 0),
+      rugLanded: Number(chefStats?.rugLanded || 0),
+      boostAttempts: Number(chefStats?.boostAttempts || 0),
+      boostLanded: Number(chefStats?.boostLanded || 0),
+      gasCostWei,
+      projectedPnlWei: (BigInt(grossPrizeWei) - BigInt(gasCostWei)).toString(),
+      gasCostComplete: costEntry?.complete === true,
+      cookTxCount: Number(costEntry?.cookTxCount || 0),
+      exactCookiesRaw: costEntry?.cookiesRaw || "0",
+      costToBlock: costEntry?.toBlock ?? null
+    };
+  });
+
+  const snapshot = {
+    version: 1,
+    type: "pre_season_end",
+    seasonId: activeSeason.id,
+    snapshotAt,
+    snapshotReason: decision.reason,
+    secondsUntilSeasonEnd: decision.secondsUntilEnd,
+    snapshotWindowMinutes: SEASON_SNAPSHOT_WINDOW_MINUTES,
+    season: {
+      id: activeSeason.id,
+      startTime: activeSeason.startTime ?? null,
+      endTime: activeSeason.endTime ?? null,
+      startAt: unixSecondsToIso(activeSeason.startTime),
+      endAt: unixSecondsToIso(activeSeason.endTime),
+      prizePool: activeSeason.prizePool || "0",
+      finalizedPrizePool: activeSeason.finalizedPrizePool || null,
+      leaderboardBucketPct: LEADERBOARD_BUCKET_PCT,
+      leaderboardBucketWei,
+      isActive: activeSeason.isActive ?? null
+    },
+    cache: {
+      status: cache.status || "unknown",
+      seasonStartBlock: cache.seasonStartBlock ?? null,
+      latestKnownBlock: Number(latestBlock),
+      completeChefCount: cache.completeChefCount ?? 0,
+      top100AddressCount: top100Addresses.length,
+      updatedAt: cache.updatedAt || null,
+      lastRunStartedAt: startedAt
+    },
+    rows
+  };
+
+  const snapshotPath = resolve(SEASON_HISTORY_DIR, `season-${activeSeason.id}.json`);
+  await mkdir(SEASON_HISTORY_DIR, { recursive: true });
+  await writeFile(snapshotPath, `${JSON.stringify(snapshot, null, 2)}\n`);
+
+  return {
+    written: true,
+    reason: decision.reason,
+    secondsUntilEnd: decision.secondsUntilEnd,
+    path: snapshotPath
+  };
 }
 
 function emptyEntry(address, seasonStartBlock) {
@@ -595,6 +777,14 @@ async function main() {
 
   updateRunMetadata(cache, startedAt, top100Addresses, latestBlock, blocksScanned, txsProcessed, stoppedByBudget);
   await writeCache(cache);
+  const seasonSnapshot = await maybeWriteSeasonHistorySnapshot({
+    activeSeason,
+    leaderboardItems: leaderboard.items || [],
+    top100Addresses,
+    cache,
+    latestBlock,
+    startedAt
+  });
 
   console.log(JSON.stringify({
     status: cache.status,
@@ -604,7 +794,8 @@ async function main() {
     top100AddressCount: cache.top100AddressCount,
     blocksScanned,
     txsProcessed,
-    stoppedByBudget
+    stoppedByBudget,
+    seasonSnapshot
   }, null, 2));
 }
 

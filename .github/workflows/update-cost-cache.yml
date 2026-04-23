@@ -33,6 +33,7 @@ jobs:
           COST_CACHE_RECEIPT_BATCH_SIZE: 50
           COST_CACHE_CHECKPOINT_CHUNKS: 1
           COST_CACHE_THROTTLE_MS: 25
+          SEASON_SNAPSHOT_WINDOW_MINUTES: 90
         run: npm run update:cost-cache
 
       - name: Commit cache
@@ -40,6 +41,9 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add data/cost-cache.json data/rank-cache.json
+          if [ -d data/season-history ]; then
+            git add data/season-history
+          fi
           if git diff --cached --quiet; then
             echo "No cache changes to commit."
             exit 0
