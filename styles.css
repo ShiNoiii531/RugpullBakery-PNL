@@ -1379,19 +1379,147 @@ body[data-theme="dark"] .player-avatar {
     flex: 1 1 auto;
   }
 
-  .my-bakery-search,
-  .my-bakery-metrics {
+  .my-bakery-panel {
+    gap: 10px;
+  }
+
+  .my-bakery-search {
     grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .my-bakery-search input {
+    min-height: 42px;
+  }
+
+  .my-bakery-search button {
+    width: 100%;
+    min-height: 42px;
+  }
+
+  .my-bakery-card {
+    min-height: 0;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .my-bakery-card::after {
+    right: -42px;
+    bottom: -42px;
+    width: 150px;
+    height: 105px;
+    opacity: 0.14;
   }
 
   .my-bakery-card-head {
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .my-bakery-identity {
+    gap: 9px;
+  }
+
+  .my-bakery-avatar {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+    border-width: 2px;
+  }
+
+  .my-bakery-title {
+    gap: 2px;
+  }
+
+  .my-bakery-title strong {
+    font-size: clamp(1.08rem, 6vw, 1.45rem);
+    line-height: 1.05;
+  }
+
+  .my-bakery-title span {
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
   }
 
   .my-bakery-rank {
-    min-width: 58px;
-    min-height: 48px;
-    font-size: 1.1rem;
+    min-width: 54px;
+    min-height: 42px;
+    gap: 5px;
+    font-size: 0.98rem;
+  }
+
+  .my-bakery-rank .rank-move {
+    width: 18px;
+    height: 18px;
+    flex-basis: 18px;
+    font-size: 0.64rem;
+  }
+
+  .my-bakery-pnl {
+    gap: 6px;
+    padding: 10px;
+    border: 2px solid rgba(239, 201, 156, 0.72);
+    border-radius: 8px;
+    background: rgba(255, 253, 249, 0.72);
+  }
+
+  body[data-theme="dark"] .my-bakery-pnl {
+    border-color: rgba(91, 56, 39, 0.92);
+    background: rgba(38, 26, 21, 0.72);
+  }
+
+  .my-bakery-pnl span {
+    font-size: 0.68rem;
+  }
+
+  .my-bakery-pnl strong {
+    font-size: clamp(1.85rem, 12vw, 3rem);
+    line-height: 0.95;
+  }
+
+  .my-bakery-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .my-bakery-metric {
+    min-height: 64px;
+    gap: 5px;
+    padding: 9px;
+  }
+
+  .my-bakery-metric span {
+    font-size: 0.58rem;
+    line-height: 1.1;
+  }
+
+  .my-bakery-metric strong {
+    font-size: 0.9rem;
+  }
+
+  .my-bakery-metric-primary strong {
+    font-size: 1rem;
+  }
+
+  .my-bakery-metric-source {
+    grid-column: 1 / -1;
+    min-height: 52px;
+  }
+
+  .my-bakery-metric-source strong {
+    font-size: 0.82rem;
+  }
+
+  .my-bakery-footnote,
+  .share-status {
+    font-size: 0.78rem;
+  }
+
+  .share-status {
+    margin-top: -4px;
   }
 
   .hall-pain-podium {

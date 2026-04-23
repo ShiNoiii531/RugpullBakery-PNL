@@ -685,14 +685,14 @@ function renderMyBakery(rows) {
   const metrics = document.createElement("div");
   metrics.className = "my-bakery-metrics";
   metrics.append(
-    myBakeryMetric("Cookies", formatCookieCount(row.cookiesBakedDisplay)),
-    myBakeryMetric("Remaining", formatCookieCount(row.cookieBalanceDisplay)),
+    myBakeryMetric("Cookies", formatCookieCount(row.cookiesBakedDisplay), "my-bakery-metric-primary"),
+    myBakeryMetric("Remaining", formatCookieCount(row.cookieBalanceDisplay), "my-bakery-metric-primary"),
     myBakeryMetric("Reward", moneyLabel(row.grossEth)),
     myBakeryMetric("Gas Cost", moneyLabel(row.costEth)),
     myBakeryMetric("ROI", row.roi === null ? "--" : formatPercent(row.roi)),
     myBakeryMetric("Share", formatShare(row.leaderboardSharePct)),
     myBakeryMetric("Rugs", numberFormatter.format(Number(row.rugLanded || 0))),
-    myBakeryMetric("Cost Source", costSourceLabel(row.costSource))
+    myBakeryMetric("Cost Source", costSourceLabel(row.costSource), "my-bakery-metric-source")
   );
 
   const footer = document.createElement("p");
