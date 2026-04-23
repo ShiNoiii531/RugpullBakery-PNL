@@ -698,55 +698,92 @@ body[data-theme="dark"] .simulator-toolbar {
 
 .my-bakery-card {
   min-height: 280px;
-  padding: 18px;
+  padding: 12px;
   display: grid;
-  gap: 16px;
+  gap: 12px;
   overflow: hidden;
   position: relative;
   isolation: isolate;
 }
 
-.my-bakery-card::before {
+.my-bakery-hero {
+  position: relative;
+  min-height: 212px;
+  border: 2px solid #f0d3ae;
+  border-radius: 8px;
+  overflow: hidden;
+  background-image: var(--pnl-card-bg-image);
+  background-position: center;
+  background-size: cover;
+  background-color: #ffe7c6;
+}
+
+.my-bakery-hero::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(180deg, rgba(255, 250, 242, 0.8), rgba(255, 239, 216, 0.7)),
-    var(--pnl-card-bg-image);
-  background-position: center;
-  background-size: cover;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  background:
+    linear-gradient(180deg, rgba(38, 26, 21, 0.06) 0%, rgba(38, 26, 21, 0.14) 52%, rgba(38, 26, 21, 0.34) 100%),
+    linear-gradient(180deg, rgba(255, 250, 242, 0.06), rgba(255, 250, 242, 0));
   pointer-events: none;
 }
 
-.my-bakery-card-themed::before {
-  opacity: 1;
+body[data-theme="dark"] .my-bakery-hero {
+  border-color: #5b3827;
 }
 
-.my-bakery-card::after {
-  content: "";
+.my-bakery-hero-meta {
   position: absolute;
-  right: 18px;
-  bottom: -28px;
-  width: 170px;
-  height: 118px;
-  background-image: url("/assets/cookies-decor.png");
-  background-repeat: no-repeat;
-  background-size: 760px auto;
-  background-position: -522px -314px;
-  opacity: 0.22;
-  pointer-events: none;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
-body[data-theme="dark"] .my-bakery-card::after {
-  opacity: 0.14;
-  filter: saturate(0.9) brightness(1.25);
+.my-bakery-hero-pill {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border: 2px solid rgba(239, 201, 156, 0.88);
+  border-radius: 999px;
+  background: rgba(255, 250, 242, 0.92);
+  color: var(--cookie-dark);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 0 8px 18px rgba(38, 26, 21, 0.14);
+  backdrop-filter: blur(6px);
 }
 
-.my-bakery-card-themed::after {
-  opacity: 0;
+body[data-theme="dark"] .my-bakery-hero-pill {
+  border-color: rgba(91, 56, 39, 0.94);
+  background: rgba(42, 28, 23, 0.88);
+  color: var(--cookie-dark);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
+}
+
+.my-bakery-surface {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 2px solid #f0d3ae;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(255, 247, 235, 0.94)),
+    var(--cream-card);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+body[data-theme="dark"] .my-bakery-surface {
+  border-color: #5b3827;
+  background:
+    linear-gradient(180deg, rgba(47, 31, 25, 0.98), rgba(34, 22, 18, 0.96)),
+    var(--cream-card);
 }
 
 .my-bakery-empty {
@@ -758,8 +795,6 @@ body[data-theme="dark"] .my-bakery-card::after {
 }
 
 .my-bakery-card-head {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -822,10 +857,17 @@ body[data-theme="dark"] .my-bakery-avatar {
 }
 
 .my-bakery-pnl {
-  position: relative;
-  z-index: 1;
   display: grid;
   gap: 4px;
+  padding: 14px 16px;
+  border: 2px solid rgba(239, 201, 156, 0.74);
+  border-radius: 8px;
+  background: rgba(255, 253, 249, 0.9);
+}
+
+body[data-theme="dark"] .my-bakery-pnl {
+  border-color: rgba(91, 56, 39, 0.94);
+  background: rgba(38, 26, 21, 0.82);
 }
 
 .my-bakery-pnl span {
@@ -851,8 +893,6 @@ body[data-theme="dark"] .my-bakery-avatar {
 }
 
 .my-bakery-metrics {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
@@ -866,12 +906,12 @@ body[data-theme="dark"] .my-bakery-avatar {
   padding: 12px;
   border: 2px solid #f0d3ae;
   border-radius: 8px;
-  background: rgba(255, 253, 249, 0.88);
+  background: rgba(255, 253, 249, 0.96);
 }
 
 body[data-theme="dark"] .my-bakery-metric {
   border-color: #5b3827;
-  background: rgba(38, 26, 21, 0.86);
+  background: rgba(38, 26, 21, 0.92);
 }
 
 .my-bakery-metric span {
@@ -891,8 +931,6 @@ body[data-theme="dark"] .my-bakery-metric {
 }
 
 .my-bakery-footnote {
-  position: relative;
-  z-index: 1;
   margin: 0;
 }
 
@@ -1499,16 +1537,30 @@ body[data-theme="dark"] .player-avatar {
 
   .my-bakery-card {
     min-height: 0;
-    gap: 12px;
-    padding: 12px;
+    gap: 10px;
+    padding: 10px;
   }
 
-  .my-bakery-card::after {
-    right: -42px;
-    bottom: -42px;
-    width: 150px;
-    height: 105px;
-    opacity: 0.14;
+  .my-bakery-hero {
+    min-height: 148px;
+  }
+
+  .my-bakery-hero-meta {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    gap: 6px;
+  }
+
+  .my-bakery-hero-pill {
+    min-height: 28px;
+    padding: 5px 10px;
+    font-size: 0.63rem;
+  }
+
+  .my-bakery-surface {
+    gap: 12px;
+    padding: 12px;
   }
 
   .my-bakery-card-head {
@@ -1560,14 +1612,11 @@ body[data-theme="dark"] .player-avatar {
   .my-bakery-pnl {
     gap: 6px;
     padding: 10px;
-    border: 2px solid rgba(239, 201, 156, 0.72);
-    border-radius: 8px;
-    background: rgba(255, 253, 249, 0.72);
+    border-width: 2px;
   }
 
   body[data-theme="dark"] .my-bakery-pnl {
     border-color: rgba(91, 56, 39, 0.92);
-    background: rgba(38, 26, 21, 0.72);
   }
 
   .my-bakery-pnl span {

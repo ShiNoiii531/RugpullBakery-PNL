@@ -424,10 +424,9 @@ function selectedPnlCardBackground() {
   return PNL_CARD_BACKGROUNDS.find((background) => background.id === pnlCardBackground) || PNL_CARD_BACKGROUNDS[0];
 }
 
-function applyPnlCardBackground(enabled) {
+function applyPnlCardBackground() {
   const background = selectedPnlCardBackground();
   els.myBakeryCard.style.setProperty("--pnl-card-bg-image", `url("${background.imageUrl}")`);
-  els.myBakeryCard.classList.toggle("my-bakery-card-themed", Boolean(enabled));
 }
 
 function renderPnlCardBackgroundPicker() {
@@ -471,7 +470,10 @@ function setPnlCardBackground(nextBackground, shouldPersist = true) {
 
   pnlCardBackground = nextBackground;
   renderPnlCardBackgroundPicker();
-  applyPnlCardBackground(Boolean(currentMyBakeryRow));
+  applyPnlCardBackground();
+  if (dashboard) {
+    renderMyBakery(computedAllRows());
+  }
 
   if (shouldPersist) {
     try {
@@ -702,7 +704,7 @@ function renderMyBakery(rows) {
   const row = findMyBakeryRow(rows);
   currentMyBakeryRow = row;
   els.sharePnlButton.disabled = !row;
-  applyPnlCardBackground(Boolean(row));
+  applyPnlCardBackground();
 
   els.myBakeryCard.innerHTML = "";
   els.myBakeryCard.className = row
@@ -724,6 +726,23 @@ function renderMyBakery(rows) {
     els.shareStatus.textContent = "";
     return;
   }
+
+  const background = selectedPnlCardBackground();
+  const hero = document.createElement("div");
+  hero.className = "my-bakery-hero";
+
+  const heroMeta = document.createElement("div");
+  heroMeta.className = "my-bakery-hero-meta";
+  [seasonLabel(), background.label].forEach((text) => {
+    const pill = document.createElement("span");
+    pill.className = "my-bakery-hero-pill";
+    pill.textContent = text;
+    heroMeta.append(pill);
+  });
+  hero.append(heroMeta);
+
+  const surface = document.createElement("div");
+  surface.className = "my-bakery-surface";
 
   const head = document.createElement("div");
   head.className = "my-bakery-card-head";
@@ -781,7 +800,8 @@ function renderMyBakery(rows) {
   footer.className = "my-bakery-footnote";
   footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
 
-  els.myBakeryCard.append(head, pnl, metrics, footer);
+  surface.append(head, pnl, metrics, footer);
+  els.myBakeryCard.append(hero, surface);
 }
 
 function slugify(value) {
@@ -888,37 +908,84 @@ async function createPnlShareCanvas(row) {
     }
   }
 
+  const background = selectedPnlCardBackground();
   drawRoundRect(ctx, 58, 50, 1084, 530, 28);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.82)";
+  ctx.fillStyle = "rgba(255, 250, 242, 0.64)";
   ctx.fill();
   ctx.strokeStyle = "#e8caa6";
   ctx.lineWidth = 6;
   ctx.stroke();
 
-  drawRoundRect(ctx, 86, 78, 590, 112, 24);
-  ctx.fillStyle = "#b96f42";
+  ctx.save();
+  drawRoundRect(ctx, 86, 78, 1028, 188, 24);
+  ctx.clip();
+  try {
+    const heroImage = await loadImage(background.imageUrl);
+    drawImageCover(ctx, heroImage, 86, 78, 1028, 188);
+  } catch {
+    ctx.fillStyle = "rgba(255, 234, 205, 0.92)";
+    ctx.fillRect(86, 78, 1028, 188);
+  }
+  const heroOverlay = ctx.createLinearGradient(0, 78, 0, 266);
+  heroOverlay.addColorStop(0, "rgba(38, 26, 21, 0.08)");
+  heroOverlay.addColorStop(0.68, "rgba(38, 26, 21, 0.16)");
+  heroOverlay.addColorStop(1, "rgba(38, 26, 21, 0.42)");
+  ctx.fillStyle = heroOverlay;
+  ctx.fillRect(86, 78, 1028, 188);
+  ctx.restore();
+  ctx.strokeStyle = "#efc99c";
+  ctx.lineWidth = 4;
+  drawRoundRect(ctx, 86, 78, 1028, 188, 24);
+  ctx.stroke();
+
+  drawRoundRect(ctx, 108, 100, 262, 46, 18);
+  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
   ctx.fill();
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "900 48px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("Rugpull Bakery P&L", 118, 147);
+  ctx.strokeStyle = "#efc99c";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.fillStyle = "#7c4329";
+  ctx.font = "900 24px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("Rugpull Bakery P&L", 130, 131);
+
+  drawRoundRect(ctx, 108, 208, 146, 40, 16);
+  ctx.fillStyle = "rgba(255, 250, 242, 0.92)";
+  ctx.fill();
+  ctx.fillStyle = "#7c4329";
+  ctx.font = "900 20px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(seasonLabel(), 126, 234);
+
+  drawRoundRect(ctx, 928, 100, 158, 40, 16);
+  ctx.fillStyle = "rgba(255, 250, 242, 0.92)";
+  ctx.fill();
+  ctx.fillStyle = "#7c4329";
+  fitCanvasText(ctx, background.label, 126, 20, 14, 900);
+  ctx.fillText(background.label, 944, 126);
+
+  drawRoundRect(ctx, 86, 286, 1028, 244, 24);
+  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
+  ctx.fill();
+  ctx.strokeStyle = "#efc99c";
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
   ctx.fillStyle = "#1e7fa6";
-  ctx.font = "900 34px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText(`Top 100 #${row.rank}`, 744, 102);
+  ctx.font = "900 28px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(`Top 100 #${row.rank}`, 116, 336);
   ctx.fillStyle = "#493024";
-  fitCanvasText(ctx, row.chefName || shortAddress(row.chefAddress), 360, 54, 30, 900);
-  ctx.fillText(row.chefName || shortAddress(row.chefAddress), 744, 158);
+  fitCanvasText(ctx, row.chefName || shortAddress(row.chefAddress), 470, 46, 28, 900);
+  ctx.fillText(row.chefName || shortAddress(row.chefAddress), 116, 390);
   ctx.fillStyle = "#7d675a";
-  fitCanvasText(ctx, row.bakeryName || "Bakery", 340, 28, 20, 900);
-  ctx.fillText(row.bakeryName || "Bakery", 746, 194);
+  fitCanvasText(ctx, row.bakeryName || "Bakery", 440, 24, 18, 900);
+  ctx.fillText(row.bakeryName || "Bakery", 116, 422);
 
   const pnlColor = Number(row.pnlEth || 0) >= 0 ? "#2d875e" : "#b94b42";
-  ctx.fillStyle = pnlColor;
-  fitCanvasText(ctx, moneyLabel(row.pnlEth, { signed: true }), 1000, 86, 52, 900);
-  ctx.fillText(moneyLabel(row.pnlEth, { signed: true }), 92, 300);
   ctx.fillStyle = "#7c4329";
-  ctx.font = "900 28px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("PROJECTED P&L", 96, 226);
+  ctx.font = "900 24px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("PROJECTED P&L", 116, 468);
+  ctx.fillStyle = pnlColor;
+  fitCanvasText(ctx, moneyLabel(row.pnlEth, { signed: true }), 430, 66, 40, 900);
+  ctx.fillText(moneyLabel(row.pnlEth, { signed: true }), 116, 520);
 
   const metrics = [
     ["Cookies", formatCookieCount(row.cookiesBakedDisplay)],
@@ -931,12 +998,12 @@ async function createPnlShareCanvas(row) {
   metrics.forEach(([label, value], index) => {
     const col = index % 3;
     const rowIndex = Math.floor(index / 3);
-    drawShareMetric(ctx, label, value, 92 + col * 338, 334 + rowIndex * 112, 304);
+    drawShareMetric(ctx, label, value, 592 + col * 166, 322 + rowIndex * 94, 150);
   });
 
   ctx.fillStyle = "#7d675a";
-  ctx.font = "900 22px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("Projected leaderboard reward - gas cost. Activity rewards not included.", 96, 558);
+  ctx.font = "900 18px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("Projected leaderboard reward - gas cost. Activity rewards not included.", 116, 558);
   return canvas;
 }
 
