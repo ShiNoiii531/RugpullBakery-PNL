@@ -12,6 +12,7 @@ const BAKERY_BAKE_SELECTOR = "0xb0de262e";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
 const COST_CACHE_URL = new URL("../data/cost-cache.json", import.meta.url);
 const RANK_CACHE_URL = new URL("../data/rank-cache.json", import.meta.url);
+const PUBLIC_SEASON_ID_OFFSET = 2;
 
 const LEADERBOARD_BUCKET_PCT = 70;
 const ACTIVITY_BUCKET_PCT = 30;
@@ -56,6 +57,14 @@ let memoryCache = null;
 function positiveNumber(value, fallback) {
   const numeric = Number(value);
   return Number.isFinite(numeric) && numeric > 0 ? numeric : fallback;
+}
+
+function publicSeasonId(seasonId) {
+  const numeric = Number(seasonId);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return Math.max(1, numeric - PUBLIC_SEASON_ID_OFFSET);
 }
 
 function shortAddress(address) {
@@ -674,6 +683,7 @@ async function buildDashboard() {
   return {
     updatedAt: new Date().toISOString(),
     seasonId: activeSeason.id,
+    seasonDisplayId: publicSeasonId(activeSeason.id),
     seasonEndsAt: activeSeason.endTime ? new Date(Number(activeSeason.endTime) * 1000).toISOString() : null,
     prizePoolWei,
     prizePoolEth: weiToEthNumber(prizePoolWei),

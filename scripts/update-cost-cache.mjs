@@ -37,10 +37,19 @@ const CHECKPOINT_CHUNK_INTERVAL = positiveInteger(process.env.COST_CACHE_CHECKPO
 const THROTTLE_MS = positiveInteger(process.env.COST_CACHE_THROTTLE_MS, 80);
 const SEASON_SNAPSHOT_WINDOW_MINUTES = positiveInteger(process.env.SEASON_SNAPSHOT_WINDOW_MINUTES, 90);
 const FORCE_SEASON_SNAPSHOT = process.env.SEASON_SNAPSHOT_FORCE === "1";
+const PUBLIC_SEASON_ID_OFFSET = 2;
 
 function positiveInteger(value, fallback) {
   const numeric = Number(value);
   return Number.isFinite(numeric) && numeric > 0 ? Math.floor(numeric) : fallback;
+}
+
+function publicSeasonId(seasonId) {
+  const numeric = Number(seasonId);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return Math.max(1, numeric - PUBLIC_SEASON_ID_OFFSET);
 }
 
 function sleep(ms) {
@@ -453,12 +462,14 @@ async function maybeWriteSeasonHistorySnapshot({ activeSeason, leaderboardItems,
     version: 1,
     type: "pre_season_end",
     seasonId: activeSeason.id,
+    seasonDisplayId: publicSeasonId(activeSeason.id),
     snapshotAt,
     snapshotReason: decision.reason,
     secondsUntilSeasonEnd: decision.secondsUntilEnd,
     snapshotWindowMinutes: SEASON_SNAPSHOT_WINDOW_MINUTES,
     season: {
       id: activeSeason.id,
+      displayId: publicSeasonId(activeSeason.id),
       startTime: activeSeason.startTime ?? null,
       endTime: activeSeason.endTime ?? null,
       startAt: unixSecondsToIso(activeSeason.startTime),

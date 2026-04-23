@@ -399,6 +399,12 @@ function moneyLabel(ethValue, options = {}) {
   return formatEth(numericEth);
 }
 
+function seasonLabel() {
+  const displayId = dashboard?.seasonDisplayId ?? null;
+  const fallbackId = dashboard?.seasonId ?? null;
+  return `Season ${displayId ?? fallbackId ?? "--"}`;
+}
+
 function cell(text, className = "", label = "") {
   const td = document.createElement("td");
   td.textContent = text;
@@ -1305,7 +1311,7 @@ function renderDashboard() {
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
 
   els.statusText.textContent = `Live data refreshed ${new Date(dashboard.updatedAt).toLocaleString()}`;
-  els.seasonValue.textContent = `Season ${dashboard.seasonId ?? "--"}`;
+  els.seasonValue.textContent = seasonLabel();
   els.updatedValue.textContent = dashboard.seasonEndsAt
     ? `Ends ${new Date(dashboard.seasonEndsAt).toLocaleString()}`
     : "Active season";
@@ -1461,7 +1467,7 @@ function downloadCsv() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `bakery-top100-pnl-season-${dashboard?.seasonId || "current"}.csv`;
+  link.download = `bakery-top100-pnl-season-${dashboard?.seasonDisplayId || dashboard?.seasonId || "current"}.csv`;
   document.body.append(link);
   link.click();
   link.remove();

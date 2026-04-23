@@ -1165,6 +1165,14 @@ body[data-theme="dark"] td {
   background: rgba(38, 26, 21, 0.94);
 }
 
+tbody tr:nth-child(even) td {
+  background: rgba(252, 243, 230, 0.96);
+}
+
+body[data-theme="dark"] tbody tr:nth-child(even) td {
+  background: rgba(47, 32, 26, 0.96);
+}
+
 tr:last-child td {
   border-bottom: 0;
 }
