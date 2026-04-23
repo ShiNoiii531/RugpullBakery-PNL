@@ -727,23 +727,6 @@ function renderMyBakery(rows) {
     return;
   }
 
-  const background = selectedPnlCardBackground();
-  const hero = document.createElement("div");
-  hero.className = "my-bakery-hero";
-
-  const heroMeta = document.createElement("div");
-  heroMeta.className = "my-bakery-hero-meta";
-  [seasonLabel(), background.label].forEach((text) => {
-    const pill = document.createElement("span");
-    pill.className = "my-bakery-hero-pill";
-    pill.textContent = text;
-    heroMeta.append(pill);
-  });
-  hero.append(heroMeta);
-
-  const surface = document.createElement("div");
-  surface.className = "my-bakery-surface";
-
   const head = document.createElement("div");
   head.className = "my-bakery-card-head";
 
@@ -775,6 +758,15 @@ function renderMyBakery(rows) {
   rank.append(`#${row.rank}`, rankMovementBadge(row));
   head.append(identity, rank);
 
+  const body = document.createElement("div");
+  body.className = "my-bakery-body";
+
+  const hero = document.createElement("div");
+  hero.className = "my-bakery-hero";
+
+  const details = document.createElement("div");
+  details.className = "my-bakery-details";
+
   const pnl = document.createElement("div");
   pnl.className = "my-bakery-pnl";
   const pnlLabel = document.createElement("span");
@@ -800,8 +792,9 @@ function renderMyBakery(rows) {
   footer.className = "my-bakery-footnote";
   footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
 
-  surface.append(head, pnl, metrics, footer);
-  els.myBakeryCard.append(hero, surface);
+  details.append(pnl, metrics, footer);
+  body.append(hero, details);
+  els.myBakeryCard.append(head, body);
 }
 
 function slugify(value) {
@@ -841,19 +834,19 @@ function fitCanvasText(ctx, text, maxWidth, startSize, minSize, weight = 900) {
 }
 
 function drawShareMetric(ctx, label, value, x, y, width) {
-  drawRoundRect(ctx, x, y, width, 96, 18);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
+  drawRoundRect(ctx, x, y, width, 82, 14);
+  ctx.fillStyle = "rgba(51, 31, 23, 0.96)";
   ctx.fill();
-  ctx.strokeStyle = "#efc99c";
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = "rgba(195, 129, 72, 0.44)";
+  ctx.lineWidth = 2;
   ctx.stroke();
 
-  ctx.fillStyle = "#7c4329";
-  ctx.font = "900 22px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText(label.toUpperCase(), x + 22, y + 34);
-  ctx.fillStyle = "#1e7fa6";
-  fitCanvasText(ctx, value, width - 44, 34, 22, 900);
-  ctx.fillText(value, x + 22, y + 74);
+  ctx.fillStyle = "#d8ad70";
+  ctx.font = "900 12px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(label.toUpperCase(), x + 14, y + 24);
+  ctx.fillStyle = "#73d8ff";
+  fitCanvasText(ctx, value, width - 28, 26, 16, 900);
+  ctx.fillText(value, x + 14, y + 58);
 }
 
 function loadImage(src) {
@@ -881,111 +874,88 @@ async function createPnlShareCanvas(row) {
   canvas.height = 630;
   const ctx = canvas.getContext("2d");
 
-  try {
-    const backgroundImage = await loadImage(selectedPnlCardBackground().imageUrl);
-    drawImageCover(ctx, backgroundImage, 0, 0, canvas.width, canvas.height);
-    const overlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    overlay.addColorStop(0, "rgba(255, 248, 238, 0.24)");
-    overlay.addColorStop(0.52, "rgba(255, 241, 220, 0.28)");
-    overlay.addColorStop(1, "rgba(255, 229, 192, 0.38)");
-    ctx.fillStyle = overlay;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  } catch {
-    const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bg.addColorStop(0, "#fff8ee");
-    bg.addColorStop(0.55, "#fff1dc");
-    bg.addColorStop(1, "#ffe5c0");
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "rgba(185, 111, 66, 0.18)";
-    for (let y = 36; y < canvas.height; y += 86) {
-      for (let x = 42; x < canvas.width; x += 118) {
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
-
   const background = selectedPnlCardBackground();
-  drawRoundRect(ctx, 58, 50, 1084, 530, 28);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.64)";
+  const page = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  page.addColorStop(0, "#1b120f");
+  page.addColorStop(1, "#120b09");
+  ctx.fillStyle = page;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawRoundRect(ctx, 34, 34, 1132, 562, 24);
+  ctx.fillStyle = "#2b1b14";
   ctx.fill();
-  ctx.strokeStyle = "#e8caa6";
-  ctx.lineWidth = 6;
+  ctx.strokeStyle = "#6b432d";
+  ctx.lineWidth = 3;
   ctx.stroke();
 
+  if (row.profileImageUrl) {
+    try {
+      const avatar = await loadImage(row.profileImageUrl);
+      ctx.save();
+      drawRoundRect(ctx, 54, 52, 36, 36, 18);
+      ctx.clip();
+      ctx.drawImage(avatar, 54, 52, 36, 36);
+      ctx.restore();
+      ctx.strokeStyle = "#8d5a39";
+      ctx.lineWidth = 2;
+      drawRoundRect(ctx, 54, 52, 36, 36, 18);
+      ctx.stroke();
+    } catch {}
+  }
+
+  ctx.fillStyle = "#f7e7d7";
+  fitCanvasText(ctx, row.chefName || shortAddress(row.chefAddress), 250, 34, 24, 900);
+  ctx.fillText(row.chefName || shortAddress(row.chefAddress), 106, 75);
+  ctx.fillStyle = "#b99b85";
+  ctx.font = "900 15px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(row.bakeryName || "Bakery", 106, 96);
+
+  drawRoundRect(ctx, 1060, 46, 70, 42, 10);
+  ctx.fillStyle = "#35a8d6";
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 24px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(`#${row.rank}`, 1074, 74);
+
+  const movement = row?.rankMovement?.direction || "same";
+  ctx.beginPath();
+  ctx.arc(1110, 67, 7, 0, Math.PI * 2);
+  ctx.fillStyle = "rgba(255,255,255,0.22)";
+  ctx.fill();
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "900 12px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(movement === "up" ? "↑" : movement === "down" ? "↓" : "=", 1106, 71);
+
   ctx.save();
-  drawRoundRect(ctx, 86, 78, 1028, 188, 24);
+  drawRoundRect(ctx, 54, 110, 520, 408, 12);
   ctx.clip();
   try {
     const heroImage = await loadImage(background.imageUrl);
-    drawImageCover(ctx, heroImage, 86, 78, 1028, 188);
+    drawImageCover(ctx, heroImage, 54, 110, 520, 408);
   } catch {
-    ctx.fillStyle = "rgba(255, 234, 205, 0.92)";
-    ctx.fillRect(86, 78, 1028, 188);
+    ctx.fillStyle = "#603827";
+    ctx.fillRect(54, 110, 520, 408);
   }
-  const heroOverlay = ctx.createLinearGradient(0, 78, 0, 266);
-  heroOverlay.addColorStop(0, "rgba(38, 26, 21, 0.08)");
-  heroOverlay.addColorStop(0.68, "rgba(38, 26, 21, 0.16)");
-  heroOverlay.addColorStop(1, "rgba(38, 26, 21, 0.42)");
-  ctx.fillStyle = heroOverlay;
-  ctx.fillRect(86, 78, 1028, 188);
   ctx.restore();
-  ctx.strokeStyle = "#efc99c";
-  ctx.lineWidth = 4;
-  drawRoundRect(ctx, 86, 78, 1028, 188, 24);
+  ctx.strokeStyle = "rgba(195, 129, 72, 0.48)";
+  ctx.lineWidth = 2;
+  drawRoundRect(ctx, 54, 110, 520, 408, 12);
   ctx.stroke();
 
-  drawRoundRect(ctx, 108, 100, 262, 46, 18);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
+  drawRoundRect(ctx, 590, 110, 542, 104, 12);
+  ctx.fillStyle = "rgba(51, 31, 23, 0.96)";
   ctx.fill();
-  ctx.strokeStyle = "#efc99c";
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.fillStyle = "#7c4329";
-  ctx.font = "900 24px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("Rugpull Bakery P&L", 130, 131);
-
-  drawRoundRect(ctx, 108, 208, 146, 40, 16);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.92)";
-  ctx.fill();
-  ctx.fillStyle = "#7c4329";
-  ctx.font = "900 20px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText(seasonLabel(), 126, 234);
-
-  drawRoundRect(ctx, 928, 100, 158, 40, 16);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.92)";
-  ctx.fill();
-  ctx.fillStyle = "#7c4329";
-  fitCanvasText(ctx, background.label, 126, 20, 14, 900);
-  ctx.fillText(background.label, 944, 126);
-
-  drawRoundRect(ctx, 86, 286, 1028, 244, 24);
-  ctx.fillStyle = "rgba(255, 250, 242, 0.94)";
-  ctx.fill();
-  ctx.strokeStyle = "#efc99c";
-  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(195, 129, 72, 0.44)";
   ctx.stroke();
 
-  ctx.fillStyle = "#1e7fa6";
-  ctx.font = "900 28px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText(`Top 100 #${row.rank}`, 116, 336);
-  ctx.fillStyle = "#493024";
-  fitCanvasText(ctx, row.chefName || shortAddress(row.chefAddress), 470, 46, 28, 900);
-  ctx.fillText(row.chefName || shortAddress(row.chefAddress), 116, 390);
-  ctx.fillStyle = "#7d675a";
-  fitCanvasText(ctx, row.bakeryName || "Bakery", 440, 24, 18, 900);
-  ctx.fillText(row.bakeryName || "Bakery", 116, 422);
+  ctx.fillStyle = "#d8ad70";
+  ctx.font = "900 12px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText("PROJECTED P&L", 610, 139);
 
   const pnlColor = Number(row.pnlEth || 0) >= 0 ? "#2d875e" : "#b94b42";
-  ctx.fillStyle = "#7c4329";
-  ctx.font = "900 24px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("PROJECTED P&L", 116, 468);
-  ctx.fillStyle = pnlColor;
-  fitCanvasText(ctx, moneyLabel(row.pnlEth, { signed: true }), 430, 66, 40, 900);
-  ctx.fillText(moneyLabel(row.pnlEth, { signed: true }), 116, 520);
+  ctx.fillStyle = Number(row.pnlEth || 0) >= 0 ? "#7fe2a7" : "#ff8687";
+  fitCanvasText(ctx, moneyLabel(row.pnlEth, { signed: true }), 500, 60, 36, 900);
+  ctx.fillText(moneyLabel(row.pnlEth, { signed: true }), 610, 190);
 
   const metrics = [
     ["Cookies", formatCookieCount(row.cookiesBakedDisplay)],
@@ -996,14 +966,17 @@ async function createPnlShareCanvas(row) {
     ["Share", formatShare(row.leaderboardSharePct)]
   ];
   metrics.forEach(([label, value], index) => {
-    const col = index % 3;
-    const rowIndex = Math.floor(index / 3);
-    drawShareMetric(ctx, label, value, 592 + col * 166, 322 + rowIndex * 94, 150);
+    const col = index % 4;
+    const rowIndex = Math.floor(index / 4);
+    drawShareMetric(ctx, label, value, 590 + col * 136, 230 + rowIndex * 90, 128);
   });
 
-  ctx.fillStyle = "#7d675a";
-  ctx.font = "900 18px Trebuchet MS, Verdana, sans-serif";
-  ctx.fillText("Projected leaderboard reward - gas cost. Activity rewards not included.", 116, 558);
+  drawRoundRect(ctx, 590, 500, 542, 18, 9);
+  ctx.fillStyle = "rgba(195, 129, 72, 0.12)";
+  ctx.fill();
+  ctx.fillStyle = "#b99b85";
+  ctx.font = "900 16px Trebuchet MS, Verdana, sans-serif";
+  ctx.fillText(`Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`, 610, 514);
   return canvas;
 }
 

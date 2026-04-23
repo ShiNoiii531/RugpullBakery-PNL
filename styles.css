@@ -700,22 +700,27 @@ body[data-theme="dark"] .simulator-toolbar {
   min-height: 280px;
   padding: 12px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   overflow: hidden;
   position: relative;
-  isolation: isolate;
+  color: #f3dfca;
+  border-color: #6b432d;
+  background:
+    linear-gradient(180deg, rgba(63, 40, 29, 0.98), rgba(38, 24, 18, 0.98)),
+    #291a13;
+  box-shadow: 0 16px 34px rgba(22, 12, 9, 0.34);
 }
 
 .my-bakery-hero {
   position: relative;
-  min-height: 212px;
-  border: 2px solid #f0d3ae;
+  min-height: 240px;
+  border: 1px solid rgba(195, 129, 72, 0.48);
   border-radius: 8px;
   overflow: hidden;
   background-image: var(--pnl-card-bg-image);
   background-position: center;
   background-size: cover;
-  background-color: #ffe7c6;
+  background-color: #603827;
 }
 
 .my-bakery-hero::after {
@@ -723,67 +728,22 @@ body[data-theme="dark"] .simulator-toolbar {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(38, 26, 21, 0.06) 0%, rgba(38, 26, 21, 0.14) 52%, rgba(38, 26, 21, 0.34) 100%),
-    linear-gradient(180deg, rgba(255, 250, 242, 0.06), rgba(255, 250, 242, 0));
+    linear-gradient(180deg, rgba(28, 17, 12, 0.06) 0%, rgba(28, 17, 12, 0.1) 58%, rgba(28, 17, 12, 0.18) 100%),
+    linear-gradient(180deg, rgba(255, 240, 220, 0.04), rgba(255, 240, 220, 0));
   pointer-events: none;
 }
 
-body[data-theme="dark"] .my-bakery-hero {
-  border-color: #5b3827;
-}
-
-.my-bakery-hero-meta {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 14px;
-  z-index: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.my-bakery-hero-pill {
-  min-height: 34px;
-  display: inline-flex;
-  align-items: center;
-  padding: 7px 12px;
-  border: 2px solid rgba(239, 201, 156, 0.88);
-  border-radius: 999px;
-  background: rgba(255, 250, 242, 0.92);
-  color: var(--cookie-dark);
-  font-size: 0.74rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  box-shadow: 0 8px 18px rgba(38, 26, 21, 0.14);
-  backdrop-filter: blur(6px);
-}
-
-body[data-theme="dark"] .my-bakery-hero-pill {
-  border-color: rgba(91, 56, 39, 0.94);
-  background: rgba(42, 28, 23, 0.88);
-  color: var(--cookie-dark);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.24);
-}
-
-.my-bakery-surface {
+.my-bakery-body {
   display: grid;
-  gap: 14px;
-  padding: 16px;
-  border: 2px solid #f0d3ae;
-  border-radius: 8px;
-  background:
-    linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(255, 247, 235, 0.94)),
-    var(--cream-card);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  grid-template-columns: minmax(280px, 1.05fr) minmax(300px, 1fr);
+  gap: 12px;
+  align-items: stretch;
 }
 
-body[data-theme="dark"] .my-bakery-surface {
-  border-color: #5b3827;
-  background:
-    linear-gradient(180deg, rgba(47, 31, 25, 0.98), rgba(34, 22, 18, 0.96)),
-    var(--cream-card);
+.my-bakery-details {
+  display: grid;
+  grid-template-rows: auto auto auto;
+  gap: 8px;
 }
 
 .my-bakery-empty {
@@ -799,6 +759,7 @@ body[data-theme="dark"] .my-bakery-surface {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+  padding: 2px 2px 0;
 }
 
 .my-bakery-identity {
@@ -809,129 +770,133 @@ body[data-theme="dark"] .my-bakery-surface {
 }
 
 .my-bakery-avatar {
-  width: 58px;
-  height: 58px;
-  flex: 0 0 58px;
-  border: 3px solid #f0d3ae;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border: 2px solid #8d5a39;
   border-radius: 999px;
-  background: #ffe1b9;
+  background: #4d3023;
   object-fit: cover;
-}
-
-body[data-theme="dark"] .my-bakery-avatar {
-  border-color: #70442e;
-  background: #38251d;
 }
 
 .my-bakery-title {
   min-width: 0;
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .my-bakery-title strong {
   overflow-wrap: anywhere;
-  color: var(--choc);
-  font-size: clamp(1.4rem, 3vw, 2.35rem);
-  line-height: 1;
+  color: #f7e7d7;
+  font-size: clamp(1.2rem, 2.1vw, 2rem);
+  line-height: 1.05;
 }
 
 .my-bakery-title span,
 .my-bakery-footnote,
 .share-status {
-  color: var(--muted);
+  color: #b99b85;
   line-height: 1.35;
 }
 
 .my-bakery-rank {
-  min-width: 74px;
-  min-height: 58px;
-  display: grid;
-  place-items: center;
+  min-width: 72px;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 12px;
   border-radius: 8px;
-  background: linear-gradient(180deg, #4bb9df, var(--blue));
+  background: linear-gradient(180deg, #54c4ec, #35a8d6);
   color: #fff;
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   font-weight: 900;
-  box-shadow: inset 0 -5px 0 rgba(30, 127, 166, 0.28), 0 5px 0 rgba(30, 127, 166, 0.14);
+  box-shadow: inset 0 -4px 0 rgba(30, 127, 166, 0.34);
 }
 
 .my-bakery-pnl {
   display: grid;
-  gap: 4px;
-  padding: 14px 16px;
-  border: 2px solid rgba(239, 201, 156, 0.74);
+  gap: 8px;
+  padding: 16px 18px;
+  border: 1px solid rgba(195, 129, 72, 0.46);
   border-radius: 8px;
-  background: rgba(255, 253, 249, 0.9);
-}
-
-body[data-theme="dark"] .my-bakery-pnl {
-  border-color: rgba(91, 56, 39, 0.94);
-  background: rgba(38, 26, 21, 0.82);
+  background: rgba(51, 31, 23, 0.96);
 }
 
 .my-bakery-pnl span {
-  color: var(--cookie-dark);
-  font-size: 0.82rem;
+  color: #d8ad70;
+  font-size: 0.66rem;
   font-weight: 900;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .my-bakery-pnl strong {
   overflow-wrap: anywhere;
-  font-size: clamp(2.1rem, 7vw, 4.6rem);
-  line-height: 0.95;
+  font-size: clamp(2rem, 4.1vw, 3.5rem);
+  line-height: 1;
 }
 
 .my-bakery-profit .my-bakery-pnl strong {
-  color: var(--green);
+  color: #7fe2a7;
 }
 
 .my-bakery-loss .my-bakery-pnl strong {
-  color: var(--red);
+  color: #ff8687;
 }
 
 .my-bakery-metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .my-bakery-metric {
-  min-height: 86px;
+  min-height: 72px;
   display: grid;
   align-content: space-between;
-  gap: 8px;
-  padding: 12px;
-  border: 2px solid #f0d3ae;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(195, 129, 72, 0.46);
   border-radius: 8px;
-  background: rgba(255, 253, 249, 0.96);
-}
-
-body[data-theme="dark"] .my-bakery-metric {
-  border-color: #5b3827;
-  background: rgba(38, 26, 21, 0.92);
+  background: rgba(51, 31, 23, 0.92);
 }
 
 .my-bakery-metric span {
-  color: var(--cookie-dark);
-  font-size: 0.72rem;
+  color: #d8ad70;
+  font-size: 0.58rem;
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .my-bakery-metric strong {
   min-width: 0;
   overflow-wrap: anywhere;
-  color: var(--blue-dark);
+  color: #73d8ff;
   font-size: 1.08rem;
   line-height: 1.05;
 }
 
+.my-bakery-metric-primary strong {
+  color: #73d8ff;
+}
+
 .my-bakery-footnote {
   margin: 0;
+  padding: 2px 2px 0;
+  font-size: 0.86rem;
+}
+
+@media (max-width: 980px) {
+  .my-bakery-body {
+    grid-template-columns: 1fr;
+  }
+
+  .my-bakery-hero {
+    min-height: 220px;
+  }
 }
 
 .share-status {
@@ -1541,26 +1506,17 @@ body[data-theme="dark"] .player-avatar {
     padding: 10px;
   }
 
+  .my-bakery-body {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
   .my-bakery-hero {
-    min-height: 148px;
+    min-height: 180px;
   }
 
-  .my-bakery-hero-meta {
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
-    gap: 6px;
-  }
-
-  .my-bakery-hero-pill {
-    min-height: 28px;
-    padding: 5px 10px;
-    font-size: 0.63rem;
-  }
-
-  .my-bakery-surface {
-    gap: 12px;
-    padding: 12px;
+  .my-bakery-details {
+    gap: 8px;
   }
 
   .my-bakery-card-head {
@@ -1596,9 +1552,10 @@ body[data-theme="dark"] .player-avatar {
   }
 
   .my-bakery-rank {
-    min-width: 54px;
-    min-height: 42px;
+    min-width: 64px;
+    min-height: 40px;
     gap: 5px;
+    padding: 0 10px;
     font-size: 0.98rem;
   }
 
@@ -1612,11 +1569,7 @@ body[data-theme="dark"] .player-avatar {
   .my-bakery-pnl {
     gap: 6px;
     padding: 10px;
-    border-width: 2px;
-  }
-
-  body[data-theme="dark"] .my-bakery-pnl {
-    border-color: rgba(91, 56, 39, 0.92);
+    border-width: 1px;
   }
 
   .my-bakery-pnl span {
@@ -1634,7 +1587,7 @@ body[data-theme="dark"] .player-avatar {
   }
 
   .my-bakery-metric {
-    min-height: 64px;
+    min-height: 66px;
     gap: 5px;
     padding: 9px;
   }
