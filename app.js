@@ -859,12 +859,14 @@ function loadImage(src) {
   });
 }
 
-function drawImageCover(ctx, image, x, y, width, height) {
+function drawImageCover(ctx, image, x, y, width, height, focusX = 0.5, focusY = 0.5) {
   const scale = Math.max(width / image.width, height / image.height);
   const drawWidth = image.width * scale;
   const drawHeight = image.height * scale;
-  const offsetX = x + (width - drawWidth) / 2;
-  const offsetY = y + (height - drawHeight) / 2;
+  const overflowX = Math.max(0, drawWidth - width);
+  const overflowY = Math.max(0, drawHeight - height);
+  const offsetX = x - overflowX * Math.min(Math.max(focusX, 0), 1);
+  const offsetY = y - overflowY * Math.min(Math.max(focusY, 0), 1);
   ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
 }
 
@@ -931,7 +933,7 @@ async function createPnlShareCanvas(row) {
   ctx.clip();
   try {
     const heroImage = await loadImage(background.imageUrl);
-    drawImageCover(ctx, heroImage, 54, 110, 520, 408);
+    drawImageCover(ctx, heroImage, 54, 110, 520, 408, 0.42, 0.5);
   } catch {
     ctx.fillStyle = "#603827";
     ctx.fillRect(54, 110, 520, 408);
