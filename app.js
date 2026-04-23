@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   activeView: "bakery-public:active-view",
   currencyMode: "bakery-public:currency-mode",
   manualCost: "bakery-public:manual-cost",
+  pnlCardBackground: "bakery-public:pnl-card-background",
   myBakeryQuery: "bakery-public:my-bakery-query",
   simulatorPrizePool: "bakery-public:simulator-prize-pool",
   themeMode: "bakery-public:theme-mode"
@@ -65,6 +66,7 @@ const els = {
   ruggedTableBody: document.getElementById("ruggedTableBody"),
   hallPainRowCount: document.getElementById("hallPainRowCount"),
   hallPainPodium: document.getElementById("hallPainPodium"),
+  pnlCardBackgroundPicker: document.getElementById("pnlCardBackgroundPicker"),
   myBakeryInput: document.getElementById("myBakeryInput"),
   myBakeryCard: document.getElementById("myBakeryCard"),
   sharePnlButton: document.getElementById("sharePnlButton"),
@@ -87,6 +89,15 @@ let ethPriceUpdatedAt = null;
 let ethPriceLoading = false;
 let topRugSort = { key: "rugRank", direction: "asc" };
 let currentMyBakeryRow = null;
+let pnlCardBackground = "bg1";
+
+const PNL_CARD_BACKGROUNDS = [
+  { id: "bg1", label: "Megaphone Chef", imageUrl: "/assets/pnl-card-bg-1.png" },
+  { id: "bg2", label: "Baking Chef", imageUrl: "/assets/pnl-card-bg-2.png" },
+  { id: "bg3", label: "Cookie Tasting", imageUrl: "/assets/pnl-card-bg-3.png" },
+  { id: "bg4", label: "Kitchen Panic", imageUrl: "/assets/pnl-card-bg-4.png" },
+  { id: "bg5", label: "Bad Cookie", imageUrl: "/assets/pnl-card-bg-5.png" }
+];
 
 const TOP_RUG_SORT_LABELS = {
   rugRank: "Rug Rank",
@@ -104,6 +115,7 @@ try {
   const storedCurrencyMode = localStorage.getItem(STORAGE_KEYS.currencyMode);
   const storedThemeMode = localStorage.getItem(STORAGE_KEYS.themeMode);
   const storedActiveView = localStorage.getItem(STORAGE_KEYS.activeView);
+  const storedPnlCardBackground = localStorage.getItem(STORAGE_KEYS.pnlCardBackground);
   const storedMyBakeryQuery = localStorage.getItem(STORAGE_KEYS.myBakeryQuery);
   const storedSimulatorPrizePool = localStorage.getItem(STORAGE_KEYS.simulatorPrizePool);
   if (manualCost !== null) {
@@ -114,6 +126,9 @@ try {
   }
   if (storedThemeMode === "dark") {
     themeMode = "dark";
+  }
+  if (PNL_CARD_BACKGROUNDS.some((background) => background.id === storedPnlCardBackground)) {
+    pnlCardBackground = storedPnlCardBackground;
   }
   if (["dashboard", "my", "rug", "pain", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
@@ -405,6 +420,66 @@ function seasonLabel() {
   return `Season ${displayId ?? fallbackId ?? "--"}`;
 }
 
+function selectedPnlCardBackground() {
+  return PNL_CARD_BACKGROUNDS.find((background) => background.id === pnlCardBackground) || PNL_CARD_BACKGROUNDS[0];
+}
+
+function applyPnlCardBackground(enabled) {
+  const background = selectedPnlCardBackground();
+  els.myBakeryCard.style.setProperty("--pnl-card-bg-image", `url("${background.imageUrl}")`);
+  els.myBakeryCard.classList.toggle("my-bakery-card-themed", Boolean(enabled));
+}
+
+function renderPnlCardBackgroundPicker() {
+  els.pnlCardBackgroundPicker.innerHTML = "";
+  const fragment = document.createDocumentFragment();
+
+  PNL_CARD_BACKGROUNDS.forEach((background, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "pnl-card-background-button";
+    button.dataset.backgroundId = background.id;
+    button.setAttribute("aria-pressed", String(background.id === pnlCardBackground));
+    button.setAttribute("aria-label", `Use ${background.label} background`);
+    button.title = background.label;
+
+    const image = document.createElement("img");
+    image.className = "pnl-card-background-thumb";
+    image.src = background.imageUrl;
+    image.alt = "";
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    const badge = document.createElement("span");
+    badge.className = "pnl-card-background-badge";
+    badge.textContent = String(index + 1);
+
+    button.append(image, badge);
+    button.addEventListener("click", () => {
+      setPnlCardBackground(background.id);
+    });
+    fragment.append(button);
+  });
+
+  els.pnlCardBackgroundPicker.append(fragment);
+}
+
+function setPnlCardBackground(nextBackground, shouldPersist = true) {
+  if (!PNL_CARD_BACKGROUNDS.some((background) => background.id === nextBackground)) {
+    return;
+  }
+
+  pnlCardBackground = nextBackground;
+  renderPnlCardBackgroundPicker();
+  applyPnlCardBackground(Boolean(currentMyBakeryRow));
+
+  if (shouldPersist) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.pnlCardBackground, pnlCardBackground);
+    } catch {}
+  }
+}
+
 function cell(text, className = "", label = "") {
   const td = document.createElement("td");
   td.textContent = text;
@@ -627,6 +702,7 @@ function renderMyBakery(rows) {
   const row = findMyBakeryRow(rows);
   currentMyBakeryRow = row;
   els.sharePnlButton.disabled = !row;
+  applyPnlCardBackground(Boolean(row));
 
   els.myBakeryCard.innerHTML = "";
   els.myBakeryCard.className = row
@@ -760,30 +836,60 @@ function drawShareMetric(ctx, label, value, x, y, width) {
   ctx.fillText(value, x + 22, y + 74);
 }
 
-function createPnlShareCanvas(row) {
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error(`Unable to load image: ${src}`));
+    image.decoding = "async";
+    image.src = src;
+  });
+}
+
+function drawImageCover(ctx, image, x, y, width, height) {
+  const scale = Math.max(width / image.width, height / image.height);
+  const drawWidth = image.width * scale;
+  const drawHeight = image.height * scale;
+  const offsetX = x + (width - drawWidth) / 2;
+  const offsetY = y + (height - drawHeight) / 2;
+  ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+}
+
+async function createPnlShareCanvas(row) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
   canvas.height = 630;
   const ctx = canvas.getContext("2d");
 
-  const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  bg.addColorStop(0, "#fff8ee");
-  bg.addColorStop(0.55, "#fff1dc");
-  bg.addColorStop(1, "#ffe5c0");
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  try {
+    const backgroundImage = await loadImage(selectedPnlCardBackground().imageUrl);
+    drawImageCover(ctx, backgroundImage, 0, 0, canvas.width, canvas.height);
+    const overlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    overlay.addColorStop(0, "rgba(255, 248, 238, 0.24)");
+    overlay.addColorStop(0.52, "rgba(255, 241, 220, 0.28)");
+    overlay.addColorStop(1, "rgba(255, 229, 192, 0.38)");
+    ctx.fillStyle = overlay;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } catch {
+    const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    bg.addColorStop(0, "#fff8ee");
+    bg.addColorStop(0.55, "#fff1dc");
+    bg.addColorStop(1, "#ffe5c0");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "rgba(185, 111, 66, 0.18)";
-  for (let y = 36; y < canvas.height; y += 86) {
-    for (let x = 42; x < canvas.width; x += 118) {
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.fillStyle = "rgba(185, 111, 66, 0.18)";
+    for (let y = 36; y < canvas.height; y += 86) {
+      for (let x = 42; x < canvas.width; x += 118) {
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
   drawRoundRect(ctx, 58, 50, 1084, 530, 28);
-  ctx.fillStyle = "#fffaf2";
+  ctx.fillStyle = "rgba(255, 250, 242, 0.82)";
   ctx.fill();
   ctx.strokeStyle = "#e8caa6";
   ctx.lineWidth = 6;
@@ -850,7 +956,7 @@ async function shareMyPnlCard() {
   els.shareStatus.textContent = "Generating share card...";
 
   try {
-    const canvas = createPnlShareCanvas(row);
+    const canvas = await createPnlShareCanvas(row);
     const blob = await canvasToBlob(canvas);
     if (!blob) {
       throw new Error("Unable to generate share card");
@@ -1488,6 +1594,8 @@ async function refreshDashboard() {
     renderDashboard();
   } catch (error) {
     els.statusText.textContent = error instanceof Error ? error.message : String(error);
+    currentMyBakeryRow = null;
+    applyPnlCardBackground(false);
     els.tableBody.innerHTML = "";
     els.rugTableBody.innerHTML = "";
     els.ruggedTableBody.innerHTML = "";
@@ -1614,6 +1722,7 @@ els.sharePnlButton.addEventListener("click", () => {
 
 setThemeMode(themeMode, false);
 setCurrencyMode(currencyMode, false);
+setPnlCardBackground(pnlCardBackground, false);
 setActiveView(activeView, false);
 refreshEthPrice();
 refreshDashboard();
