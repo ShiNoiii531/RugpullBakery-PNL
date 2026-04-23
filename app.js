@@ -870,6 +870,15 @@ function drawImageCover(ctx, image, x, y, width, height, focusX = 0.5, focusY = 
   ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
 }
 
+function drawImageContain(ctx, image, x, y, width, height) {
+  const scale = Math.min(width / image.width, height / image.height);
+  const drawWidth = image.width * scale;
+  const drawHeight = image.height * scale;
+  const offsetX = x + (width - drawWidth) / 2;
+  const offsetY = y + (height - drawHeight) / 2;
+  ctx.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
+}
+
 async function createPnlShareCanvas(row) {
   const canvas = document.createElement("canvas");
   canvas.width = 1200;
@@ -933,7 +942,7 @@ async function createPnlShareCanvas(row) {
   ctx.clip();
   try {
     const heroImage = await loadImage(background.imageUrl);
-    drawImageCover(ctx, heroImage, 54, 110, 520, 408, 0.42, 0.5);
+    drawImageContain(ctx, heroImage, 54, 110, 520, 408);
   } catch {
     ctx.fillStyle = "#603827";
     ctx.fillRect(54, 110, 520, 408);

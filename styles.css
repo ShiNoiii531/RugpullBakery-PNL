@@ -718,8 +718,9 @@ body[data-theme="dark"] .simulator-toolbar {
   border-radius: 8px;
   overflow: hidden;
   background-image: var(--pnl-card-bg-image);
-  background-position: 42% center;
-  background-size: cover;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-color: #603827;
 }
 
