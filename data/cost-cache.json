@@ -3,8 +3,8 @@
   "status": "partial",
   "seasonId": 6,
   "seasonStartBlock": 56688764,
-  "latestKnownBlock": 57006716,
-  "updatedAt": "2026-04-25T20:07:55.689Z",
+  "latestKnownBlock": 57034176,
+  "updatedAt": "2026-04-25T21:55:45.262Z",
   "top100AddressCount": 138,
   "completeChefCount": 0,
   "chefs": {
@@ -1947,13 +1947,53 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": "2026-04-25T19:23:04.330Z"
+    },
+    "0xbb7bcd4d6b53a92105f6eed1c7b176e31544623a": {
+      "address": "0xbb7bcd4d6b53a92105f6eed1c7b176e31544623a",
+      "fromBlock": 56688764,
+      "toBlock": 56718763,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": "2026-04-25T21:55:45.235Z"
+    },
+    "0x446ba45997e8c1c83e9361fbcbc8fe4d2f9db2a7": {
+      "address": "0x446ba45997e8c1c83e9361fbcbc8fe4d2f9db2a7",
+      "fromBlock": 56688764,
+      "toBlock": 56718763,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": "2026-04-25T21:55:45.235Z"
+    },
+    "0xc298b9d57ab59c1336694e9c4b8c210ca87b825c": {
+      "address": "0xc298b9d57ab59c1336694e9c4b8c210ca87b825c",
+      "fromBlock": 56688764,
+      "toBlock": 56718763,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": "2026-04-25T21:55:45.235Z"
+    },
+    "0xfa4f36238d8d0533ec8f8b5ec747a96ee1b053e0": {
+      "address": "0xfa4f36238d8d0533ec8f8b5ec747a96ee1b053e0",
+      "fromBlock": 56688764,
+      "toBlock": 56718763,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": "2026-04-25T21:55:45.235Z"
     }
   },
   "lastRun": {
-    "startedAt": "2026-04-25T19:53:32.740Z",
-    "completedAt": "2026-04-25T20:07:55.689Z",
+    "startedAt": "2026-04-25T21:55:38.222Z",
+    "completedAt": "2026-04-25T21:55:45.262Z",
     "blocksScanned": 30000,
-    "txsProcessed": 95390,
+    "txsProcessed": 0,
     "stoppedByBudget": true,
     "maxBlocksPerRun": 30000,
     "maxTxsPerRun": 300000,
