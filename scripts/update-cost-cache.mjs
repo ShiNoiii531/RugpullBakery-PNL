@@ -11,6 +11,8 @@ const BAKERY_APP_URL = "https://www.rugpullbakery.com";
 const ABSTRACT_RPC_URL = process.env.ABSTRACT_RPC_URL || "https://api.mainnet.abs.xyz";
 const BAKERY_CONTRACT_ADDRESS = "0xFEB79a841D69C08aFCDC7B2BEEC8a6fbbe46C455";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
+const S4_LEADERBOARD_ROW_LIMIT = 110;
+const DEFAULT_LEADERBOARD_ROW_LIMIT = 100;
 const LEADERBOARD_BUCKET_PCT = 70;
 const LEADERBOARD_PAYOUTS = [
   { minRank: 1, maxRank: 1, sharePct: 7.5 },
@@ -166,6 +168,41 @@ async function fetchBakeryTrpc(procedure, input) {
     throw new Error(first.error.message || `Bakery ${procedure} returned an error`);
   }
   return first?.result?.data?.json;
+}
+
+async function fetchPaginatedBakeryLeaderboard({ procedure, baseInput = {}, totalLimit, cursorKey }) {
+  const items = [];
+  let nextCursor = null;
+
+  while (items.length < totalLimit) {
+    const pageLimit = Math.min(100, totalLimit - items.length);
+    const input = {
+      ...baseInput,
+      limit: pageLimit
+    };
+
+    if (nextCursor) {
+      input.cursor = nextCursor;
+    }
+
+    const page = await fetchBakeryTrpc(procedure, input);
+    const pageItems = Array.isArray(page?.items) ? page.items : [];
+    items.push(...pageItems);
+
+    if (!page?.nextCursor || pageItems.length === 0) {
+      break;
+    }
+
+    nextCursor = page.nextCursor;
+    if (cursorKey && !(cursorKey in nextCursor)) {
+      break;
+    }
+  }
+
+  return {
+    items: items.slice(0, totalLimit),
+    nextCursor
+  };
 }
 
 async function rpcCall(method, params = []) {
@@ -403,6 +440,45 @@ async function getTopChefStatsByAddress(seasonId) {
     console.warn(`Season snapshot top chef lookup failed: ${error.message}`);
     return new Map();
   }
+}
+
+async function getTrackedLeaderboards(activeSeason) {
+  if (Number(activeSeason?.id) === 6) {
+    const [standardLeaderboard, openLeaderboard] = await Promise.all([
+      fetchPaginatedBakeryLeaderboard({
+        procedure: "leaderboard.getTopBakeries",
+        baseInput: { tierId: 1 },
+        totalLimit: S4_LEADERBOARD_ROW_LIMIT,
+        cursorKey: "id"
+      }),
+      fetchPaginatedBakeryLeaderboard({
+        procedure: "leaderboard.getTopBakeries",
+        baseInput: { tierId: 2 },
+        totalLimit: S4_LEADERBOARD_ROW_LIMIT,
+        cursorKey: "id"
+      })
+    ]);
+
+    return {
+      snapshotLeaderboardItems: standardLeaderboard.items || [],
+      trackedRows: [
+        ...(standardLeaderboard.items || []),
+        ...(openLeaderboard.items || [])
+      ]
+    };
+  }
+
+  const defaultLeaderboard = await fetchPaginatedBakeryLeaderboard({
+    procedure: "leaderboard.getTopBakeries",
+    baseInput: {},
+    totalLimit: DEFAULT_LEADERBOARD_ROW_LIMIT,
+    cursorKey: "id"
+  });
+
+  return {
+    snapshotLeaderboardItems: defaultLeaderboard.items || [],
+    trackedRows: defaultLeaderboard.items || []
+  };
 }
 
 async function maybeWriteSeasonHistorySnapshot({ activeSeason, leaderboardItems, top100Addresses, cache, latestBlock, startedAt }) {
@@ -674,10 +750,9 @@ async function main() {
     throw new Error("No active Bakery season found");
   }
 
-  const leaderboard = await fetchBakeryTrpc("leaderboard.getTopBakeries", { limit: 100 });
-  await writeRankSnapshot(activeSeason.id, leaderboard.items || []);
-  const top100Addresses = [...new Set((leaderboard.items || [])
-    .slice(0, 100)
+  const { snapshotLeaderboardItems, trackedRows } = await getTrackedLeaderboards(activeSeason);
+  await writeRankSnapshot(activeSeason.id, snapshotLeaderboardItems || []);
+  const top100Addresses = [...new Set((trackedRows || [])
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => /^0x[a-fA-F0-9]{40}$/.test(address || ""))
     .map((address) => address.toLowerCase()))];
@@ -790,7 +865,7 @@ async function main() {
   await writeCache(cache);
   const seasonSnapshot = await maybeWriteSeasonHistorySnapshot({
     activeSeason,
-    leaderboardItems: leaderboard.items || [],
+    leaderboardItems: snapshotLeaderboardItems || [],
     top100Addresses,
     cache,
     latestBlock,

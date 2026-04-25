@@ -533,10 +533,14 @@ function costFromCache(costCache, seasonId, chefAddress) {
     return null;
   }
 
+  const latestKnownBlock = Number(costCache.latestKnownBlock || 0);
+  const toBlock = Number(entry.toBlock ?? latestKnownBlock ?? 0);
+  const effectivelyComplete = entry.complete === true && latestKnownBlock > 0 && toBlock >= latestKnownBlock;
+
   return {
     costWei: entry.gasCostWei,
     costEth: weiToEthNumber(entry.gasCostWei),
-    complete: entry.complete === true,
+    complete: effectivelyComplete,
     cookTxCount: Number(entry.cookTxCount || 0),
     cookiesRaw: entry.cookiesRaw || "0",
     updatedAt: costCache.updatedAt || entry.updatedAt || null,
