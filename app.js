@@ -1350,6 +1350,11 @@ function incomingRugSuccessRate(row) {
 
 function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
   const targetLabel = (dashboard?.leaderboardTitle || "leaderboard").toLowerCase();
+  if (source.label === "season_rug_cache") {
+    const statusLabel = source.complete ? "complete season history" : (source.status || "partial sync");
+    return `Incoming rug attempts against ${targetLabel} bakeries from the ${statusLabel} cache. Events scanned: ${numberFormatter.format(source.scannedEvents || 0)}. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
+  }
+
   if (source.label === "leaderboard_bakery_activity_feeds") {
     return `Incoming rug attempts against ${targetLabel} bakeries from up to ${numberFormatter.format(source.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(source.scannedEvents || 0)} / ${numberFormatter.format(source.maxEvents || 0)}. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
   }

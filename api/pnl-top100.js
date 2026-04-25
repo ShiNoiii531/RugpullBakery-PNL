@@ -13,6 +13,7 @@ const BAKERY_BAKE_SELECTOR = "0xb0de262e";
 const BAKERY_BAKE_EVENT_TOPIC = "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6";
 const COST_CACHE_URL = new URL("../data/cost-cache.json", import.meta.url);
 const RANK_CACHE_URL = new URL("../data/rank-cache.json", import.meta.url);
+const RUG_CACHE_URL = new URL("../data/rug-cache.json", import.meta.url);
 const SEASON_HISTORY_DIR_URL = new URL("../data/season-history/", import.meta.url);
 const PUBLIC_SEASON_ID_OFFSET = 2;
 
@@ -431,6 +432,18 @@ async function loadRankCache() {
   }
 }
 
+async function loadRugCache() {
+  try {
+    const payload = JSON.parse(await readFile(RUG_CACHE_URL, "utf8"));
+    if (!payload || typeof payload !== "object") {
+      return null;
+    }
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 async function loadSeasonHistoryEntries() {
   try {
     const files = await readdir(SEASON_HISTORY_DIR_URL);
@@ -763,6 +776,37 @@ function countIncomingRugs(activityFeed) {
   return stats;
 }
 
+function rugStatsFromCache(rugCache, seasonId, rows) {
+  if (!rugCache || Number(rugCache.seasonId) !== Number(seasonId)) {
+    return null;
+  }
+
+  const rugReceivedStatsByBakeryId = new Map();
+  for (const row of rows) {
+    const bakeryId = Number(row.id);
+    const cached = rugCache.bakeries?.[String(bakeryId)] || null;
+    rugReceivedStatsByBakeryId.set(bakeryId, {
+      attempts: Number(cached?.attempts || 0),
+      successful: Number(cached?.successful || 0),
+      failed: Number(cached?.failed || 0)
+    });
+  }
+
+  return {
+    rugReceivedStatsByBakeryId,
+    rugReceivedSource: {
+      label: "season_rug_cache",
+      updatedAt: rugCache.updatedAt || null,
+      status: rugCache.status || "unknown",
+      scannedEvents: Number(rugCache.scannedEvents || 0),
+      importedEvents: Number(rugCache.importedEvents || 0),
+      latestSeenTimestamp: rugCache.latestSeenTimestamp || null,
+      oldestCursor: rugCache.oldestCursor || null,
+      complete: rugCache.complete === true
+    }
+  };
+}
+
 async function getGlobalRugsReceivedByBakeryId() {
   const globalActivityFeed = await fetchBakeryTrpc(
     "leaderboard.getGlobalActivityFeed",
@@ -890,18 +934,19 @@ async function buildDashboard({ activeSeason, boardKey = DEFAULT_BOARD_KEY }) {
     .map((row) => row.topCook || row.creator || row.leader)
     .filter((address) => typeof address === "string" && address.length > 0)
     .map((address) => address.toLowerCase()))];
-  const [rugReceivedData, profiles, abstractProfilesByAddress, costEstimate, costCache, rankCache] = await Promise.all([
-    MOST_RUGGED_ENABLED
-      ? getBakeryRugsReceived(rows, activeSeason.id)
-      : Promise.resolve(getDisabledRugReceivedData()),
+  const [profiles, abstractProfilesByAddress, costEstimate, costCache, rankCache, rugCache] = await Promise.all([
     addresses.length > 0
       ? fetchBakeryTrpc("profiles.getByAddresses", { addresses })
       : Promise.resolve([]),
     getAbstractProfilesByAddress(addresses),
     getRpcCostEstimate(activeSeason.id, addresses),
     loadCostCache(),
-    loadRankCache()
+    loadRankCache(),
+    loadRugCache()
   ]);
+  const rugReceivedData = MOST_RUGGED_ENABLED
+    ? rugStatsFromCache(rugCache, activeSeason.id, rows) || await getBakeryRugsReceived(rows, activeSeason.id)
+    : getDisabledRugReceivedData();
   const { rugReceivedStatsByBakeryId, rugReceivedSource } = rugReceivedData;
   const profileNameByAddress = new Map(
     profiles.map((entry) => [entry.address.toLowerCase(), entry.profile?.name || null])
