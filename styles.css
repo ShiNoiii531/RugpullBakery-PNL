@@ -414,15 +414,19 @@ body[data-theme="dark"] .rules-poster {
 }
 
 .logo-character-left {
-  left: 0;
-  bottom: 0;
-  width: clamp(92px, 21%, 170px);
+  left: 1%;
+  bottom: -6px;
+  width: clamp(118px, 24%, 190px);
 }
 
 .logo-character-right {
-  right: -2%;
-  bottom: -8px;
-  width: clamp(150px, 34%, 280px);
+  right: -1%;
+  bottom: -10px;
+  width: clamp(132px, 28%, 228px);
+}
+
+.logo-character-robot {
+  filter: drop-shadow(0 14px 20px rgba(22, 22, 30, 0.18));
 }
 
 body[data-theme="dark"] .logo-character {
@@ -1719,14 +1723,14 @@ body[data-theme="dark"] .player-avatar {
 
   .logo-character-left {
     left: -2px;
-    bottom: 0;
-    width: clamp(70px, 22%, 92px);
+    bottom: -2px;
+    width: clamp(86px, 26%, 112px);
   }
 
   .logo-character-right {
     right: -8px;
-    bottom: -5px;
-    width: clamp(100px, 34%, 132px);
+    bottom: -6px;
+    width: clamp(92px, 28%, 122px);
   }
 
   .toolbar {
