@@ -1,0 +1,925 @@
+{
+  "version": 1,
+  "status": "complete",
+  "seasonId": 5,
+  "seasonDisplayId": 3,
+  "generatedAt": "2026-04-25T14:27:55.535Z",
+  "contractAddress": "0xfeb79a841d69c08afcdc7b2beec8a6fbbe46c455",
+  "bakeEventTopic": "0xdfb2307530b804c690e75bb4df897c4d1ebb5e3e1187ce9e25eb7ed674c66db6",
+  "seasonStartTime": 1776434427,
+  "seasonEndTime": 1777040527,
+  "startBlock": 54410576,
+  "endBlock": 56644394,
+  "nextBlockCursor": null,
+  "chunkCount": 1117,
+  "totalLogs": 12222182,
+  "playerCount": 100,
+  "totals": {
+    "cookTxCount": 12222182,
+    "cookiesRaw": "206586919625",
+    "gasCostWei": "69246809319081500000",
+    "missingReceiptCount": 0
+  },
+  "chefs": {
+    "0x7390022cbff03b8501084ca8fa72cdb932a415d6": {
+      "chefAddress": "0x7390022cbff03b8501084ca8fa72cdb932a415d6",
+      "cookTxCount": 240519,
+      "cookiesRaw": "4320094125",
+      "gasCostWei": "1289057872519000000",
+      "firstBakeBlock": 54410744,
+      "lastBakeBlock": 56473748,
+      "missingReceiptCount": 0
+    },
+    "0x69c7ed0f6145dcbb5aed30254494b1d24755d51e": {
+      "chefAddress": "0x69c7ed0f6145dcbb5aed30254494b1d24755d51e",
+      "cookTxCount": 233820,
+      "cookiesRaw": "4179022875",
+      "gasCostWei": "1253274281028500000",
+      "firstBakeBlock": 54410913,
+      "lastBakeBlock": 56473829,
+      "missingReceiptCount": 0
+    },
+    "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409": {
+      "chefAddress": "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409",
+      "cookTxCount": 232772,
+      "cookiesRaw": "4172774500",
+      "gasCostWei": "1250045847423750000",
+      "firstBakeBlock": 54410805,
+      "lastBakeBlock": 56473835,
+      "missingReceiptCount": 0
+    },
+    "0x355871f5a1fd8f39ec088443fad80b3020b1f34a": {
+      "chefAddress": "0x355871f5a1fd8f39ec088443fad80b3020b1f34a",
+      "cookTxCount": 233301,
+      "cookiesRaw": "4166808500",
+      "gasCostWei": "1249191769511250000",
+      "firstBakeBlock": 54411080,
+      "lastBakeBlock": 56473812,
+      "missingReceiptCount": 0
+    },
+    "0x5c2a0b64591e3a228ca2d0d281dfe0dfe55666b5": {
+      "chefAddress": "0x5c2a0b64591e3a228ca2d0d281dfe0dfe55666b5",
+      "cookTxCount": 231795,
+      "cookiesRaw": "4161312250",
+      "gasCostWei": "1244703697448000000",
+      "firstBakeBlock": 54411195,
+      "lastBakeBlock": 56473930,
+      "missingReceiptCount": 0
+    },
+    "0xf0e2667d49f71d8a5f42492643a7926e935d4210": {
+      "chefAddress": "0xf0e2667d49f71d8a5f42492643a7926e935d4210",
+      "cookTxCount": 231579,
+      "cookiesRaw": "4143901125",
+      "gasCostWei": "1242297352856500000",
+      "firstBakeBlock": 54411422,
+      "lastBakeBlock": 56473769,
+      "missingReceiptCount": 0
+    },
+    "0x011ceb40eaadba6a5c479c234bf6f49017a4bdce": {
+      "chefAddress": "0x011ceb40eaadba6a5c479c234bf6f49017a4bdce",
+      "cookTxCount": 217510,
+      "cookiesRaw": "4077503250",
+      "gasCostWei": "1167121209563250000",
+      "firstBakeBlock": 54410606,
+      "lastBakeBlock": 56567386,
+      "missingReceiptCount": 0
+    },
+    "0xa459512a23bcdd659b764d57db926e1c64048e17": {
+      "chefAddress": "0xa459512a23bcdd659b764d57db926e1c64048e17",
+      "cookTxCount": 246039,
+      "cookiesRaw": "4009567125",
+      "gasCostWei": "1318087227691750000",
+      "firstBakeBlock": 54410718,
+      "lastBakeBlock": 56570049,
+      "missingReceiptCount": 0
+    },
+    "0x613be07704992c59ae3ae9130b30a13c1d3a56b1": {
+      "chefAddress": "0x613be07704992c59ae3ae9130b30a13c1d3a56b1",
+      "cookTxCount": 276950,
+      "cookiesRaw": "3711425250",
+      "gasCostWei": "1487289307954750000",
+      "firstBakeBlock": 54410851,
+      "lastBakeBlock": 56617320,
+      "missingReceiptCount": 0
+    },
+    "0xfc61f1b7701f6765ff548b3bca403cdaa723d260": {
+      "chefAddress": "0xfc61f1b7701f6765ff548b3bca403cdaa723d260",
+      "cookTxCount": 265742,
+      "cookiesRaw": "3598848250",
+      "gasCostWei": "1462460218555250000",
+      "firstBakeBlock": 54411676,
+      "lastBakeBlock": 56624312,
+      "missingReceiptCount": 0
+    },
+    "0x6052354efe95df428da38efa36be764d3eea6bdb": {
+      "chefAddress": "0x6052354efe95df428da38efa36be764d3eea6bdb",
+      "cookTxCount": 206397,
+      "cookiesRaw": "3424880750",
+      "gasCostWei": "1111493469990500000",
+      "firstBakeBlock": 54422503,
+      "lastBakeBlock": 56615825,
+      "missingReceiptCount": 0
+    },
+    "0x84596032e367134926cb74fb530d41fcba6020e6": {
+      "chefAddress": "0x84596032e367134926cb74fb530d41fcba6020e6",
+      "cookTxCount": 201833,
+      "cookiesRaw": "3010900125",
+      "gasCostWei": "1087308222523750000",
+      "firstBakeBlock": 54410918,
+      "lastBakeBlock": 56637770,
+      "missingReceiptCount": 0
+    },
+    "0x6968c93abfdf34e9ec6b2609501cfeb465d6532a": {
+      "chefAddress": "0x6968c93abfdf34e9ec6b2609501cfeb465d6532a",
+      "cookTxCount": 165439,
+      "cookiesRaw": "2782908500",
+      "gasCostWei": "895527624373000000",
+      "firstBakeBlock": 54440511,
+      "lastBakeBlock": 56613351,
+      "missingReceiptCount": 0
+    },
+    "0x7e2e92ed93bbb859b6d191059a1725509ac52609": {
+      "chefAddress": "0x7e2e92ed93bbb859b6d191059a1725509ac52609",
+      "cookTxCount": 153552,
+      "cookiesRaw": "2775735250",
+      "gasCostWei": "823733818215250000",
+      "firstBakeBlock": 54410994,
+      "lastBakeBlock": 56612477,
+      "missingReceiptCount": 0
+    },
+    "0x51f6597d191f171cf2104b3a763f5a7202f7300c": {
+      "chefAddress": "0x51f6597d191f171cf2104b3a763f5a7202f7300c",
+      "cookTxCount": 171664,
+      "cookiesRaw": "2772911000",
+      "gasCostWei": "923242766962750000",
+      "firstBakeBlock": 54410851,
+      "lastBakeBlock": 56577514,
+      "missingReceiptCount": 0
+    },
+    "0x0aba1ca18a9259a1e23dc5adf1696c3eef4e0a44": {
+      "chefAddress": "0x0aba1ca18a9259a1e23dc5adf1696c3eef4e0a44",
+      "cookTxCount": 148838,
+      "cookiesRaw": "2771240000",
+      "gasCostWei": "798890181936250000",
+      "firstBakeBlock": 54411886,
+      "lastBakeBlock": 56612456,
+      "missingReceiptCount": 0
+    },
+    "0xf2f7e708ef447f9a445120ea0dcf5b4b5d19ac1b": {
+      "chefAddress": "0xf2f7e708ef447f9a445120ea0dcf5b4b5d19ac1b",
+      "cookTxCount": 165124,
+      "cookiesRaw": "2745384000",
+      "gasCostWei": "1074437081070000000",
+      "firstBakeBlock": 54410844,
+      "lastBakeBlock": 56643718,
+      "missingReceiptCount": 0
+    },
+    "0xdb65734df1db12ee8027d774c3228753d568fd9a": {
+      "chefAddress": "0xdb65734df1db12ee8027d774c3228753d568fd9a",
+      "cookTxCount": 163956,
+      "cookiesRaw": "2671972000",
+      "gasCostWei": "881927730809500000",
+      "firstBakeBlock": 54410984,
+      "lastBakeBlock": 56603282,
+      "missingReceiptCount": 0
+    },
+    "0x36a700798600c44ab116e47df386167a1f0c00ca": {
+      "chefAddress": "0x36a700798600c44ab116e47df386167a1f0c00ca",
+      "cookTxCount": 140786,
+      "cookiesRaw": "2664278250",
+      "gasCostWei": "754231417531250000",
+      "firstBakeBlock": 54410600,
+      "lastBakeBlock": 56598761,
+      "missingReceiptCount": 0
+    },
+    "0x0b9e736d606e9ab0e53b3d055db79dfeaf9357fc": {
+      "chefAddress": "0x0b9e736d606e9ab0e53b3d055db79dfeaf9357fc",
+      "cookTxCount": 140883,
+      "cookiesRaw": "2653068750",
+      "gasCostWei": "756707292413000000",
+      "firstBakeBlock": 54422022,
+      "lastBakeBlock": 56630293,
+      "missingReceiptCount": 0
+    },
+    "0xdfb3296753e8a91c7d2e47da0e3d677cd20c9729": {
+      "chefAddress": "0xdfb3296753e8a91c7d2e47da0e3d677cd20c9729",
+      "cookTxCount": 146330,
+      "cookiesRaw": "2580115000",
+      "gasCostWei": "797363922513750000",
+      "firstBakeBlock": 54411028,
+      "lastBakeBlock": 56639478,
+      "missingReceiptCount": 0
+    },
+    "0xb5748a472adfa371244cdc5a0a13189410cf8097": {
+      "chefAddress": "0xb5748a472adfa371244cdc5a0a13189410cf8097",
+      "cookTxCount": 169467,
+      "cookiesRaw": "2511686625",
+      "gasCostWei": "913145360959250000",
+      "firstBakeBlock": 54426049,
+      "lastBakeBlock": 56632747,
+      "missingReceiptCount": 0
+    },
+    "0xef45b33c0334d3f7d922b954232d3b1c9171c04a": {
+      "chefAddress": "0xef45b33c0334d3f7d922b954232d3b1c9171c04a",
+      "cookTxCount": 146847,
+      "cookiesRaw": "2508388500",
+      "gasCostWei": "791026651280500000",
+      "firstBakeBlock": 54410787,
+      "lastBakeBlock": 56644386,
+      "missingReceiptCount": 0
+    },
+    "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79": {
+      "chefAddress": "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79",
+      "cookTxCount": 144112,
+      "cookiesRaw": "2493893750",
+      "gasCostWei": "793170675196500000",
+      "firstBakeBlock": 54421145,
+      "lastBakeBlock": 56631856,
+      "missingReceiptCount": 0
+    },
+    "0x857aa8a26b63adbd3984326e78a023d981dd9ef9": {
+      "chefAddress": "0x857aa8a26b63adbd3984326e78a023d981dd9ef9",
+      "cookTxCount": 155230,
+      "cookiesRaw": "2467806875",
+      "gasCostWei": "838226607403750000",
+      "firstBakeBlock": 54499487,
+      "lastBakeBlock": 56637571,
+      "missingReceiptCount": 0
+    },
+    "0xb7ac2749926072586daa5e5959b5d3f23f0868ff": {
+      "chefAddress": "0xb7ac2749926072586daa5e5959b5d3f23f0868ff",
+      "cookTxCount": 162433,
+      "cookiesRaw": "2420339750",
+      "gasCostWei": "860837469720000000",
+      "firstBakeBlock": 54425238,
+      "lastBakeBlock": 56621388,
+      "missingReceiptCount": 0
+    },
+    "0xa95df5d481d87bdcf064582fcd19f0aaae17b864": {
+      "chefAddress": "0xa95df5d481d87bdcf064582fcd19f0aaae17b864",
+      "cookTxCount": 156068,
+      "cookiesRaw": "2383616375",
+      "gasCostWei": "826751874886500000",
+      "firstBakeBlock": 54427929,
+      "lastBakeBlock": 56621759,
+      "missingReceiptCount": 0
+    },
+    "0xe02c3f28413e88511df6da2c486d33feeb11165b": {
+      "chefAddress": "0xe02c3f28413e88511df6da2c486d33feeb11165b",
+      "cookTxCount": 158527,
+      "cookiesRaw": "2380812000",
+      "gasCostWei": "852521008691500000",
+      "firstBakeBlock": 54426580,
+      "lastBakeBlock": 56623756,
+      "missingReceiptCount": 0
+    },
+    "0x902d6b918c415e96b8e932997ca44f28b12d2afd": {
+      "chefAddress": "0x902d6b918c415e96b8e932997ca44f28b12d2afd",
+      "cookTxCount": 157055,
+      "cookiesRaw": "2376277750",
+      "gasCostWei": "832279546604250000",
+      "firstBakeBlock": 54427261,
+      "lastBakeBlock": 56624281,
+      "missingReceiptCount": 0
+    },
+    "0xc1e918b63ddab424d3d378b0e87bf44ea02d19c6": {
+      "chefAddress": "0xc1e918b63ddab424d3d378b0e87bf44ea02d19c6",
+      "cookTxCount": 157081,
+      "cookiesRaw": "2366730875",
+      "gasCostWei": "832393980460500000",
+      "firstBakeBlock": 54425936,
+      "lastBakeBlock": 56621379,
+      "missingReceiptCount": 0
+    },
+    "0x1ce2e43a69239b8a9c6d2ad4e3e04d303f11d395": {
+      "chefAddress": "0x1ce2e43a69239b8a9c6d2ad4e3e04d303f11d395",
+      "cookTxCount": 114440,
+      "cookiesRaw": "2183787000",
+      "gasCostWei": "612464650600000000",
+      "firstBakeBlock": 54412517,
+      "lastBakeBlock": 56557249,
+      "missingReceiptCount": 0
+    },
+    "0x02e81e1def6662a1b53a013714bf1d096dce1bc5": {
+      "chefAddress": "0x02e81e1def6662a1b53a013714bf1d096dce1bc5",
+      "cookTxCount": 124806,
+      "cookiesRaw": "2167289500",
+      "gasCostWei": "682949682048250000",
+      "firstBakeBlock": 54412570,
+      "lastBakeBlock": 56591449,
+      "missingReceiptCount": 0
+    },
+    "0xea3c9140bf6fcfcd0eac5c508e74da4db9bb7f4e": {
+      "chefAddress": "0xea3c9140bf6fcfcd0eac5c508e74da4db9bb7f4e",
+      "cookTxCount": 139950,
+      "cookiesRaw": "2125303750",
+      "gasCostWei": "910296119594250000",
+      "firstBakeBlock": 54410692,
+      "lastBakeBlock": 56636406,
+      "missingReceiptCount": 0
+    },
+    "0xade5cb66b3c18b845ac463b2e88ef9ddc7e2205d": {
+      "chefAddress": "0xade5cb66b3c18b845ac463b2e88ef9ddc7e2205d",
+      "cookTxCount": 112617,
+      "cookiesRaw": "2091976000",
+      "gasCostWei": "610066448746000000",
+      "firstBakeBlock": 54411366,
+      "lastBakeBlock": 56639613,
+      "missingReceiptCount": 0
+    },
+    "0xda2ca34d57242cbe18f3046925645668b9e60292": {
+      "chefAddress": "0xda2ca34d57242cbe18f3046925645668b9e60292",
+      "cookTxCount": 130441,
+      "cookiesRaw": "2091673000",
+      "gasCostWei": "717967375206250000",
+      "firstBakeBlock": 54433624,
+      "lastBakeBlock": 56641422,
+      "missingReceiptCount": 0
+    },
+    "0x29b5e36b814a5640b484e097d2d5a432c0f112e9": {
+      "chefAddress": "0x29b5e36b814a5640b484e097d2d5a432c0f112e9",
+      "cookTxCount": 116810,
+      "cookiesRaw": "2088954750",
+      "gasCostWei": "628798385946750000",
+      "firstBakeBlock": 54410851,
+      "lastBakeBlock": 56547186,
+      "missingReceiptCount": 0
+    },
+    "0x0e7b7aa24868689ae846ceead6aed450c8f8c014": {
+      "chefAddress": "0x0e7b7aa24868689ae846ceead6aed450c8f8c014",
+      "cookTxCount": 111724,
+      "cookiesRaw": "2078079500",
+      "gasCostWei": "600436653889500000",
+      "firstBakeBlock": 54411010,
+      "lastBakeBlock": 56624533,
+      "missingReceiptCount": 0
+    },
+    "0xabf793be9dbc4c6fb90485552dd223d242166984": {
+      "chefAddress": "0xabf793be9dbc4c6fb90485552dd223d242166984",
+      "cookTxCount": 125166,
+      "cookiesRaw": "2065278000",
+      "gasCostWei": "674302782487500000",
+      "firstBakeBlock": 54410856,
+      "lastBakeBlock": 56567742,
+      "missingReceiptCount": 0
+    },
+    "0x35a1ea8fb1c4db295820301970f5207803cdc65c": {
+      "chefAddress": "0x35a1ea8fb1c4db295820301970f5207803cdc65c",
+      "cookTxCount": 116140,
+      "cookiesRaw": "2061590750",
+      "gasCostWei": "623211667775500000",
+      "firstBakeBlock": 54410705,
+      "lastBakeBlock": 56625894,
+      "missingReceiptCount": 0
+    },
+    "0xe44fcf259aece69b77fb8bd3bdbe9c56a4e1d24e": {
+      "chefAddress": "0xe44fcf259aece69b77fb8bd3bdbe9c56a4e1d24e",
+      "cookTxCount": 105194,
+      "cookiesRaw": "2058755000",
+      "gasCostWei": "563123454024000000",
+      "firstBakeBlock": 54411720,
+      "lastBakeBlock": 56548576,
+      "missingReceiptCount": 0
+    },
+    "0x5328a88c3f9e07a3bdfd8c5d898c21c18c82f596": {
+      "chefAddress": "0x5328a88c3f9e07a3bdfd8c5d898c21c18c82f596",
+      "cookTxCount": 115917,
+      "cookiesRaw": "2055437000",
+      "gasCostWei": "657611566891750000",
+      "firstBakeBlock": 54410731,
+      "lastBakeBlock": 56577172,
+      "missingReceiptCount": 0
+    },
+    "0xa6bd14d2861b2261d1fe5b544a5f771ca46c24ae": {
+      "chefAddress": "0xa6bd14d2861b2261d1fe5b544a5f771ca46c24ae",
+      "cookTxCount": 108317,
+      "cookiesRaw": "2051698000",
+      "gasCostWei": "581708673348750000",
+      "firstBakeBlock": 54410865,
+      "lastBakeBlock": 56582743,
+      "missingReceiptCount": 0
+    },
+    "0x662345154831e4ea6aed869360e22530bf15cfd3": {
+      "chefAddress": "0x662345154831e4ea6aed869360e22530bf15cfd3",
+      "cookTxCount": 106999,
+      "cookiesRaw": "2051327000",
+      "gasCostWei": "574067909710000000",
+      "firstBakeBlock": 54411882,
+      "lastBakeBlock": 56562747,
+      "missingReceiptCount": 0
+    },
+    "0xca58f744b70798b635abc1a5144da15341dd47c8": {
+      "chefAddress": "0xca58f744b70798b635abc1a5144da15341dd47c8",
+      "cookTxCount": 108795,
+      "cookiesRaw": "2045088500",
+      "gasCostWei": "583788355520500000",
+      "firstBakeBlock": 54412223,
+      "lastBakeBlock": 56575728,
+      "missingReceiptCount": 0
+    },
+    "0xfc7386aa7b01f97490aed19d3e56dc9d56f458df": {
+      "chefAddress": "0xfc7386aa7b01f97490aed19d3e56dc9d56f458df",
+      "cookTxCount": 112061,
+      "cookiesRaw": "2038129500",
+      "gasCostWei": "602238810164000000",
+      "firstBakeBlock": 54410924,
+      "lastBakeBlock": 56559439,
+      "missingReceiptCount": 0
+    },
+    "0xa9f3aff69d7160a73ec4ad7f008e6edddd5f64a2": {
+      "chefAddress": "0xa9f3aff69d7160a73ec4ad7f008e6edddd5f64a2",
+      "cookTxCount": 105388,
+      "cookiesRaw": "2037294750",
+      "gasCostWei": "565192816797500000",
+      "firstBakeBlock": 54412341,
+      "lastBakeBlock": 56566471,
+      "missingReceiptCount": 0
+    },
+    "0x51a956b49e2d8d10ff94301e9099017ce81152d1": {
+      "chefAddress": "0x51a956b49e2d8d10ff94301e9099017ce81152d1",
+      "cookTxCount": 105878,
+      "cookiesRaw": "2036537500",
+      "gasCostWei": "567228916839000000",
+      "firstBakeBlock": 54411821,
+      "lastBakeBlock": 56547843,
+      "missingReceiptCount": 0
+    },
+    "0x6090c2d41c5d74654e810c4505ff78ec8bf95269": {
+      "chefAddress": "0x6090c2d41c5d74654e810c4505ff78ec8bf95269",
+      "cookTxCount": 125047,
+      "cookiesRaw": "2030685750",
+      "gasCostWei": "815085004443750000",
+      "firstBakeBlock": 54418592,
+      "lastBakeBlock": 56574962,
+      "missingReceiptCount": 0
+    },
+    "0x97b0e1fa2fa9895be735c1a67557716f2640cedc": {
+      "chefAddress": "0x97b0e1fa2fa9895be735c1a67557716f2640cedc",
+      "cookTxCount": 103217,
+      "cookiesRaw": "2026158500",
+      "gasCostWei": "554269155839500000",
+      "firstBakeBlock": 54417556,
+      "lastBakeBlock": 56565819,
+      "missingReceiptCount": 0
+    },
+    "0x9cbb72624accfa89f0e993ea649c81a67d6a2985": {
+      "chefAddress": "0x9cbb72624accfa89f0e993ea649c81a67d6a2985",
+      "cookTxCount": 114003,
+      "cookiesRaw": "2022402500",
+      "gasCostWei": "612534496780500000",
+      "firstBakeBlock": 54410852,
+      "lastBakeBlock": 56626104,
+      "missingReceiptCount": 0
+    },
+    "0x3f064dfdbde340f87944ca481e1ba6b448f824fa": {
+      "chefAddress": "0x3f064dfdbde340f87944ca481e1ba6b448f824fa",
+      "cookTxCount": 135060,
+      "cookiesRaw": "1934827750",
+      "gasCostWei": "880683406896750000",
+      "firstBakeBlock": 54417565,
+      "lastBakeBlock": 56563990,
+      "missingReceiptCount": 0
+    },
+    "0xace4fd0f8ff152d0ebbf01d6b6263f7e9745deb6": {
+      "chefAddress": "0xace4fd0f8ff152d0ebbf01d6b6263f7e9745deb6",
+      "cookTxCount": 94993,
+      "cookiesRaw": "1759615500",
+      "gasCostWei": "510678508046250000",
+      "firstBakeBlock": 54410817,
+      "lastBakeBlock": 56457156,
+      "missingReceiptCount": 0
+    },
+    "0x164cb4eacf03e4635f7c040d28e2fb2f129bb462": {
+      "chefAddress": "0x164cb4eacf03e4635f7c040d28e2fb2f129bb462",
+      "cookTxCount": 120148,
+      "cookiesRaw": "1747962000",
+      "gasCostWei": "782440345089750000",
+      "firstBakeBlock": 54421888,
+      "lastBakeBlock": 56643983,
+      "missingReceiptCount": 0
+    },
+    "0x1ac261648e8ac91fa183f763d91d389b245f0791": {
+      "chefAddress": "0x1ac261648e8ac91fa183f763d91d389b245f0791",
+      "cookTxCount": 115048,
+      "cookiesRaw": "1612166250",
+      "gasCostWei": "750608971090000000",
+      "firstBakeBlock": 54411727,
+      "lastBakeBlock": 56619000,
+      "missingReceiptCount": 0
+    },
+    "0xca9f0b2d4c4fb0e926d5d825c1c89bd14172f4eb": {
+      "chefAddress": "0xca9f0b2d4c4fb0e926d5d825c1c89bd14172f4eb",
+      "cookTxCount": 85209,
+      "cookiesRaw": "1461145500",
+      "gasCostWei": "555720758870750000",
+      "firstBakeBlock": 54411505,
+      "lastBakeBlock": 56637937,
+      "missingReceiptCount": 0
+    },
+    "0xba74d5adc211304b006090f0b03232e95d799518": {
+      "chefAddress": "0xba74d5adc211304b006090f0b03232e95d799518",
+      "cookTxCount": 93698,
+      "cookiesRaw": "1457509750",
+      "gasCostWei": "612211153629250000",
+      "firstBakeBlock": 54455100,
+      "lastBakeBlock": 56642054,
+      "missingReceiptCount": 0
+    },
+    "0x3c15d4d03228349e5d60426d02dad86f9da57da6": {
+      "chefAddress": "0x3c15d4d03228349e5d60426d02dad86f9da57da6",
+      "cookTxCount": 74476,
+      "cookiesRaw": "1447250750",
+      "gasCostWei": "484635873557750000",
+      "firstBakeBlock": 54415260,
+      "lastBakeBlock": 56636949,
+      "missingReceiptCount": 0
+    },
+    "0x8c04be14e35eef3e248128d2cfd08b343c91c4e9": {
+      "chefAddress": "0x8c04be14e35eef3e248128d2cfd08b343c91c4e9",
+      "cookTxCount": 93790,
+      "cookiesRaw": "1446795500",
+      "gasCostWei": "613608385572750000",
+      "firstBakeBlock": 54410978,
+      "lastBakeBlock": 56631640,
+      "missingReceiptCount": 0
+    },
+    "0xd876c42a0ca1bbecca379ed6724ef91c576ef6d6": {
+      "chefAddress": "0xd876c42a0ca1bbecca379ed6724ef91c576ef6d6",
+      "cookTxCount": 85734,
+      "cookiesRaw": "1437554500",
+      "gasCostWei": "461053722389750000",
+      "firstBakeBlock": 54411529,
+      "lastBakeBlock": 56622335,
+      "missingReceiptCount": 0
+    },
+    "0xc16f030ebbd1f5d9db97171ad0f31ff8c2b50aaa": {
+      "chefAddress": "0xc16f030ebbd1f5d9db97171ad0f31ff8c2b50aaa",
+      "cookTxCount": 95158,
+      "cookiesRaw": "1432967250",
+      "gasCostWei": "620702585909750000",
+      "firstBakeBlock": 54430477,
+      "lastBakeBlock": 56639362,
+      "missingReceiptCount": 0
+    },
+    "0x0bc4bcaa440b48f807048c979c2b6576f88e4aa8": {
+      "chefAddress": "0x0bc4bcaa440b48f807048c979c2b6576f88e4aa8",
+      "cookTxCount": 93004,
+      "cookiesRaw": "1432536000",
+      "gasCostWei": "588177863264500000",
+      "firstBakeBlock": 54432128,
+      "lastBakeBlock": 56634294,
+      "missingReceiptCount": 0
+    },
+    "0x8211d7e00ab0d44f752ff5626bdc78906f9c5293": {
+      "chefAddress": "0x8211d7e00ab0d44f752ff5626bdc78906f9c5293",
+      "cookTxCount": 76985,
+      "cookiesRaw": "1428688000",
+      "gasCostWei": "413529028691250000",
+      "firstBakeBlock": 54449627,
+      "lastBakeBlock": 56643141,
+      "missingReceiptCount": 0
+    },
+    "0xd2b7dde5e7f615fd997d027f1a19a5f2069bc6f2": {
+      "chefAddress": "0xd2b7dde5e7f615fd997d027f1a19a5f2069bc6f2",
+      "cookTxCount": 76904,
+      "cookiesRaw": "1420599000",
+      "gasCostWei": "413051148961750000",
+      "firstBakeBlock": 54484736,
+      "lastBakeBlock": 56644249,
+      "missingReceiptCount": 0
+    },
+    "0xcda0745d191e95bae2a01907fd7b9a13ee80cc6d": {
+      "chefAddress": "0xcda0745d191e95bae2a01907fd7b9a13ee80cc6d",
+      "cookTxCount": 73857,
+      "cookiesRaw": "1418420500",
+      "gasCostWei": "477786133359250000",
+      "firstBakeBlock": 54412020,
+      "lastBakeBlock": 56638033,
+      "missingReceiptCount": 0
+    },
+    "0x5393271b0e47b3e8637a7a554bb634b97c535021": {
+      "chefAddress": "0x5393271b0e47b3e8637a7a554bb634b97c535021",
+      "cookTxCount": 76717,
+      "cookiesRaw": "1416643500",
+      "gasCostWei": "418599280783750000",
+      "firstBakeBlock": 54411565,
+      "lastBakeBlock": 56638067,
+      "missingReceiptCount": 0
+    },
+    "0xc333600b9a33040a37854c1cb0e82871059787b4": {
+      "chefAddress": "0xc333600b9a33040a37854c1cb0e82871059787b4",
+      "cookTxCount": 91437,
+      "cookiesRaw": "1416057500",
+      "gasCostWei": "596538353764750000",
+      "firstBakeBlock": 54411608,
+      "lastBakeBlock": 56640296,
+      "missingReceiptCount": 0
+    },
+    "0x401c0e420fbeb34e2c7e78e53f90f1405c99eae0": {
+      "chefAddress": "0x401c0e420fbeb34e2c7e78e53f90f1405c99eae0",
+      "cookTxCount": 80968,
+      "cookiesRaw": "1413791375",
+      "gasCostWei": "527822727908000000",
+      "firstBakeBlock": 54411010,
+      "lastBakeBlock": 56621489,
+      "missingReceiptCount": 0
+    },
+    "0x9180b9fa37e6fc1c14635a70c78b5d577da2b6d0": {
+      "chefAddress": "0x9180b9fa37e6fc1c14635a70c78b5d577da2b6d0",
+      "cookTxCount": 86287,
+      "cookiesRaw": "1413105750",
+      "gasCostWei": "563468252055500000",
+      "firstBakeBlock": 54416979,
+      "lastBakeBlock": 56635410,
+      "missingReceiptCount": 0
+    },
+    "0xcf6a641c04dc513743eb415581e142997729cbde": {
+      "chefAddress": "0xcf6a641c04dc513743eb415581e142997729cbde",
+      "cookTxCount": 72650,
+      "cookiesRaw": "1412977000",
+      "gasCostWei": "460115674142750000",
+      "firstBakeBlock": 54415790,
+      "lastBakeBlock": 56637482,
+      "missingReceiptCount": 0
+    },
+    "0x145ab073125852a639e40e2bbeb68d5964f9cc16": {
+      "chefAddress": "0x145ab073125852a639e40e2bbeb68d5964f9cc16",
+      "cookTxCount": 77447,
+      "cookiesRaw": "1411488500",
+      "gasCostWei": "415868211739500000",
+      "firstBakeBlock": 54486652,
+      "lastBakeBlock": 56638364,
+      "missingReceiptCount": 0
+    },
+    "0x7e25475810355799bcb00e0e5f82df54b84577d2": {
+      "chefAddress": "0x7e25475810355799bcb00e0e5f82df54b84577d2",
+      "cookTxCount": 85132,
+      "cookiesRaw": "1411111000",
+      "gasCostWei": "554930193722500000",
+      "firstBakeBlock": 54429886,
+      "lastBakeBlock": 56619837,
+      "missingReceiptCount": 0
+    },
+    "0xd2930122140e65d44fdfc509f2a59308c097df48": {
+      "chefAddress": "0xd2930122140e65d44fdfc509f2a59308c097df48",
+      "cookTxCount": 72098,
+      "cookiesRaw": "1409221000",
+      "gasCostWei": "455360036250250000",
+      "firstBakeBlock": 54421430,
+      "lastBakeBlock": 56637729,
+      "missingReceiptCount": 0
+    },
+    "0x0a767e518b131cf5dfd31508afef99ccbd8f829d": {
+      "chefAddress": "0x0a767e518b131cf5dfd31508afef99ccbd8f829d",
+      "cookTxCount": 117341,
+      "cookiesRaw": "1409196625",
+      "gasCostWei": "764078373789500000",
+      "firstBakeBlock": 54510631,
+      "lastBakeBlock": 56644387,
+      "missingReceiptCount": 0
+    },
+    "0x80b8682ca40a7566d3deef94dc629f3fd2ddef45": {
+      "chefAddress": "0x80b8682ca40a7566d3deef94dc629f3fd2ddef45",
+      "cookTxCount": 85139,
+      "cookiesRaw": "1408706500",
+      "gasCostWei": "469293761960250000",
+      "firstBakeBlock": 54439185,
+      "lastBakeBlock": 56639227,
+      "missingReceiptCount": 0
+    },
+    "0xa926d698e746cfb4b6c42aa8ac0a283b9ca53225": {
+      "chefAddress": "0xa926d698e746cfb4b6c42aa8ac0a283b9ca53225",
+      "cookTxCount": 75947,
+      "cookiesRaw": "1407632000",
+      "gasCostWei": "409326147377500000",
+      "firstBakeBlock": 54456045,
+      "lastBakeBlock": 56643871,
+      "missingReceiptCount": 0
+    },
+    "0x933414d6d4d25c18fa45eb51dc98d76474759f5f": {
+      "chefAddress": "0x933414d6d4d25c18fa45eb51dc98d76474759f5f",
+      "cookTxCount": 87452,
+      "cookiesRaw": "1407466250",
+      "gasCostWei": "564411471472500000",
+      "firstBakeBlock": 54427893,
+      "lastBakeBlock": 56641977,
+      "missingReceiptCount": 0
+    },
+    "0xe55cc45cfc584ee2dabfa979e6a067ecac41da33": {
+      "chefAddress": "0xe55cc45cfc584ee2dabfa979e6a067ecac41da33",
+      "cookTxCount": 76896,
+      "cookiesRaw": "1406788500",
+      "gasCostWei": "437762487453750000",
+      "firstBakeBlock": 54410829,
+      "lastBakeBlock": 56635400,
+      "missingReceiptCount": 0
+    },
+    "0xf2e869d2eff1dba7e53e06f1bce67aec49ab24dd": {
+      "chefAddress": "0xf2e869d2eff1dba7e53e06f1bce67aec49ab24dd",
+      "cookTxCount": 105919,
+      "cookiesRaw": "1406445125",
+      "gasCostWei": "691906916923750000",
+      "firstBakeBlock": 54431394,
+      "lastBakeBlock": 56644383,
+      "missingReceiptCount": 0
+    },
+    "0x964a0aff5ac8beea1ff2bf4ce0a5ef99f6207188": {
+      "chefAddress": "0x964a0aff5ac8beea1ff2bf4ce0a5ef99f6207188",
+      "cookTxCount": 72679,
+      "cookiesRaw": "1405377000",
+      "gasCostWei": "389755642923500000",
+      "firstBakeBlock": 54412464,
+      "lastBakeBlock": 56635578,
+      "missingReceiptCount": 0
+    },
+    "0x143b15a260c492054c8adba3865773f4bebb5574": {
+      "chefAddress": "0x143b15a260c492054c8adba3865773f4bebb5574",
+      "cookTxCount": 95229,
+      "cookiesRaw": "1404821125",
+      "gasCostWei": "621479046678250000",
+      "firstBakeBlock": 54637229,
+      "lastBakeBlock": 56644378,
+      "missingReceiptCount": 0
+    },
+    "0xb98f499ae96b2c1b19fb43bfbbfc832600a16527": {
+      "chefAddress": "0xb98f499ae96b2c1b19fb43bfbbfc832600a16527",
+      "cookTxCount": 81644,
+      "cookiesRaw": "1403707250",
+      "gasCostWei": "463946040306750000",
+      "firstBakeBlock": 54411638,
+      "lastBakeBlock": 56628698,
+      "missingReceiptCount": 0
+    },
+    "0x3fba62e2c009e4acf7842ab1bdb219a17d5e6a54": {
+      "chefAddress": "0x3fba62e2c009e4acf7842ab1bdb219a17d5e6a54",
+      "cookTxCount": 80435,
+      "cookiesRaw": "1403639750",
+      "gasCostWei": "501907598869500000",
+      "firstBakeBlock": 55024125,
+      "lastBakeBlock": 56643040,
+      "missingReceiptCount": 0
+    },
+    "0xcd5be762a09321682d84359c62a44837a1435914": {
+      "chefAddress": "0xcd5be762a09321682d84359c62a44837a1435914",
+      "cookTxCount": 81735,
+      "cookiesRaw": "1402525000",
+      "gasCostWei": "451173223890250000",
+      "firstBakeBlock": 54607937,
+      "lastBakeBlock": 56644389,
+      "missingReceiptCount": 0
+    },
+    "0xeea85179dfce467ad01ca799402ad42084a50d92": {
+      "chefAddress": "0xeea85179dfce467ad01ca799402ad42084a50d92",
+      "cookTxCount": 77877,
+      "cookiesRaw": "1402091500",
+      "gasCostWei": "436443250537000000",
+      "firstBakeBlock": 54411241,
+      "lastBakeBlock": 56637380,
+      "missingReceiptCount": 0
+    },
+    "0xc60a6d12a073957b403abf414fe7b0c6abab67ca": {
+      "chefAddress": "0xc60a6d12a073957b403abf414fe7b0c6abab67ca",
+      "cookTxCount": 84379,
+      "cookiesRaw": "1401648000",
+      "gasCostWei": "550698967130000000",
+      "firstBakeBlock": 54446623,
+      "lastBakeBlock": 56638286,
+      "missingReceiptCount": 0
+    },
+    "0x02d75dd9207a9bf26cbcd7512a20c05bf922baff": {
+      "chefAddress": "0x02d75dd9207a9bf26cbcd7512a20c05bf922baff",
+      "cookTxCount": 74795,
+      "cookiesRaw": "1401471500",
+      "gasCostWei": "409705232691500000",
+      "firstBakeBlock": 54440935,
+      "lastBakeBlock": 56642046,
+      "missingReceiptCount": 0
+    },
+    "0xfe1ec04dbc5661c13f369b4a405afe4c226aad12": {
+      "chefAddress": "0xfe1ec04dbc5661c13f369b4a405afe4c226aad12",
+      "cookTxCount": 72699,
+      "cookiesRaw": "1400414500",
+      "gasCostWei": "389505342639000000",
+      "firstBakeBlock": 54412428,
+      "lastBakeBlock": 56638316,
+      "missingReceiptCount": 0
+    },
+    "0x808d581031c8a39f861df563b35e2c8f548f7b59": {
+      "chefAddress": "0x808d581031c8a39f861df563b35e2c8f548f7b59",
+      "cookTxCount": 79488,
+      "cookiesRaw": "1400011000",
+      "gasCostWei": "427990278675000000",
+      "firstBakeBlock": 54411624,
+      "lastBakeBlock": 56639894,
+      "missingReceiptCount": 0
+    },
+    "0x4355995495a91e3e099fcdcc113f2a75acafbd91": {
+      "chefAddress": "0x4355995495a91e3e099fcdcc113f2a75acafbd91",
+      "cookTxCount": 105972,
+      "cookiesRaw": "1399535000",
+      "gasCostWei": "690958022251750000",
+      "firstBakeBlock": 54505440,
+      "lastBakeBlock": 56609273,
+      "missingReceiptCount": 0
+    },
+    "0x5be16b8c12fda599813b2051b72e77bc78999c04": {
+      "chefAddress": "0x5be16b8c12fda599813b2051b72e77bc78999c04",
+      "cookTxCount": 71762,
+      "cookiesRaw": "1398843000",
+      "gasCostWei": "387093107628750000",
+      "firstBakeBlock": 54452237,
+      "lastBakeBlock": 56613749,
+      "missingReceiptCount": 0
+    },
+    "0x870216dbb426f595e111fdfe088ca7a355b88460": {
+      "chefAddress": "0x870216dbb426f595e111fdfe088ca7a355b88460",
+      "cookTxCount": 86549,
+      "cookiesRaw": "1392266500",
+      "gasCostWei": "564430271173250000",
+      "firstBakeBlock": 54460390,
+      "lastBakeBlock": 56642299,
+      "missingReceiptCount": 0
+    },
+    "0x801de944e3d2bf09a1b871dd4293dbd008ab48d0": {
+      "chefAddress": "0x801de944e3d2bf09a1b871dd4293dbd008ab48d0",
+      "cookTxCount": 70364,
+      "cookiesRaw": "1392258000",
+      "gasCostWei": "377611560279250000",
+      "firstBakeBlock": 54412712,
+      "lastBakeBlock": 56631676,
+      "missingReceiptCount": 0
+    },
+    "0x48ee44d5ebc1018e633eb35248e3e45f80517b88": {
+      "chefAddress": "0x48ee44d5ebc1018e633eb35248e3e45f80517b88",
+      "cookTxCount": 74719,
+      "cookiesRaw": "1390975500",
+      "gasCostWei": "401594389111000000",
+      "firstBakeBlock": 54491313,
+      "lastBakeBlock": 56629489,
+      "missingReceiptCount": 0
+    },
+    "0xf6182bb74c82ddeaf96c43cc60eccfb070bc0b57": {
+      "chefAddress": "0xf6182bb74c82ddeaf96c43cc60eccfb070bc0b57",
+      "cookTxCount": 86335,
+      "cookiesRaw": "1388166625",
+      "gasCostWei": "563250733948000000",
+      "firstBakeBlock": 54426150,
+      "lastBakeBlock": 56644389,
+      "missingReceiptCount": 0
+    },
+    "0xe40ebeeee324bfa15be84cedc01138f7e963bb69": {
+      "chefAddress": "0xe40ebeeee324bfa15be84cedc01138f7e963bb69",
+      "cookTxCount": 76099,
+      "cookiesRaw": "1387562000",
+      "gasCostWei": "412924115288250000",
+      "firstBakeBlock": 54486570,
+      "lastBakeBlock": 56639580,
+      "missingReceiptCount": 0
+    },
+    "0x73161141daf94b24e6e97d7a7e176c1c48b5ae7c": {
+      "chefAddress": "0x73161141daf94b24e6e97d7a7e176c1c48b5ae7c",
+      "cookTxCount": 70761,
+      "cookiesRaw": "1385749500",
+      "gasCostWei": "379226095076000000",
+      "firstBakeBlock": 54412691,
+      "lastBakeBlock": 56629808,
+      "missingReceiptCount": 0
+    },
+    "0xc132eb2430236ce43e7398cabccd449244586555": {
+      "chefAddress": "0xc132eb2430236ce43e7398cabccd449244586555",
+      "cookTxCount": 82575,
+      "cookiesRaw": "1383917750",
+      "gasCostWei": "488444612982000000",
+      "firstBakeBlock": 54459105,
+      "lastBakeBlock": 56642823,
+      "missingReceiptCount": 0
+    },
+    "0x02323f3fe4c50c1faeaa38e484b71bdbb6c8fb32": {
+      "chefAddress": "0x02323f3fe4c50c1faeaa38e484b71bdbb6c8fb32",
+      "cookTxCount": 83016,
+      "cookiesRaw": "1381759750",
+      "gasCostWei": "540866474265000000",
+      "firstBakeBlock": 54413194,
+      "lastBakeBlock": 56644388,
+      "missingReceiptCount": 0
+    },
+    "0xb611764b91ede21978a9598240e7c47ec83915b0": {
+      "chefAddress": "0xb611764b91ede21978a9598240e7c47ec83915b0",
+      "cookTxCount": 95748,
+      "cookiesRaw": "1379962000",
+      "gasCostWei": "585109818918250000",
+      "firstBakeBlock": 54410900,
+      "lastBakeBlock": 56644385,
+      "missingReceiptCount": 0
+    },
+    "0xcac397526bbaf093b5ddbe35adf60654bd9ac908": {
+      "chefAddress": "0xcac397526bbaf093b5ddbe35adf60654bd9ac908",
+      "cookTxCount": 87269,
+      "cookiesRaw": "1379898875",
+      "gasCostWei": "572237304398500000",
+      "firstBakeBlock": 54626995,
+      "lastBakeBlock": 56644128,
+      "missingReceiptCount": 0
+    }
+  }
+}

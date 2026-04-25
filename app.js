@@ -7,13 +7,17 @@ const STORAGE_KEYS = {
   pnlCardBackground: "bakery-public:pnl-card-background",
   myBakeryQuery: "bakery-public:my-bakery-query",
   simulatorPrizePool: "bakery-public:simulator-prize-pool",
-  themeMode: "bakery-public:theme-mode"
+  themeMode: "bakery-public:theme-mode",
+  selectedSeasonId: "bakery-public:selected-season-id",
+  selectedLeaderboardKey: "bakery-public:selected-leaderboard-key"
 };
 
 const els = {
   statusText: document.getElementById("statusText"),
   sourceLink: document.getElementById("sourceLink"),
   docsLink: document.getElementById("docsLink"),
+  seasonSelect: document.getElementById("seasonSelect"),
+  leaderboardSelect: document.getElementById("leaderboardSelect"),
   searchInput: document.getElementById("searchInput"),
   manualCostInput: document.getElementById("manualCostInput"),
   ethPriceStatus: document.getElementById("ethPriceStatus"),
@@ -37,18 +41,25 @@ const els = {
   updatedValue: document.getElementById("updatedValue"),
   prizePoolValue: document.getElementById("prizePoolValue"),
   payoutSplitValue: document.getElementById("payoutSplitValue"),
+  grossLabel: document.getElementById("grossLabel"),
   grossValue: document.getElementById("grossValue"),
+  grossValueNote: document.getElementById("grossValueNote"),
+  costLabel: document.getElementById("costLabel"),
   costValue: document.getElementById("costValue"),
   costSourceValue: document.getElementById("costSourceValue"),
+  pnlLabel: document.getElementById("pnlLabel"),
   pnlValue: document.getElementById("pnlValue"),
   roiValue: document.getElementById("roiValue"),
   cookiesValue: document.getElementById("cookiesValue"),
+  cookiesNote: document.getElementById("cookiesNote"),
   tableTitle: document.getElementById("tableTitle"),
+  tableNote: document.getElementById("tableNote"),
   rowCount: document.getElementById("rowCount"),
   tableBody: document.getElementById("tableBody"),
   topRuggerValue: document.getElementById("topRuggerValue"),
   topRuggerBakeryValue: document.getElementById("topRuggerBakeryValue"),
   rugLandedValue: document.getElementById("rugLandedValue"),
+  rugLandedNote: document.getElementById("rugLandedNote"),
   rugAttemptsValue: document.getElementById("rugAttemptsValue"),
   rugSuccessValue: document.getElementById("rugSuccessValue"),
   totalRugsValue: document.getElementById("totalRugsValue"),
@@ -66,6 +77,10 @@ const els = {
   ruggedTableBody: document.getElementById("ruggedTableBody"),
   hallPainRowCount: document.getElementById("hallPainRowCount"),
   hallPainPodium: document.getElementById("hallPainPodium"),
+  myBakerySearchLabel: document.getElementById("myBakerySearchLabel"),
+  totalRugsLabel: document.getElementById("totalRugsLabel"),
+  topRugRankHeader: document.getElementById("topRugRankHeader"),
+  ruggedRankHeader: document.getElementById("ruggedRankHeader"),
   pnlCardBackgroundPicker: document.getElementById("pnlCardBackgroundPicker"),
   myBakeryInput: document.getElementById("myBakeryInput"),
   myBakeryCard: document.getElementById("myBakeryCard"),
@@ -74,8 +89,13 @@ const els = {
   simPrizePoolInput: document.getElementById("simPrizePoolInput"),
   syncPrizePoolButton: document.getElementById("syncPrizePoolButton"),
   simPrizePoolValue: document.getElementById("simPrizePoolValue"),
+  simBucketLabel: document.getElementById("simBucketLabel"),
+  simBucketNote: document.getElementById("simBucketNote"),
   simLeaderboardBucketValue: document.getElementById("simLeaderboardBucketValue"),
+  simDeltaLabel: document.getElementById("simDeltaLabel"),
   simDeltaValue: document.getElementById("simDeltaValue"),
+  simDeltaNote: document.getElementById("simDeltaNote"),
+  simLiveGrossHeader: document.getElementById("simLiveGrossHeader"),
   simRowCount: document.getElementById("simRowCount"),
   simTableBody: document.getElementById("simTableBody")
 };
@@ -90,6 +110,8 @@ let ethPriceLoading = false;
 let topRugSort = { key: "rugRank", direction: "asc" };
 let currentMyBakeryRow = null;
 let pnlCardBackground = "bg1";
+let selectedSeasonId = null;
+let selectedLeaderboardKey = "standard";
 
 const PNL_CARD_BACKGROUNDS = [
   { id: "bg1", label: "Megaphone Chef", imageUrl: "/assets/pnl-card-bg-1.png" },
@@ -101,7 +123,7 @@ const PNL_CARD_BACKGROUNDS = [
 
 const TOP_RUG_SORT_LABELS = {
   rugRank: "Rug Rank",
-  topRank: "Top 100 Rank",
+  topRank: "Leaderboard Rank",
   chef: "Chef",
   bakery: "Bakery",
   successfulRugs: "Successful Rugs",
@@ -118,6 +140,8 @@ try {
   const storedPnlCardBackground = localStorage.getItem(STORAGE_KEYS.pnlCardBackground);
   const storedMyBakeryQuery = localStorage.getItem(STORAGE_KEYS.myBakeryQuery);
   const storedSimulatorPrizePool = localStorage.getItem(STORAGE_KEYS.simulatorPrizePool);
+  const storedSelectedSeasonId = localStorage.getItem(STORAGE_KEYS.selectedSeasonId);
+  const storedSelectedLeaderboardKey = localStorage.getItem(STORAGE_KEYS.selectedLeaderboardKey);
   if (manualCost !== null) {
     els.manualCostInput.value = manualCost;
   }
@@ -130,7 +154,7 @@ try {
   if (PNL_CARD_BACKGROUNDS.some((background) => background.id === storedPnlCardBackground)) {
     pnlCardBackground = storedPnlCardBackground;
   }
-  if (["dashboard", "my", "rug", "pain", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "my", "rug", "pain", "rugged", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
   }
   if (storedMyBakeryQuery !== null) {
@@ -138,6 +162,15 @@ try {
   }
   if (storedSimulatorPrizePool !== null) {
     els.simPrizePoolInput.value = storedSimulatorPrizePool;
+  }
+  if (storedSelectedSeasonId !== null) {
+    const numericSeasonId = Number(storedSelectedSeasonId);
+    if (Number.isFinite(numericSeasonId) && numericSeasonId > 0) {
+      selectedSeasonId = numericSeasonId;
+    }
+  }
+  if (["standard", "open", "overall"].includes(storedSelectedLeaderboardKey || "")) {
+    selectedLeaderboardKey = storedSelectedLeaderboardKey;
   }
 } catch {
   // Optional browser storage.
@@ -329,7 +362,7 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "my", "rug", "pain", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "my", "rug", "pain", "rugged", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
   const isMyBakery = activeView === "my";
   const isRug = activeView === "rug";
@@ -418,6 +451,77 @@ function seasonLabel() {
   const displayId = dashboard?.seasonDisplayId ?? null;
   const fallbackId = dashboard?.seasonId ?? null;
   return `Season ${displayId ?? fallbackId ?? "--"}`;
+}
+
+function leaderboardLabel() {
+  return dashboard?.leaderboardTitle || dashboard?.globalLeaderboardLabel || "Leaderboard";
+}
+
+function currentBoardLabel() {
+  return dashboard?.leaderboardName || "Leaderboard";
+}
+
+function seasonOptionLabel(option) {
+  if (!option) {
+    return "Season --";
+  }
+  return option.label || `Season ${option.displayId || option.id || "--"}`;
+}
+
+function syncSeasonSelector() {
+  if (!els.seasonSelect) {
+    return;
+  }
+
+  const availableSeasons = Array.isArray(dashboard?.availableSeasons) ? dashboard.availableSeasons : [];
+  els.seasonSelect.innerHTML = "";
+
+  if (availableSeasons.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Season --";
+    els.seasonSelect.append(option);
+    els.seasonSelect.disabled = true;
+    return;
+  }
+
+  const effectiveSelectedSeasonId = Number(dashboard?.selectedSeasonId || selectedSeasonId || availableSeasons[0].id);
+  availableSeasons.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.value = String(optionData.id);
+    option.textContent = seasonOptionLabel(optionData);
+    option.selected = Number(optionData.id) === effectiveSelectedSeasonId;
+    els.seasonSelect.append(option);
+  });
+  els.seasonSelect.disabled = availableSeasons.length <= 1;
+}
+
+function syncLeaderboardSelector() {
+  if (!els.leaderboardSelect) {
+    return;
+  }
+
+  const availableLeaderboards = Array.isArray(dashboard?.availableLeaderboards) ? dashboard.availableLeaderboards : [];
+  els.leaderboardSelect.innerHTML = "";
+
+  if (availableLeaderboards.length === 0) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "Leaderboard --";
+    els.leaderboardSelect.append(option);
+    els.leaderboardSelect.disabled = true;
+    return;
+  }
+
+  const effectiveKey = dashboard?.selectedLeaderboardKey || dashboard?.leaderboardKey || selectedLeaderboardKey || availableLeaderboards[0].key;
+  availableLeaderboards.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.value = String(optionData.key);
+    option.textContent = optionData.label || optionData.key;
+    option.selected = optionData.key === effectiveKey;
+    els.leaderboardSelect.append(option);
+  });
+  els.leaderboardSelect.disabled = availableLeaderboards.length <= 1 || dashboard?.isHistorical === true;
 }
 
 function selectedPnlCardBackground() {
@@ -653,11 +757,20 @@ function mobileSummaryCell(row) {
 }
 
 function costSourceLabel(source) {
+  if (source === "historical_exact_gas") {
+    return "Historical exact gas";
+  }
   if (source === "exact_gas_cache") {
     return "Exact gas cache";
   }
   if (source === "partial_gas_cache") {
     return "Partial gas cache";
+  }
+  if (source === "tx_usd_rate_own_ratio") {
+    return "TX estimate (own ratio)";
+  }
+  if (source === "tx_usd_rate_global_ratio") {
+    return "TX estimate (global ratio)";
   }
   return "RPC estimate";
 }
@@ -713,7 +826,7 @@ function renderMyBakery(rows) {
 
   if (!query) {
     const empty = document.createElement("p");
-    empty.textContent = "Enter a Top 100 chef, bakery or wallet.";
+    empty.textContent = `Enter a ${leaderboardLabel().toLowerCase()} chef, bakery or wallet.`;
     els.myBakeryCard.append(empty);
     els.shareStatus.textContent = "";
     return;
@@ -721,7 +834,7 @@ function renderMyBakery(rows) {
 
   if (!row) {
     const empty = document.createElement("p");
-    empty.textContent = "No Top 100 bakery matched this search.";
+    empty.textContent = `No ${leaderboardLabel().toLowerCase()} bakery matched this search.`;
     els.myBakeryCard.append(empty);
     els.shareStatus.textContent = "";
     return;
@@ -770,7 +883,7 @@ function renderMyBakery(rows) {
   const pnl = document.createElement("div");
   pnl.className = "my-bakery-pnl";
   const pnlLabel = document.createElement("span");
-  pnlLabel.textContent = "Projected P&L";
+  pnlLabel.textContent = dashboard?.isHistorical ? "Final P&L" : "Projected P&L";
   const pnlValue = document.createElement("strong");
   pnlValue.textContent = moneyLabel(row.pnlEth, { signed: true });
   pnl.append(pnlLabel, pnlValue);
@@ -790,7 +903,11 @@ function renderMyBakery(rows) {
 
   const footer = document.createElement("p");
   footer.className = "my-bakery-footnote";
-  footer.textContent = `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
+  footer.textContent = dashboard?.isHistorical
+    ? dashboard?.costModel?.kind === "tx_usd_rate"
+      ? `Wallet ${shortAddress(row.chefAddress)} - final on-chain reward minus estimated tx fees`
+      : `Wallet ${shortAddress(row.chefAddress)} - final on-chain reward minus gas cost`
+    : `Wallet ${shortAddress(row.chefAddress)} - leaderboard rewards only`;
 
   details.append(pnl, metrics, footer);
   body.append(hero, details);
@@ -1232,11 +1349,12 @@ function incomingRugSuccessRate(row) {
 }
 
 function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
-  if (source.label === "top100_bakery_activity_feeds") {
-    return `Incoming rug attempts against Top 100 bakeries from up to ${numberFormatter.format(source.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(source.scannedEvents || 0)} / ${numberFormatter.format(source.maxEvents || 0)}. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
+  const targetLabel = (dashboard?.leaderboardTitle || "leaderboard").toLowerCase();
+  if (source.label === "leaderboard_bakery_activity_feeds") {
+    return `Incoming rug attempts against ${targetLabel} bakeries from up to ${numberFormatter.format(source.eventLimitPerBakery || 100)} recent events per bakery. Events scanned: ${numberFormatter.format(source.scannedEvents || 0)} / ${numberFormatter.format(source.maxEvents || 0)}. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
   }
 
-  return `Incoming rug attempts against Top 100 bakeries from the latest ${numberFormatter.format(source.eventLimit || 100)} global activity events. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
+  return `Incoming rug attempts against ${targetLabel} bakeries from the latest ${numberFormatter.format(source.eventLimit || 100)} global activity events. Successful received: ${numberFormatter.format(totalSuccessful)} / ${numberFormatter.format(totalAttempts)} attempts.`;
 }
 
 function renderTopRug(rows) {
@@ -1254,8 +1372,11 @@ function renderTopRug(rows) {
   const topSuccessRate = topRow ? rugSuccessRate(topRow) : null;
 
   els.topRuggerValue.textContent = topRow ? (topRow.chefName || topRow.chefAddress || "-") : "--";
-  els.topRuggerBakeryValue.textContent = topRow ? `${topRow.bakeryName || "-"} · Top 100 #${topRow.rank}` : "Waiting";
+  els.topRuggerBakeryValue.textContent = topRow ? `${topRow.bakeryName || "-"} · ${currentBoardLabel()} #${topRow.rank}` : "Waiting";
   els.rugLandedValue.textContent = topRow ? numberFormatter.format(Number(topRow.rugLanded || 0)) : "--";
+  els.rugLandedNote.textContent = dashboard?.isHistorical
+    ? `Most landed in final ${leaderboardLabel()}`
+    : `Most landed in current ${leaderboardLabel()}`;
   els.rugAttemptsValue.textContent = topRow ? numberFormatter.format(Number(topRow.rugAttempts || 0)) : "--";
   els.rugSuccessValue.textContent = topSuccessRate === null ? "Success rate --" : `Success rate ${formatPercent(topSuccessRate)}`;
   els.totalRugsValue.textContent = numberFormatter.format(totalRugs);
@@ -1267,7 +1388,7 @@ function renderTopRug(rows) {
   els.ruggedAttemptsValue.textContent = numberFormatter.format(totalReceivedAttempts);
   els.ruggedCoverageValue.textContent = dashboard.rugReceivedSource?.scannedEvents
     ? `${numberFormatter.format(dashboard.rugReceivedSource.scannedEvents)} events scanned`
-    : "Scanning Top 100 bakeries";
+    : `Scanning ${leaderboardLabel().toLowerCase()} bakeries`;
   els.ruggedSuccessValue.textContent = numberFormatter.format(totalReceived);
   els.ruggedFailedValue.textContent = numberFormatter.format(totalReceivedFailed);
   const rugReceivedSource = dashboard.rugReceivedSource || {};
@@ -1298,7 +1419,7 @@ function renderTopRug(rows) {
     const tr = document.createElement("tr");
     tr.append(
       cell(`#${rugRank}`, "rank-cell", "Rug Rank"),
-      rankCell(row, "Top 100 Rank"),
+      rankCell(row, "Leaderboard Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.rugLanded || 0)), "number-cell pnl-cell", "Successful Rugs"),
@@ -1313,7 +1434,7 @@ function renderTopRug(rows) {
 
   if (ruggedRows.length === 0) {
     const ruggedTr = document.createElement("tr");
-    ruggedTr.append(cell("No incoming rug attempts found for the current Top 100 window.", "empty-cell"));
+    ruggedTr.append(cell(`No incoming rug attempts found for the selected ${leaderboardLabel().toLowerCase()}.`, "empty-cell"));
     ruggedTr.firstChild.colSpan = 10;
     els.ruggedTableBody.append(ruggedTr);
     return;
@@ -1325,7 +1446,7 @@ function renderTopRug(rows) {
     const tr = document.createElement("tr");
     tr.append(
       cell(`#${index + 1}`, "rank-cell", "Rugged Rank"),
-      rankCell(row, "Top 100 Rank"),
+      rankCell(row, "Leaderboard Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
       cell(numberFormatter.format(Number(row.recentRugAttemptsReceived || 0)), "number-cell pnl-cell", "Incoming Attempts"),
@@ -1434,7 +1555,7 @@ function renderHallOfPain(rows) {
 
     const meta = document.createElement("span");
     meta.className = "pain-meta";
-    meta.append(`Top 100 #${row.rank}`, rankMovementBadge(row), ` · Cost ${moneyLabel(row.costEth)}`);
+    meta.append(`${currentBoardLabel()} #${row.rank}`, rankMovementBadge(row), ` · Cost ${moneyLabel(row.costEth)}`);
 
     card.append(placeBadge, avatar, name, bakery, roi, pnl, meta);
     fragment.append(card);
@@ -1448,6 +1569,8 @@ function renderDashboard() {
     return;
   }
 
+  syncSeasonSelector();
+  syncLeaderboardSelector();
   const rows = computedRows();
   const myRows = computedAllRows();
   const allRows = (dashboard.rows || []).map((row) => {
@@ -1467,21 +1590,64 @@ function renderDashboard() {
   const totalRoi = totalCostEth > 0 ? (totalPnlEth / totalCostEth) * 100 : null;
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
 
-  els.statusText.textContent = `Live data refreshed ${new Date(dashboard.updatedAt).toLocaleString()}`;
+  els.statusText.textContent = dashboard.isHistorical
+    ? `${seasonLabel()} final rewards loaded from on-chain payouts`
+    : `Live data refreshed ${new Date(dashboard.updatedAt).toLocaleString()}`;
   els.seasonValue.textContent = seasonLabel();
-  els.updatedValue.textContent = dashboard.seasonEndsAt
-    ? `Ends ${new Date(dashboard.seasonEndsAt).toLocaleString()}`
-    : "Active season";
+  els.dashboardTab.textContent = leaderboardLabel();
+  els.grossLabel.textContent = dashboard.grossLabel || "Gross";
+  els.costLabel.textContent = dashboard.costLabel || "Cost";
+  els.pnlLabel.textContent = dashboard.pnlLabel || "P&L";
+  els.cookiesNote.textContent = `Visible ${leaderboardLabel().toLowerCase()} rows`;
+  els.tableTitle.textContent = leaderboardLabel();
+  els.myBakerySearchLabel.textContent = `Search ${leaderboardLabel()}`;
+  els.totalRugsLabel.textContent = `Total ${leaderboardLabel()} Rugs`;
+  els.topRugRankHeader.textContent = `${currentBoardLabel()} Rank`;
+  els.ruggedRankHeader.textContent = `${currentBoardLabel()} Rank`;
+  els.simBucketLabel.textContent = `${currentBoardLabel()} Bucket`;
+  els.simBucketNote.textContent = `${formatShare(dashboard.leaderboardBucketPct)} live split`;
+  els.simDeltaLabel.textContent = `${currentBoardLabel()} Delta`;
+  els.updatedValue.textContent = dashboard.isHistorical
+    ? (dashboard.rewardTx?.timestampText ? `Reward tx ${dashboard.rewardTx.timestampText}` : "Finalized season")
+    : dashboard.seasonEndsAt
+      ? `Ends ${new Date(dashboard.seasonEndsAt).toLocaleString()}`
+      : "Active season";
   els.prizePoolValue.textContent = moneyLabel(dashboard.prizePoolEth);
-  els.payoutSplitValue.textContent =
-    `Leaderboard ${formatShare(dashboard.leaderboardBucketPct)} / Activity ${formatShare(dashboard.activityBucketPct)}`;
+  els.payoutSplitValue.textContent = dashboard.payoutSummaryText
+    || `Leaderboard ${formatShare(dashboard.leaderboardBucketPct)} / Activity ${formatShare(dashboard.activityBucketPct)}`;
   els.grossValue.textContent = moneyLabel(totalGrossEth);
+  els.grossValueNote.textContent = dashboard.isHistorical
+    ? `Final on-chain rewards sent to the ${leaderboardLabel()}`
+    : (dashboard.bucketProjectionLabel || "Leaderboard bucket projection");
   els.costValue.textContent = moneyLabel(totalCostEth);
   els.pnlValue.textContent = moneyLabel(totalPnlEth, { signed: true });
   els.roiValue.textContent = totalRoi === null ? "ROI --" : `ROI ${formatPercent(totalRoi)}`;
   els.cookiesValue.textContent = formatCookieCount(totalCookies);
+  els.tableNote.textContent = dashboard.isHistorical
+    ? dashboard.costModel?.kind === "historical_exact_gas"
+      ? "P&L = final on-chain reward - exact historical gas. Rewards come from the season payout transaction."
+      : dashboard.costModel?.kind === "tx_usd_rate"
+      ? "P&L = final on-chain reward - estimated tx fees. Rewards come from the season payout transaction."
+      : "P&L = final on-chain reward - gas cost. The reward values come from the season payout transaction."
+    : dashboard?.leaderboardKey === "open"
+      ? "P&L = projected open leaderboard reward - gas cost. The S4 open leaderboard uses its own 40% prize pool bucket."
+      : dashboard?.leaderboardKey === "standard"
+        ? "P&L = projected standard leaderboard reward - gas cost. Standard activity rewards are not included."
+        : "P&L = projected leaderboard reward - gas cost. Activity rewards and future cookie farming are not included.";
 
-  if (manualCostPerMillion > 0) {
+  if (dashboard.isHistorical && dashboard.costModel?.kind === "historical_exact_gas") {
+    const playerCount = Number(dashboard.costModel.exactBackfillPlayerCount || 0);
+    const endBlock = dashboard.costModel.exactBackfillEndBlock || dashboard.rewardTx?.blockNumber || null;
+    els.costSourceValue.textContent = playerCount > 0
+      ? `Exact on-chain bake gas for ${playerCount} players${endBlock ? ` · end block ${endBlock}` : ""}`
+      : "Exact on-chain bake gas";
+  } else if (dashboard.isHistorical && dashboard.costModel?.kind === "tx_usd_rate") {
+    const txUsd = Number(dashboard.costModel.txUsd || 0);
+    const payoutEthUsd = Number(dashboard.costModel.payoutEthUsd || dashboard.rewardTx?.payoutEthUsd || 0);
+    els.costSourceValue.textContent = payoutEthUsd > 0
+      ? `$${txUsd.toFixed(4)} / tx · payout ETH $${payoutEthUsd.toFixed(2)}`
+      : `$${txUsd.toFixed(4)} / tx`;
+  } else if (manualCostPerMillion > 0) {
     els.costSourceValue.textContent = `${moneyLabel(manualCostPerMillion)} / 1M manual`;
   } else if ((dashboard.rows || []).some((row) => row.costSource === "exact_gas_cache" || row.costSource === "partial_gas_cache")) {
     const exactRows = (dashboard.rows || []).filter((row) => row.costSource === "exact_gas_cache").length;
@@ -1491,7 +1657,7 @@ function renderDashboard() {
       : `Exact gas cache ${exactRows}/${(dashboard.rows || []).length} · ${formatShortDateTime(dashboard.costCache?.updatedAt)}`;
   } else if (dashboard.costCache?.status === "partial") {
     els.costSourceValue.textContent =
-      `Exact gas cache syncing ${dashboard.costCache.completeChefCount || 0}/${dashboard.costCache.top100AddressCount || 100} · estimate fallback`;
+      `Exact gas cache syncing ${dashboard.costCache.completeChefCount || 0}/${dashboard.costCache.top100AddressCount || (dashboard.rows || []).length} · estimate fallback`;
   } else if (dashboard.costEstimate?.status === "ok") {
     els.costSourceValue.textContent =
       `${moneyLabel(dashboard.costEstimate.estimatedCostPerMillionEth)} / 1M raw from ${dashboard.costEstimate.sampleTxCount} RPC txs`;
@@ -1499,11 +1665,20 @@ function renderDashboard() {
     els.costSourceValue.textContent = "RPC estimate unavailable";
   }
 
-  if (dashboard.sourceUrl) {
-    els.sourceLink.href = dashboard.sourceUrl;
-  }
-  if (dashboard.docsUrl) {
-    els.docsLink.href = dashboard.docsUrl;
+  if (dashboard.isHistorical && dashboard.rewardTx?.hash) {
+    els.sourceLink.href = `https://abscan.org/tx/${dashboard.rewardTx.hash}`;
+    els.docsLink.href = `https://abscan.org/tx/${dashboard.rewardTx.hash}`;
+    els.sourceLink.textContent = "Final Winners";
+    els.docsLink.textContent = "Reward Tx";
+  } else {
+    if (dashboard.sourceUrl) {
+      els.sourceLink.href = dashboard.sourceUrl;
+    }
+    if (dashboard.docsUrl) {
+      els.docsLink.href = dashboard.docsUrl;
+    }
+    els.sourceLink.textContent = "Leaderboard";
+    els.docsLink.textContent = "Payouts";
   }
   renderTable(rows);
   renderMyBakery(myRows);
@@ -1558,6 +1733,8 @@ function renderSimulator(rows) {
   els.simPrizePoolValue.textContent = moneyLabel(simulatedPrizePoolEth);
   els.simLeaderboardBucketValue.textContent = moneyLabel(simulatedLeaderboardBucketEth);
   els.simDeltaValue.textContent = moneyLabel(deltaEth, { signed: true });
+  els.simDeltaNote.textContent = dashboard?.isHistorical ? "Versus final gross" : "Versus live gross";
+  els.simLiveGrossHeader.textContent = dashboard?.isHistorical ? "Final Gross" : "Live Gross";
   els.simRowCount.textContent = `${rows.length} rows`;
 
   els.simTableBody.innerHTML = "";
@@ -1633,15 +1810,35 @@ function downloadCsv() {
 
 async function refreshDashboard() {
   els.refreshButton.disabled = true;
-  els.statusText.textContent = "Loading live leaderboard...";
+  els.statusText.textContent = "Loading season data...";
   try {
-    const response = await fetch("/api/pnl-top100");
+    const params = new URLSearchParams();
+    if (selectedSeasonId) {
+      params.set("season", String(selectedSeasonId));
+    }
+    if (selectedLeaderboardKey) {
+      params.set("board", selectedLeaderboardKey);
+    }
+    const endpoint = params.size > 0 ? `/api/pnl-top100?${params}` : "/api/pnl-top100";
+    const response = await fetch(endpoint);
     const payload = await response.json();
     if (!response.ok) {
       throw new Error(payload.error || "Unable to load Bakery P&L");
     }
 
     dashboard = payload;
+    selectedSeasonId = Number(payload.selectedSeasonId || payload.seasonId || selectedSeasonId || 0) || null;
+    selectedLeaderboardKey = payload.selectedLeaderboardKey || payload.leaderboardKey || selectedLeaderboardKey || "standard";
+    try {
+      if (selectedSeasonId) {
+        localStorage.setItem(STORAGE_KEYS.selectedSeasonId, String(selectedSeasonId));
+      }
+      if (selectedLeaderboardKey) {
+        localStorage.setItem(STORAGE_KEYS.selectedLeaderboardKey, selectedLeaderboardKey);
+      }
+    } catch {}
+    syncSeasonSelector();
+    syncLeaderboardSelector();
     renderDashboard();
   } catch (error) {
     els.statusText.textContent = error instanceof Error ? error.message : String(error);
@@ -1675,6 +1872,22 @@ async function refreshDashboard() {
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
     simTr.firstChild.colSpan = 7;
     els.simTableBody.append(simTr);
+    if (els.seasonSelect) {
+      els.seasonSelect.innerHTML = "";
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "Season --";
+      els.seasonSelect.append(option);
+      els.seasonSelect.disabled = true;
+    }
+    if (els.leaderboardSelect) {
+      els.leaderboardSelect.innerHTML = "";
+      const option = document.createElement("option");
+      option.value = "";
+      option.textContent = "Leaderboard --";
+      els.leaderboardSelect.append(option);
+      els.leaderboardSelect.disabled = true;
+    }
   } finally {
     els.refreshButton.disabled = false;
   }
@@ -1694,6 +1907,27 @@ els.simPrizePoolInput.addEventListener("input", () => {
     localStorage.setItem(STORAGE_KEYS.simulatorPrizePool, els.simPrizePoolInput.value);
   } catch {}
   renderDashboard();
+});
+
+els.seasonSelect?.addEventListener("change", () => {
+  const nextSeasonId = Number(els.seasonSelect.value || 0) || null;
+  selectedSeasonId = nextSeasonId;
+  try {
+    if (selectedSeasonId) {
+      localStorage.setItem(STORAGE_KEYS.selectedSeasonId, String(selectedSeasonId));
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.selectedSeasonId);
+    }
+  } catch {}
+  refreshDashboard();
+});
+
+els.leaderboardSelect?.addEventListener("change", () => {
+  selectedLeaderboardKey = els.leaderboardSelect.value || "standard";
+  try {
+    localStorage.setItem(STORAGE_KEYS.selectedLeaderboardKey, selectedLeaderboardKey);
+  } catch {}
+  refreshDashboard();
 });
 
 els.syncPrizePoolButton.addEventListener("click", () => {

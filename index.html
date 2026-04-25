@@ -3,26 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Rugpull Bakery Top 100 P&L</title>
-    <meta name="description" content="Public Rugpull Bakery Top 100 P&L dashboard with leaderboard payouts, live ETH/USD values, and a prize pool simulator." />
+    <title>Rugpull Bakery P&amp;L</title>
+    <meta name="description" content="Public Rugpull Bakery P&amp;L dashboard with live leaderboard payouts, ETH/USD values, and a prize pool simulator." />
     <link rel="canonical" href="https://rugpullbakery-pnl-public.vercel.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Rugpull Bakery P&L" />
     <meta property="og:url" content="https://rugpullbakery-pnl-public.vercel.app/" />
-    <meta property="og:title" content="Rugpull Bakery Top 100 P&L" />
-    <meta property="og:description" content="Track Rugpull Bakery Top 100 P&L, payout split, live ETH/USD values, and simulate prize pool changes." />
+    <meta property="og:title" content="Rugpull Bakery P&amp;L" />
+    <meta property="og:description" content="Track Rugpull Bakery leaderboards, payout splits, live ETH/USD values, and simulate prize pool changes." />
     <meta property="og:image" content="https://rugpullbakery-pnl-public.vercel.app/assets/x-card-v4.png" />
     <meta property="og:image:secure_url" content="https://rugpullbakery-pnl-public.vercel.app/assets/x-card-v4.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Rugpull Bakery Season 3 Top 100 P&L and simulator preview." />
+    <meta property="og:image:alt" content="Rugpull Bakery P&amp;L and simulator preview." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://rugpullbakery-pnl-public.vercel.app/" />
-    <meta name="twitter:title" content="Rugpull Bakery Top 100 P&L" />
-    <meta name="twitter:description" content="Track Top 100 P&L, live ETH/USD values, and simulate Rugpull Bakery prize pool changes." />
+    <meta name="twitter:title" content="Rugpull Bakery P&amp;L" />
+    <meta name="twitter:description" content="Track Rugpull Bakery leaderboards, live ETH/USD values, and simulate prize pool changes." />
     <meta name="twitter:image" content="https://rugpullbakery-pnl-public.vercel.app/assets/x-card-v4.png" />
-    <meta name="twitter:image:alt" content="Rugpull Bakery Season 3 Top 100 P&L and simulator preview." />
+    <meta name="twitter:image:alt" content="Rugpull Bakery P&amp;L and simulator preview." />
     <link rel="icon" href="https://www.rugpullbakery.com/rb-favicon.png" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
@@ -70,18 +70,23 @@
       </header>
 
       <nav class="view-tabs" aria-label="Dashboard views">
-        <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Top 100</button>
+        <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Leaderboard</button>
         <button id="myBakeryTab" class="tab-button" type="button" aria-pressed="false">P&amp;L Card</button>
         <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
         <button id="hallPainTab" class="tab-button" type="button" aria-pressed="false">Hall of Pain</button>
-        <button id="mostRuggedTab" class="tab-button tab-button-disabled" type="button" aria-pressed="false" disabled>
-          <span>Most Rugged</span>
-          <small>Available next season</small>
-        </button>
+        <button id="mostRuggedTab" class="tab-button" type="button" aria-pressed="false">Most Rugged</button>
         <button id="simulatorTab" class="tab-button" type="button" aria-pressed="false">Simulator</button>
       </nav>
 
       <section class="toolbar" aria-label="Dashboard controls">
+        <label class="field">
+          <span>Season</span>
+          <select id="seasonSelect"></select>
+        </label>
+        <label class="field">
+          <span>Leaderboard</span>
+          <select id="leaderboardSelect"></select>
+        </label>
         <label class="field search-field">
           <span>Search</span>
           <input id="searchInput" type="search" placeholder="Chef or bakery" autocomplete="off" />
@@ -111,34 +116,34 @@
             <small id="payoutSplitValue">--</small>
           </article>
           <article class="stat-card">
-            <span>Top 100 Gross</span>
+            <span id="grossLabel">Gross</span>
             <strong id="grossValue">--</strong>
-            <small>Leaderboard bucket projection</small>
+            <small id="grossValueNote">Leaderboard bucket projection</small>
           </article>
           <article class="stat-card">
-            <span>Top 100 Cost</span>
+            <span id="costLabel">Cost</span>
             <strong id="costValue">--</strong>
             <small id="costSourceValue">--</small>
           </article>
           <article class="stat-card">
-            <span>Top 100 P&amp;L</span>
+            <span id="pnlLabel">P&amp;L</span>
             <strong id="pnlValue">--</strong>
             <small id="roiValue">--</small>
           </article>
           <article class="stat-card">
             <span>Cookies Baked</span>
             <strong id="cookiesValue">--</strong>
-            <small>Visible top 100</small>
+            <small id="cookiesNote">Visible leaderboard rows</small>
           </article>
         </section>
 
-        <section class="table-shell" aria-label="Top 100 P&L table">
+        <section class="table-shell" aria-label="Leaderboard P&amp;L table">
           <div class="table-meta">
             <strong id="tableTitle">Top 100</strong>
             <span id="rowCount">-- rows</span>
           </div>
           <p class="table-note">
-            P&amp;L = projected leaderboard reward - gas cost. Activity rewards and future cookie farming are not included.
+            <span id="tableNote">P&amp;L = projected leaderboard reward - gas cost. Activity rewards and future cookie farming are not included.</span>
           </p>
           <div class="table-scroll">
             <table>
@@ -170,7 +175,7 @@
         <section class="my-bakery-panel" aria-label="P&amp;L Card lookup">
           <div class="my-bakery-search">
             <label class="field">
-              <span>Search Top 100</span>
+              <span id="myBakerySearchLabel">Search leaderboard</span>
               <input id="myBakeryInput" type="search" placeholder="Chef, bakery or wallet" autocomplete="off" />
             </label>
             <button id="sharePnlButton" type="button" disabled>Share P&amp;L Card</button>
@@ -191,7 +196,7 @@
           <article class="stat-card">
             <span>Successful Rugs</span>
             <strong id="rugLandedValue">--</strong>
-            <small>Most landed in current Top 100</small>
+            <small id="rugLandedNote">Most landed in current leaderboard</small>
           </article>
           <article class="stat-card">
             <span>Rug Attempts</span>
@@ -199,7 +204,7 @@
             <small id="rugSuccessValue">Success rate --</small>
           </article>
           <article class="stat-card">
-            <span>Total Top 100 Rugs</span>
+            <span id="totalRugsLabel">Total Leaderboard Rugs</span>
             <strong id="totalRugsValue">--</strong>
             <small id="totalRugAttemptsValue">-- attempts</small>
           </article>
@@ -215,7 +220,7 @@
               <thead>
                 <tr>
                   <th><button class="sort-button" type="button" data-rug-sort="rugRank">Rug Rank <span class="sort-arrow" aria-hidden="true"></span></button></th>
-                  <th><button class="sort-button" type="button" data-rug-sort="topRank">Top 100 Rank <span class="sort-arrow" aria-hidden="true"></span></button></th>
+                  <th><button class="sort-button" type="button" data-rug-sort="topRank"><span id="topRugRankHeader">Leaderboard Rank</span> <span class="sort-arrow" aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-rug-sort="chef">Chef <span class="sort-arrow" aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-rug-sort="bakery">Bakery <span class="sort-arrow" aria-hidden="true"></span></button></th>
                   <th><button class="sort-button" type="button" data-rug-sort="successfulRugs">Successful Rugs <span class="sort-arrow" aria-hidden="true"></span></button></th>
@@ -244,7 +249,7 @@
           <article class="stat-card">
             <span>Incoming Attempts</span>
             <strong id="ruggedAttemptsValue">--</strong>
-            <small id="ruggedCoverageValue">Scanning Top 100 bakeries</small>
+            <small id="ruggedCoverageValue">Scanning leaderboard bakeries</small>
           </article>
           <article class="stat-card">
             <span>Successful Received</span>
@@ -258,7 +263,7 @@
           </article>
         </section>
 
-        <section class="table-shell secondary-table-shell" aria-label="Most rugged Top 100 table">
+        <section class="table-shell secondary-table-shell" aria-label="Most rugged leaderboard table">
           <div class="table-meta">
             <strong>Most Rugged</strong>
             <span id="ruggedRowCount">-- rows</span>
@@ -269,7 +274,7 @@
               <thead>
                 <tr>
                   <th>Rugged Rank</th>
-                  <th>Top 100 Rank</th>
+                  <th id="ruggedRankHeader">Leaderboard Rank</th>
                   <th>Chef</th>
                   <th>Bakery</th>
                   <th>Incoming Attempts</th>
@@ -316,14 +321,14 @@
             <small>Total prize pool</small>
           </article>
           <article class="stat-card">
-            <span>Top 100 Bucket</span>
+            <span id="simBucketLabel">Leaderboard Bucket</span>
             <strong id="simLeaderboardBucketValue">--</strong>
-            <small>70% leaderboard split</small>
+            <small id="simBucketNote">Live leaderboard split</small>
           </article>
           <article class="stat-card">
-            <span>Top 100 Delta</span>
+            <span id="simDeltaLabel">Leaderboard Delta</span>
             <strong id="simDeltaValue">--</strong>
-            <small>Versus live gross</small>
+            <small id="simDeltaNote">Versus live gross</small>
           </article>
         </section>
 
@@ -340,7 +345,7 @@
                   <th>Chef</th>
                   <th>Bakery</th>
                   <th>Share</th>
-                  <th>Live Gross</th>
+                  <th id="simLiveGrossHeader">Live Gross</th>
                   <th>Simulated Gross</th>
                   <th>Delta</th>
                 </tr>
