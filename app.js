@@ -402,11 +402,13 @@ function computedAllRows() {
   const manualCostPerMillion = numericInputValue(els.manualCostInput);
 
   return (dashboard.rows || [])
-    .map((row) => {
-      const cookiesBakedRaw = Number(row.cookiesBaked || 0);
-      const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
-      const cookieBalanceRaw = Number(row.cookieBalance || 0);
-      const cookieBalance = cookieBalanceRaw / COOKIE_RAW_UNITS_PER_COOKIE;
+      .map((row) => {
+        const scoreRaw = Number(row.score || 0);
+        const scoreDisplay = scoreRaw / COOKIE_RAW_UNITS_PER_COOKIE;
+        const cookiesBakedRaw = Number(row.cookiesBaked || 0);
+        const cookiesBaked = cookiesBakedRaw / COOKIE_RAW_UNITS_PER_COOKIE;
+        const cookieBalanceRaw = Number(row.cookieBalance || 0);
+        const cookieBalance = cookieBalanceRaw / COOKIE_RAW_UNITS_PER_COOKIE;
       const grossEth = Number(row.grossPrizeEth || 0);
       const costEth = manualCostPerMillion > 0
         ? (cookiesBakedRaw / 1_000_000) * manualCostPerMillion
@@ -414,11 +416,13 @@ function computedAllRows() {
       const pnlEth = grossEth - costEth;
       const roi = costEth > 0 ? (pnlEth / costEth) * 100 : null;
 
-      return {
-        ...row,
-        cookiesBaked: cookiesBakedRaw,
-        cookiesBakedDisplay: cookiesBaked,
-        cookieBalance: cookieBalanceRaw,
+        return {
+          ...row,
+          score: scoreRaw,
+          scoreDisplay,
+          cookiesBaked: cookiesBakedRaw,
+          cookiesBakedDisplay: cookiesBaked,
+          cookieBalance: cookieBalanceRaw,
         cookieBalanceDisplay: cookieBalance,
         grossEth,
         costEth,
@@ -739,7 +743,7 @@ function mobileSummaryCell(row) {
   stats.className = "mobile-summary-stats";
   [
     ["P&L", moneyLabel(row.pnlEth, { signed: true }), row.pnlEth >= 0 ? "positive" : "negative"],
-    ["Cookies", formatCookieCount(row.cookiesBakedDisplay), ""],
+    ["Score", scoreLabel(row), ""],
     ["Remaining", formatCookieCount(row.cookieBalanceDisplay), ""]
   ].forEach(([label, value, tone]) => {
     const item = document.createElement("span");
@@ -773,6 +777,10 @@ function costSourceLabel(source) {
     return "TX estimate (global ratio)";
   }
   return "RPC estimate";
+}
+
+function scoreLabel(row) {
+  return Number(row?.score || 0) > 0 ? formatCookieCount(row.scoreDisplay) : "--";
 }
 
 function myBakeryMetric(label, value, className = "") {
@@ -1194,8 +1202,8 @@ function renderTable(rows) {
 
   if (rows.length === 0) {
     const tr = document.createElement("tr");
-    tr.append(cell("No matching bakeries.", "empty-cell"));
-    tr.firstChild.colSpan = 10;
+      tr.append(cell("No matching bakeries.", "empty-cell"));
+      tr.firstChild.colSpan = 11;
     els.tableBody.append(tr);
     return;
   }
@@ -1206,12 +1214,13 @@ function renderTable(rows) {
     tr.className = row.pnlEth >= 0 ? "profit-row" : "loss-row";
     tr.append(
       mobileSummaryCell(row),
-      rankCell(row),
-      chefCell(row),
-      cell(row.bakeryName || "-", "name-cell", "Bakery"),
-      cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies"),
-      cell(formatCookieCount(row.cookieBalanceDisplay), "number-cell", "Remaining"),
-      cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
+        rankCell(row),
+        chefCell(row),
+        cell(row.bakeryName || "-", "name-cell", "Bakery"),
+        cell(scoreLabel(row), "number-cell", "Score"),
+        cell(formatCookieCount(row.cookiesBakedDisplay), "number-cell", "Cookies"),
+        cell(formatCookieCount(row.cookieBalanceDisplay), "number-cell", "Remaining"),
+        cell(formatShare(row.leaderboardSharePct), "number-cell", "Share"),
       cell(moneyLabel(row.grossEth), "number-cell", "Gross"),
       cell(moneyLabel(row.costEth), "number-cell", "Cost"),
       cell(moneyLabel(row.pnlEth, { signed: true }), "number-cell pnl-cell", "P&L"),
@@ -1634,11 +1643,13 @@ function renderDashboard() {
       : dashboard.costModel?.kind === "tx_usd_rate"
       ? "P&L = final on-chain reward - estimated tx fees. Rewards come from the season payout transaction."
       : "P&L = final on-chain reward - gas cost. The reward values come from the season payout transaction."
-    : dashboard?.leaderboardKey === "open"
-      ? "P&L = projected open leaderboard reward - gas cost. The S4 open leaderboard uses its own 40% prize pool bucket."
-      : dashboard?.leaderboardKey === "standard"
-        ? "P&L = projected standard leaderboard reward - gas cost. Standard activity rewards are not included."
-        : "P&L = projected leaderboard reward - gas cost. Activity rewards and future cookie farming are not included.";
+    : dashboard?.rankingMetric === "score"
+      ? "Leaderboard ranks are sorted by Score. Cookies baked stay visible as a separate stat."
+      : dashboard?.leaderboardKey === "open"
+        ? "P&L = projected open leaderboard reward - gas cost. The S4 open leaderboard uses its own 40% prize pool bucket."
+        : dashboard?.leaderboardKey === "standard"
+          ? "P&L = projected standard leaderboard reward - gas cost. Standard activity rewards are not included."
+          : "P&L = projected leaderboard reward - gas cost. Activity rewards and future cookie farming are not included.";
 
   if (dashboard.isHistorical && dashboard.costModel?.kind === "historical_exact_gas") {
     const playerCount = Number(dashboard.costModel.exactBackfillPlayerCount || 0);
@@ -1782,11 +1793,12 @@ function rowsToCsv(rows) {
     const price = currentEthPrice();
     return price > 0 ? ethValue * price : "";
   };
-  const header = ["Rank", "Chef", "Bakery", "Cookies", "Remaining Cookies", "Share %", `Gross ${currencyLabel}`, `Cost ${currencyLabel}`, `P&L ${currencyLabel}`, "ROI %"];
+  const header = ["Rank", "Chef", "Bakery", "Score", "Cookies", "Remaining Cookies", "Share %", `Gross ${currencyLabel}`, `Cost ${currencyLabel}`, `P&L ${currencyLabel}`, "ROI %"];
   const records = rows.map((row) => [
     row.rank,
     row.chefName || row.chefAddress || "",
     row.bakeryName || "",
+    Number(row.score || 0) > 0 ? row.scoreDisplay : "",
     row.cookiesBakedDisplay,
     row.cookieBalanceDisplay,
     row.leaderboardSharePct,
@@ -1859,7 +1871,7 @@ async function refreshDashboard() {
     els.simTableBody.innerHTML = "";
     const tr = document.createElement("tr");
     tr.append(cell("Unable to load the public Bakery P&L right now.", "empty-cell"));
-    tr.firstChild.colSpan = 10;
+    tr.firstChild.colSpan = 11;
     els.tableBody.append(tr);
     const rugTr = document.createElement("tr");
     rugTr.append(cell("Unable to load the public Bakery rug stats right now.", "empty-cell"));
