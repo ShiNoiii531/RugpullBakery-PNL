@@ -308,17 +308,17 @@
         </section>
 
         <section id="topFailView" class="view-panel" hidden>
-          <section class="table-shell fail-shell" aria-label="Top Fail failed boosts podium">
+          <section class="table-shell fail-shell" aria-label="Top Fail failed boost rate podium">
             <div class="table-meta">
               <strong>Top Fail</strong>
-              <span id="topFailRowCount">Top 20 failed boosts</span>
+              <span id="topFailRowCount">Top 20 fail rates</span>
             </div>
             <div id="topFailPodium" class="fail-podium" aria-live="polite"></div>
           </section>
 
           <section class="table-shell secondary-table-shell" aria-label="Top Fail table">
             <div class="table-meta">
-              <strong>Top 20 Failed Boosts</strong>
+              <strong>Top 20 Highest Fail Rates</strong>
               <span id="topFailTableCount">-- rows</span>
             </div>
             <div class="table-scroll">
@@ -329,6 +329,7 @@
                     <th>Leaderboard Rank</th>
                     <th>Chef</th>
                     <th>Bakery</th>
+                    <th>Fail Rate</th>
                     <th>Boost Fails</th>
                     <th>Boost Attempts</th>
                     <th>Boost Success</th>
@@ -336,7 +337,7 @@
                 </thead>
                 <tbody id="topFailTableBody">
                   <tr>
-                    <td colspan="7">Loading...</td>
+                    <td colspan="8">Loading...</td>
                   </tr>
                 </tbody>
               </table>

@@ -1378,6 +1378,12 @@ function boostSuccessRate(row) {
   return attempts > 0 ? (landed / attempts) * 100 : null;
 }
 
+function boostFailRate(row) {
+  const attempts = Number(row.boostAttempts || 0);
+  const fails = boostFailCount(row);
+  return attempts > 0 ? (fails / attempts) * 100 : null;
+}
+
 function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
   const targetLabel = (dashboard?.leaderboardTitle || "leaderboard").toLowerCase();
   if (source.label === "season_rug_cache") {
@@ -1601,11 +1607,11 @@ function renderHallOfPain(rows) {
 
 function topFailRows(rows) {
   return [...rows]
-    .filter((row) => boostFailCount(row) > 0)
+    .filter((row) => Number(row.boostAttempts || 0) > 0 && boostFailCount(row) > 0)
     .sort((a, b) => {
-      const failDelta = boostFailCount(b) - boostFailCount(a);
-      if (failDelta !== 0) {
-        return failDelta;
+      const failRateDelta = (boostFailRate(b) || 0) - (boostFailRate(a) || 0);
+      if (failRateDelta !== 0) {
+        return failRateDelta;
       }
 
       const attemptsDelta = Number(b.boostAttempts || 0) - Number(a.boostAttempts || 0);
@@ -1666,18 +1672,18 @@ function renderTopFail(rows) {
 
   els.topFailPodium.innerHTML = "";
   els.topFailTableBody.innerHTML = "";
-  els.topFailRowCount.textContent = ranked.length === 0 ? "No boost fails" : `Top ${ranked.length} failed boosts`;
+  els.topFailRowCount.textContent = ranked.length === 0 ? "No failed boost rate" : `Top ${ranked.length} fail rates`;
   els.topFailTableCount.textContent = `${ranked.length} rows`;
 
   if (ranked.length === 0) {
     const empty = document.createElement("p");
     empty.className = "empty-cell";
-    empty.textContent = "No failed boosts found for the selected leaderboard.";
+    empty.textContent = "No failed boost rate found for the selected leaderboard.";
     els.topFailPodium.append(empty);
 
     const tr = document.createElement("tr");
-    tr.append(cell("No failed boosts found for the selected leaderboard.", "empty-cell"));
-    tr.firstChild.colSpan = 7;
+    tr.append(cell("No failed boost rate found for the selected leaderboard.", "empty-cell"));
+    tr.firstChild.colSpan = 8;
     els.topFailTableBody.append(tr);
     return;
   }
@@ -1703,11 +1709,11 @@ function renderTopFail(rows) {
 
     const failValue = document.createElement("strong");
     failValue.className = "fail-count";
-    failValue.textContent = `${numberFormatter.format(boostFailCount(row))} failed boosts`;
+    failValue.textContent = formatPercent(boostFailRate(row));
 
     const meta = document.createElement("span");
     meta.className = "fail-meta";
-    meta.append(`${currentBoardLabel()} #${row.rank}`, rankMovementBadge(row), ` · ${numberFormatter.format(Number(row.boostAttempts || 0))} attempts`);
+    meta.append(`${currentBoardLabel()} #${row.rank}`, rankMovementBadge(row), ` · ${numberFormatter.format(boostFailCount(row))} fails / ${numberFormatter.format(Number(row.boostAttempts || 0))} attempts`);
 
     card.append(placeBadge, avatar, name, bakery, failValue, meta);
     podiumFragment.append(card);
@@ -1716,6 +1722,7 @@ function renderTopFail(rows) {
 
   const tableFragment = document.createDocumentFragment();
   ranked.forEach(({ row, place }) => {
+    const failRate = boostFailRate(row);
     const successRate = boostSuccessRate(row);
     const tr = document.createElement("tr");
     tr.append(
@@ -1723,7 +1730,8 @@ function renderTopFail(rows) {
       rankCell(row, "Leaderboard Rank"),
       chefCell(row),
       cell(row.bakeryName || "-", "name-cell", "Bakery"),
-      cell(numberFormatter.format(boostFailCount(row)), "number-cell pnl-cell", "Boost Fails"),
+      cell(failRate === null ? "--" : formatPercent(failRate), "number-cell pnl-cell", "Fail Rate"),
+      cell(numberFormatter.format(boostFailCount(row)), "number-cell", "Boost Fails"),
       cell(numberFormatter.format(Number(row.boostAttempts || 0)), "number-cell", "Boost Attempts"),
       cell(successRate === null ? "--" : formatPercent(successRate), "number-cell", "Boost Success")
     );
@@ -2049,7 +2057,7 @@ async function refreshDashboard() {
     els.topFailPodium.append(failEmpty);
     const failTr = document.createElement("tr");
     failTr.append(cell("Unable to load Top Fail right now.", "empty-cell"));
-    failTr.firstChild.colSpan = 7;
+    failTr.firstChild.colSpan = 8;
     els.topFailTableBody.append(failTr);
     const simTr = document.createElement("tr");
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
