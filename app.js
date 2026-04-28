@@ -28,12 +28,14 @@ const els = {
   dashboardTab: document.getElementById("dashboardTab"),
   myBakeryTab: document.getElementById("myBakeryTab"),
   topRugTab: document.getElementById("topRugTab"),
+  topFailTab: document.getElementById("topFailTab"),
   hallPainTab: document.getElementById("hallPainTab"),
   mostRuggedTab: document.getElementById("mostRuggedTab"),
   simulatorTab: document.getElementById("simulatorTab"),
   dashboardView: document.getElementById("dashboardView"),
   myBakeryView: document.getElementById("myBakeryView"),
   topRugView: document.getElementById("topRugView"),
+  topFailView: document.getElementById("topFailView"),
   hallPainView: document.getElementById("hallPainView"),
   mostRuggedView: document.getElementById("mostRuggedView"),
   simulatorView: document.getElementById("simulatorView"),
@@ -75,6 +77,10 @@ const els = {
   rugTableBody: document.getElementById("rugTableBody"),
   ruggedRowCount: document.getElementById("ruggedRowCount"),
   ruggedTableBody: document.getElementById("ruggedTableBody"),
+  topFailRowCount: document.getElementById("topFailRowCount"),
+  topFailPodium: document.getElementById("topFailPodium"),
+  topFailTableCount: document.getElementById("topFailTableCount"),
+  topFailTableBody: document.getElementById("topFailTableBody"),
   hallPainRowCount: document.getElementById("hallPainRowCount"),
   hallPainPodium: document.getElementById("hallPainPodium"),
   myBakerySearchLabel: document.getElementById("myBakerySearchLabel"),
@@ -154,7 +160,7 @@ try {
   if (PNL_CARD_BACKGROUNDS.some((background) => background.id === storedPnlCardBackground)) {
     pnlCardBackground = storedPnlCardBackground;
   }
-  if (["dashboard", "my", "rug", "pain", "rugged", "simulator"].includes(storedActiveView)) {
+  if (["dashboard", "my", "rug", "fail", "pain", "rugged", "simulator"].includes(storedActiveView)) {
     activeView = storedActiveView;
   }
   if (storedMyBakeryQuery !== null) {
@@ -362,10 +368,11 @@ function setThemeMode(mode, shouldPersist = true) {
 }
 
 function setActiveView(view, shouldPersist = true) {
-  activeView = ["dashboard", "my", "rug", "pain", "rugged", "simulator"].includes(view) ? view : "dashboard";
+  activeView = ["dashboard", "my", "rug", "fail", "pain", "rugged", "simulator"].includes(view) ? view : "dashboard";
   const isDashboard = activeView === "dashboard";
   const isMyBakery = activeView === "my";
   const isRug = activeView === "rug";
+  const isFail = activeView === "fail";
   const isPain = activeView === "pain";
   const isRugged = activeView === "rugged";
   const isSimulator = activeView === "simulator";
@@ -373,12 +380,14 @@ function setActiveView(view, shouldPersist = true) {
   els.dashboardView.hidden = !isDashboard;
   els.myBakeryView.hidden = !isMyBakery;
   els.topRugView.hidden = !isRug;
+  els.topFailView.hidden = !isFail;
   els.hallPainView.hidden = !isPain;
   els.mostRuggedView.hidden = !isRugged;
   els.simulatorView.hidden = !isSimulator;
   els.dashboardTab.setAttribute("aria-pressed", String(isDashboard));
   els.myBakeryTab.setAttribute("aria-pressed", String(isMyBakery));
   els.topRugTab.setAttribute("aria-pressed", String(isRug));
+  els.topFailTab.setAttribute("aria-pressed", String(isFail));
   els.hallPainTab.setAttribute("aria-pressed", String(isPain));
   els.mostRuggedTab.setAttribute("aria-pressed", String(isRugged));
   els.simulatorTab.setAttribute("aria-pressed", String(isSimulator));
@@ -1357,6 +1366,18 @@ function incomingRugSuccessRate(row) {
   return attempts > 0 ? (received / attempts) * 100 : null;
 }
 
+function boostFailCount(row) {
+  const attempts = Number(row.boostAttempts || 0);
+  const landed = Number(row.boostLanded || 0);
+  return Math.max(0, attempts - landed);
+}
+
+function boostSuccessRate(row) {
+  const attempts = Number(row.boostAttempts || 0);
+  const landed = Number(row.boostLanded || 0);
+  return attempts > 0 ? (landed / attempts) * 100 : null;
+}
+
 function rugReceivedSourceText(source, totalSuccessful, totalAttempts) {
   const targetLabel = (dashboard?.leaderboardTitle || "leaderboard").toLowerCase();
   if (source.label === "season_rug_cache") {
@@ -1578,6 +1599,140 @@ function renderHallOfPain(rows) {
   els.hallPainPodium.append(fragment);
 }
 
+function topFailRows(rows) {
+  return [...rows]
+    .filter((row) => boostFailCount(row) > 0)
+    .sort((a, b) => {
+      const failDelta = boostFailCount(b) - boostFailCount(a);
+      if (failDelta !== 0) {
+        return failDelta;
+      }
+
+      const attemptsDelta = Number(b.boostAttempts || 0) - Number(a.boostAttempts || 0);
+      if (attemptsDelta !== 0) {
+        return attemptsDelta;
+      }
+
+      return Number(a.rank || 0) - Number(b.rank || 0);
+    })
+    .slice(0, 20);
+}
+
+function failPodiumAvatar(row, place) {
+  const portalUrl = abstractPortalProfileUrl(row.chefAddress);
+  const wrap = document.createElement(portalUrl ? "a" : "span");
+  wrap.className = "fail-profile";
+  if (portalUrl) {
+    wrap.href = portalUrl;
+    wrap.target = "_blank";
+    wrap.rel = "noopener noreferrer";
+    wrap.title = `Open ${row.chefName || row.chefAddress} on Abstract Portal`;
+  }
+
+  if (place === 1) {
+    const badge = document.createElement("span");
+    badge.className = "fail-crown";
+    badge.setAttribute("aria-label", "Top Fail crown");
+    badge.textContent = "!";
+    wrap.append(badge);
+  }
+
+  if (row.profileImageUrl) {
+    const img = document.createElement("img");
+    img.className = "fail-avatar";
+    img.src = row.profileImageUrl;
+    img.alt = "";
+    img.loading = "lazy";
+    img.decoding = "async";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => img.remove(), { once: true });
+    wrap.append(img);
+  } else {
+    const fallback = document.createElement("span");
+    fallback.className = "fail-avatar fail-avatar-fallback";
+    fallback.textContent = (row.chefName || row.chefAddress || "?").slice(0, 2).toUpperCase();
+    wrap.append(fallback);
+  }
+
+  return wrap;
+}
+
+function renderTopFail(rows) {
+  const ranked = topFailRows(rows).map((row, index) => ({
+    row,
+    place: index + 1
+  }));
+  const podium = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
+
+  els.topFailPodium.innerHTML = "";
+  els.topFailTableBody.innerHTML = "";
+  els.topFailRowCount.textContent = ranked.length === 0 ? "No boost fails" : `Top ${ranked.length} failed boosts`;
+  els.topFailTableCount.textContent = `${ranked.length} rows`;
+
+  if (ranked.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "empty-cell";
+    empty.textContent = "No failed boosts found for the selected leaderboard.";
+    els.topFailPodium.append(empty);
+
+    const tr = document.createElement("tr");
+    tr.append(cell("No failed boosts found for the selected leaderboard.", "empty-cell"));
+    tr.firstChild.colSpan = 7;
+    els.topFailTableBody.append(tr);
+    return;
+  }
+
+  const podiumFragment = document.createDocumentFragment();
+  for (const { row, place } of podium) {
+    const card = document.createElement("article");
+    card.className = `fail-podium-card fail-place-${place}`;
+
+    const placeBadge = document.createElement("span");
+    placeBadge.className = "fail-place";
+    placeBadge.textContent = `#${place}`;
+
+    const avatar = failPodiumAvatar(row, place);
+
+    const name = document.createElement("strong");
+    name.className = "fail-name";
+    name.textContent = row.chefName || shortAddress(row.chefAddress);
+
+    const bakery = document.createElement("span");
+    bakery.className = "fail-bakery";
+    bakery.textContent = row.bakeryName || "Bakery";
+
+    const failValue = document.createElement("strong");
+    failValue.className = "fail-count";
+    failValue.textContent = `${numberFormatter.format(boostFailCount(row))} failed boosts`;
+
+    const meta = document.createElement("span");
+    meta.className = "fail-meta";
+    meta.append(`${currentBoardLabel()} #${row.rank}`, rankMovementBadge(row), ` · ${numberFormatter.format(Number(row.boostAttempts || 0))} attempts`);
+
+    card.append(placeBadge, avatar, name, bakery, failValue, meta);
+    podiumFragment.append(card);
+  }
+  els.topFailPodium.append(podiumFragment);
+
+  const tableFragment = document.createDocumentFragment();
+  ranked.forEach(({ row, place }) => {
+    const successRate = boostSuccessRate(row);
+    const tr = document.createElement("tr");
+    tr.append(
+      cell(`#${place}`, "rank-cell", "Fail Rank"),
+      rankCell(row, "Leaderboard Rank"),
+      chefCell(row),
+      cell(row.bakeryName || "-", "name-cell", "Bakery"),
+      cell(numberFormatter.format(boostFailCount(row)), "number-cell pnl-cell", "Boost Fails"),
+      cell(numberFormatter.format(Number(row.boostAttempts || 0)), "number-cell", "Boost Attempts"),
+      cell(successRate === null ? "--" : formatPercent(successRate), "number-cell", "Boost Success")
+    );
+    addMobileDetailsToggle(tr, 2);
+    tableFragment.append(tr);
+  });
+  els.topFailTableBody.append(tableFragment);
+}
+
 function renderDashboard() {
   if (!dashboard) {
     return;
@@ -1699,6 +1854,7 @@ function renderDashboard() {
   renderTable(rows);
   renderMyBakery(myRows);
   renderTopRug(rows);
+  renderTopFail(rows);
   renderHallOfPain(myRows);
   renderSimulator(rows);
 }
@@ -1864,6 +2020,8 @@ async function refreshDashboard() {
     els.tableBody.innerHTML = "";
     els.rugTableBody.innerHTML = "";
     els.ruggedTableBody.innerHTML = "";
+    els.topFailPodium.innerHTML = "";
+    els.topFailTableBody.innerHTML = "";
     els.hallPainPodium.innerHTML = "";
     els.myBakeryCard.innerHTML = "";
     els.shareStatus.textContent = "";
@@ -1885,6 +2043,14 @@ async function refreshDashboard() {
     painEmpty.className = "empty-cell";
     painEmpty.textContent = "Unable to load the Hall of Pain right now.";
     els.hallPainPodium.append(painEmpty);
+    const failEmpty = document.createElement("p");
+    failEmpty.className = "empty-cell";
+    failEmpty.textContent = "Unable to load Top Fail right now.";
+    els.topFailPodium.append(failEmpty);
+    const failTr = document.createElement("tr");
+    failTr.append(cell("Unable to load Top Fail right now.", "empty-cell"));
+    failTr.firstChild.colSpan = 7;
+    els.topFailTableBody.append(failTr);
     const simTr = document.createElement("tr");
     simTr.append(cell("Unable to load the simulator data right now.", "empty-cell"));
     simTr.firstChild.colSpan = 7;
@@ -1970,6 +2136,10 @@ els.myBakeryTab.addEventListener("click", () => {
 
 els.topRugTab.addEventListener("click", () => {
   setActiveView("rug");
+});
+
+els.topFailTab.addEventListener("click", () => {
+  setActiveView("fail");
 });
 
 els.hallPainTab.addEventListener("click", () => {

@@ -443,7 +443,7 @@ body[data-theme="dark"] .logo-character {
 
 .view-tabs {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -923,6 +923,10 @@ body[data-theme="dark"] .simulator-toolbar {
   overflow: hidden;
 }
 
+.fail-shell {
+  overflow: hidden;
+}
+
 .hall-pain-podium {
   min-height: 430px;
   display: grid;
@@ -953,6 +957,153 @@ body[data-theme="dark"] .pain-podium-card {
   background:
     linear-gradient(180deg, rgba(56, 37, 29, 0.96), rgba(38, 26, 21, 0.94)),
     var(--cream-card);
+}
+
+.fail-podium {
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 14px;
+  padding: 18px;
+}
+
+.fail-podium-card {
+  min-height: 270px;
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  gap: 8px;
+  padding: 18px 12px;
+  border: 2px solid #efbf8b;
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 251, 244, 0.98), rgba(255, 236, 214, 0.95)),
+    var(--cream-card);
+  box-shadow: inset 0 -8px 0 rgba(205, 108, 67, 0.12);
+  text-align: center;
+}
+
+tbody[data-theme="dark"] .fail-podium-card {
+  border-color: #6a4127;
+  background:
+    linear-gradient(180deg, rgba(60, 39, 32, 0.98), rgba(42, 28, 22, 0.95)),
+    var(--cream-card);
+}
+
+.fail-place-1 {
+  min-height: 340px;
+  border-color: #d87a48;
+  box-shadow: inset 0 -12px 0 rgba(216, 122, 72, 0.22), 0 12px 28px rgba(124, 67, 41, 0.14);
+}
+
+.fail-place-2 {
+  min-height: 295px;
+}
+
+.fail-place-3 {
+  min-height: 255px;
+}
+
+.fail-place {
+  min-width: 46px;
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #ff9d67, #dd6941);
+  color: #fff;
+  font-weight: 900;
+}
+
+.fail-profile {
+  position: relative;
+  display: inline-grid;
+  justify-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.fail-crown {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  z-index: 1;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd98c, #ee9b3e);
+  color: #6d3418;
+  font-size: 1rem;
+  font-weight: 900;
+  box-shadow: 0 6px 16px rgba(109, 52, 24, 0.24);
+}
+
+.fail-avatar {
+  width: 92px;
+  height: 92px;
+  border: 4px solid #f0d3ae;
+  border-radius: 999px;
+  background: #ffe1b9;
+  object-fit: cover;
+  box-shadow: 0 7px 0 rgba(124, 67, 41, 0.11);
+}
+
+.fail-place-1 .fail-avatar {
+  width: 112px;
+  height: 112px;
+  border-color: #d87a48;
+}
+
+.fail-avatar-fallback {
+  display: grid;
+  place-items: center;
+  color: var(--cookie-dark);
+  font-weight: 900;
+}
+
+.fail-name {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--choc);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  line-height: 1.05;
+}
+
+.fail-bakery,
+.fail-meta {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.fail-meta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.fail-meta .rank-move {
+  width: 18px;
+  height: 18px;
+  flex-basis: 18px;
+  font-size: 0.66rem;
+}
+
+.fail-count {
+  color: #d65a3f;
+  font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+  line-height: 1;
+}
+
+.top-fail-table {
+  min-width: 980px;
 }
 
 .pain-place-1 {
@@ -1435,6 +1586,12 @@ body[data-theme="dark"] .player-avatar {
     padding: 14px;
   }
 
+  .fail-podium {
+    min-height: 320px;
+    gap: 10px;
+    padding: 14px;
+  }
+
   .my-bakery-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1642,10 +1799,23 @@ body[data-theme="dark"] .player-avatar {
     min-height: 0;
   }
 
+  .fail-podium {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
   .pain-podium-card,
   .pain-place-1,
   .pain-place-2,
   .pain-place-3 {
+    min-height: 0;
+    border-radius: 8px;
+  }
+
+  .fail-podium-card,
+  .fail-place-1,
+  .fail-place-2,
+  .fail-place-3 {
     min-height: 0;
     border-radius: 8px;
   }
@@ -1659,6 +1829,18 @@ body[data-theme="dark"] .player-avatar {
   }
 
   .pain-place-3 {
+    order: 3;
+  }
+
+  .fail-place-1 {
+    order: 1;
+  }
+
+  .fail-place-2 {
+    order: 2;
+  }
+
+  .fail-place-3 {
     order: 3;
   }
 }
@@ -1744,7 +1926,8 @@ body[data-theme="dark"] .player-avatar {
   table,
   .simulator-table,
   .rug-table,
-  .rugged-table {
+  .rugged-table,
+  .top-fail-table {
     min-width: 0;
   }
 

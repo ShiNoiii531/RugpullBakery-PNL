@@ -69,14 +69,15 @@
         <p id="statusText" class="status-text">Loading live leaderboard...</p>
       </header>
 
-      <nav class="view-tabs" aria-label="Dashboard views">
-        <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Leaderboard</button>
-        <button id="myBakeryTab" class="tab-button" type="button" aria-pressed="false">P&amp;L Card</button>
-        <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
-        <button id="hallPainTab" class="tab-button" type="button" aria-pressed="false">Hall of Pain</button>
-        <button id="mostRuggedTab" class="tab-button" type="button" aria-pressed="false">Most Rugged</button>
-        <button id="simulatorTab" class="tab-button" type="button" aria-pressed="false">Simulator</button>
-      </nav>
+        <nav class="view-tabs" aria-label="Dashboard views">
+          <button id="dashboardTab" class="tab-button" type="button" aria-pressed="true">Leaderboard</button>
+          <button id="myBakeryTab" class="tab-button" type="button" aria-pressed="false">P&amp;L Card</button>
+          <button id="topRugTab" class="tab-button" type="button" aria-pressed="false">Top Rug</button>
+          <button id="topFailTab" class="tab-button" type="button" aria-pressed="false">Top Fail</button>
+          <button id="hallPainTab" class="tab-button" type="button" aria-pressed="false">Hall of Pain</button>
+          <button id="mostRuggedTab" class="tab-button" type="button" aria-pressed="false">Most Rugged</button>
+          <button id="simulatorTab" class="tab-button" type="button" aria-pressed="false">Simulator</button>
+        </nav>
 
       <section class="toolbar" aria-label="Dashboard controls">
         <label class="field">
@@ -296,17 +297,54 @@
         </section>
       </section>
 
-      <section id="hallPainView" class="view-panel" hidden>
-        <section class="table-shell hall-pain-shell" aria-label="Hall of Pain worst ROI podium">
-          <div class="table-meta">
-            <strong>Hall of Pain</strong>
-            <span id="hallPainRowCount">Top 3 worst ROI</span>
-          </div>
-          <div id="hallPainPodium" class="hall-pain-podium" aria-live="polite"></div>
+        <section id="hallPainView" class="view-panel" hidden>
+          <section class="table-shell hall-pain-shell" aria-label="Hall of Pain worst ROI podium">
+            <div class="table-meta">
+              <strong>Hall of Pain</strong>
+              <span id="hallPainRowCount">Top 3 worst ROI</span>
+            </div>
+            <div id="hallPainPodium" class="hall-pain-podium" aria-live="polite"></div>
+          </section>
         </section>
-      </section>
 
-      <section id="simulatorView" class="view-panel" hidden>
+        <section id="topFailView" class="view-panel" hidden>
+          <section class="table-shell fail-shell" aria-label="Top Fail failed boosts podium">
+            <div class="table-meta">
+              <strong>Top Fail</strong>
+              <span id="topFailRowCount">Top 20 failed boosts</span>
+            </div>
+            <div id="topFailPodium" class="fail-podium" aria-live="polite"></div>
+          </section>
+
+          <section class="table-shell secondary-table-shell" aria-label="Top Fail table">
+            <div class="table-meta">
+              <strong>Top 20 Failed Boosts</strong>
+              <span id="topFailTableCount">-- rows</span>
+            </div>
+            <div class="table-scroll">
+              <table class="top-fail-table">
+                <thead>
+                  <tr>
+                    <th>Fail Rank</th>
+                    <th>Leaderboard Rank</th>
+                    <th>Chef</th>
+                    <th>Bakery</th>
+                    <th>Boost Fails</th>
+                    <th>Boost Attempts</th>
+                    <th>Boost Success</th>
+                  </tr>
+                </thead>
+                <tbody id="topFailTableBody">
+                  <tr>
+                    <td colspan="7">Loading...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <section id="simulatorView" class="view-panel" hidden>
         <section class="simulator-toolbar" aria-label="Prize pool simulator">
           <label class="field">
             <span>Prize Pool</span>
