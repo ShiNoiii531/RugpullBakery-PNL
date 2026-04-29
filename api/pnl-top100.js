@@ -803,6 +803,59 @@ function emptyIncomingRugStats() {
   };
 }
 
+function boostFailCount(row) {
+  const attempts = Number(row?.boostAttempts || 0);
+  const landed = Number(row?.boostLanded || 0);
+  return Math.max(0, attempts - landed);
+}
+
+function boostFailRate(row) {
+  const attempts = Number(row?.boostAttempts || 0);
+  const fails = boostFailCount(row);
+  return attempts > 0 ? (fails / attempts) * 100 : null;
+}
+
+function topFailRows(rows) {
+  return [...rows]
+    .filter((row) => Number(row?.boostAttempts || 0) > 0 && boostFailCount(row) > 0)
+    .sort((a, b) => {
+      const failRateDelta = (boostFailRate(b) || 0) - (boostFailRate(a) || 0);
+      if (failRateDelta !== 0) {
+        return failRateDelta;
+      }
+
+      const attemptsDelta = Number(b?.boostAttempts || 0) - Number(a?.boostAttempts || 0);
+      if (attemptsDelta !== 0) {
+        return attemptsDelta;
+      }
+
+      return Number(a?.rank || 0) - Number(b?.rank || 0);
+    })
+    .slice(0, 20);
+}
+
+function longestFailedBoostStreak(activityFeed) {
+  const boostEvents = (activityFeed || []).filter((event) => event?.type === "boost" && event?.isOutgoing === true);
+  let longest = 0;
+  let current = 0;
+
+  for (const event of boostEvents) {
+    if (event?.success === false) {
+      current += 1;
+      if (current > longest) {
+        longest = current;
+      }
+    } else if (event?.success === true) {
+      current = 0;
+    }
+  }
+
+  return {
+    longest,
+    boostEventsScanned: boostEvents.length
+  };
+}
+
 function countIncomingRugs(activityFeed) {
   const stats = emptyIncomingRugStats();
 
@@ -937,6 +990,81 @@ async function getBakeryRugsReceived(rows, seasonId) {
   }
 }
 
+async function getTopFailSummary(rows, seasonId) {
+  const candidates = topFailRows(rows)
+    .map((row) => ({
+      bakeryId: Number(row.bakeryId || row.id || 0),
+      row
+    }))
+    .filter((entry) => Number.isFinite(entry.bakeryId) && entry.bakeryId > 0);
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  try {
+    const feedInputs = candidates.map((entry) => ({
+      bakeryId: entry.bakeryId,
+      seasonId,
+      limit: 100
+    }));
+    const feedBatchPromises = [];
+    for (let index = 0; index < feedInputs.length; index += BAKERY_ACTIVITY_BATCH_SIZE) {
+      const batchInputs = feedInputs.slice(index, index + BAKERY_ACTIVITY_BATCH_SIZE);
+      feedBatchPromises.push(fetchBakeryTrpcBatch("leaderboard.getActivityFeed", batchInputs));
+    }
+    const feeds = (await Promise.all(feedBatchPromises)).flat();
+
+    let best = null;
+    for (let index = 0; index < candidates.length; index += 1) {
+      const { row } = candidates[index];
+      const feed = feeds[index] || [];
+      const streak = longestFailedBoostStreak(feed);
+      const summary = {
+        rank: Number(row.rank || 0),
+        chefAddress: row.chefAddress || null,
+        chefName: row.chefName || null,
+        bakeryName: row.bakeryName || null,
+        failRate: boostFailRate(row),
+        failCount: boostFailCount(row),
+        boostAttempts: Number(row.boostAttempts || 0),
+        longestFailedBoostStreak: streak.longest,
+        boostEventsScanned: streak.boostEventsScanned,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (!best) {
+        best = summary;
+        continue;
+      }
+
+      const streakDelta = summary.longestFailedBoostStreak - best.longestFailedBoostStreak;
+      if (streakDelta !== 0) {
+        if (streakDelta > 0) {
+          best = summary;
+        }
+        continue;
+      }
+
+      const failRateDelta = (summary.failRate || 0) - (best.failRate || 0);
+      if (failRateDelta !== 0) {
+        if (failRateDelta > 0) {
+          best = summary;
+        }
+        continue;
+      }
+
+      if (summary.boostAttempts > best.boostAttempts) {
+        best = summary;
+      }
+    }
+
+    return best;
+  } catch {
+    return null;
+  }
+}
+
 function getDisabledRugReceivedData() {
   return {
     rugReceivedStatsByBakeryId: new Map(),
@@ -1006,6 +1134,74 @@ async function buildDashboard({ activeSeason, boardKey = DEFAULT_BOARD_KEY }) {
     0n
   ).toString();
   const estimatedCostPerMillionWei = BigInt(costEstimate.estimatedCostPerMillionWei || "0");
+  const mappedRows = rows.map((row, index) => {
+    const rank = Number(row.displayRank ?? row.rank ?? index + 1) || index + 1;
+    const chefAddress = row.topCook || row.creator || row.leader || "";
+    const normalizedChefAddress = chefAddress.toLowerCase();
+    const leaderboardSharePct = getLeaderboardSharePct(rank, rules.leaderboardPayouts);
+    const prizeBps = leaderboardSharePct * 100;
+    const grossPrizeWei = leaderboardSharePct > 0
+      ? multiplyWeiByPercent(leaderboardBucketWei, leaderboardSharePct)
+      : "0";
+    const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
+    const score = row.score || row.effectiveTxCount || "0";
+    const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
+    const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
+    const abstractProfile = abstractProfilesByAddress.get(normalizedChefAddress);
+    const cachedCost = costFromCache(costCache, activeSeason.id, normalizedChefAddress);
+    const estimatedCostWei = estimatedCostPerMillionWei > 0n
+      ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
+      : "0";
+    const cacheCookiesRaw = BigInt(cachedCost?.cookiesRaw || "0");
+    const missingCookiesRaw = cachedCost?.complete
+      ? 0n
+      : BigInt(cookiesBaked) > cacheCookiesRaw
+        ? BigInt(cookiesBaked) - cacheCookiesRaw
+        : 0n;
+    const ownEstimatedCostPerMillionWei = estimatedCostPerMillionFromCachedCost(cachedCost);
+    const fallbackEstimatedCostPerMillionWei = ownEstimatedCostPerMillionWei > 0n
+      ? ownEstimatedCostPerMillionWei
+      : estimatedCostPerMillionWei;
+    const estimatedMissingCostWei = estimatedCostPerMillionWei > 0n
+      ? safeDivideBigInt(missingCookiesRaw * fallbackEstimatedCostPerMillionWei, 1_000_000n)
+      : 0n;
+    const costWei = cachedCost
+      ? (BigInt(cachedCost.costWei || "0") + estimatedMissingCostWei).toString()
+      : estimatedCostWei;
+
+    return {
+      rank,
+      bakeryId: row.id,
+      bakeryName: row.name,
+      chefAddress,
+      chefName: profileNameByAddress.get(normalizedChefAddress) || abstractProfile?.name || (chefAddress ? shortAddress(chefAddress) : "-"),
+      profileImageUrl: abstractProfileImageUrl(abstractProfile),
+      rankMovement: rankMovementFromCache(rankCache, activeSeason.id, normalizedChefAddress, rank),
+      score,
+      cookiesBaked,
+      cookieBalance: row.cookieBalance || row.txCount || "0",
+      rugAttempts: Number(topChefStats?.rugAttempts || 0),
+      rugLanded: Number(topChefStats?.rugLanded || 0),
+      recentRugsReceived: rugReceivedStats.successful,
+      recentRugAttemptsReceived: rugReceivedStats.attempts,
+      recentRugFailsReceived: rugReceivedStats.failed,
+      boostAttempts: Number(topChefStats?.boostAttempts || 0),
+      boostLanded: Number(topChefStats?.boostLanded || 0),
+      grossPrizeWei,
+      grossPrizeEth: weiToEthNumber(grossPrizeWei),
+      prizeBps,
+      leaderboardSharePct,
+      estimatedCostWei: costWei,
+      estimatedCostEth: weiToEthNumber(costWei),
+      costSource: cachedCost
+        ? cachedCost.complete ? "exact_gas_cache" : "partial_gas_cache"
+        : "abstract_rpc_recent_sample",
+      exactCookTxCount: cachedCost?.cookTxCount || null,
+      exactCostUpdatedAt: cachedCost?.updatedAt || null,
+      exactCostToBlock: cachedCost?.toBlock ?? null
+    };
+  });
+  const topFailSummary = await getTopFailSummary(mappedRows, activeSeason.id);
 
   return {
     updatedAt: new Date().toISOString(),
@@ -1022,10 +1218,10 @@ async function buildDashboard({ activeSeason, boardKey = DEFAULT_BOARD_KEY }) {
     grossLabel: rules.grossLabel,
     costLabel: rules.costLabel,
     pnlLabel: rules.pnlLabel,
-      payoutSummaryText: rules.payoutSummaryText,
-      availableLeaderboards: rules.availableLeaderboards,
-      rankingMetric: seasonUsesScoreRanking(activeSeason.id) ? "score" : "cookies",
-      prizePoolWei,
+    payoutSummaryText: rules.payoutSummaryText,
+    availableLeaderboards: rules.availableLeaderboards,
+    rankingMetric: seasonUsesScoreRanking(activeSeason.id) ? "score" : "cookies",
+    prizePoolWei,
     prizePoolEth: weiToEthNumber(prizePoolWei),
     leaderboardBucketPct: rules.leaderboardBucketPct,
     leaderboardBucketWei,
@@ -1055,73 +1251,8 @@ async function buildDashboard({ activeSeason, boardKey = DEFAULT_BOARD_KEY }) {
         previousUpdatedAt: rankCache.previousUpdatedAt || null
       }
       : null,
-      rows: rows.map((row, index) => {
-        const rank = Number(row.displayRank ?? row.rank ?? index + 1) || index + 1;
-        const chefAddress = row.topCook || row.creator || row.leader || "";
-        const normalizedChefAddress = chefAddress.toLowerCase();
-        const leaderboardSharePct = getLeaderboardSharePct(rank, rules.leaderboardPayouts);
-        const prizeBps = leaderboardSharePct * 100;
-        const grossPrizeWei = leaderboardSharePct > 0
-          ? multiplyWeiByPercent(leaderboardBucketWei, leaderboardSharePct)
-          : "0";
-        const cookiesBaked = row.cookiesBaked || row.rawTxCount || "0";
-        const score = row.score || row.effectiveTxCount || "0";
-        const topChefStats = topChefStatsByAddress.get(normalizedChefAddress);
-        const rugReceivedStats = rugReceivedStatsByBakeryId.get(Number(row.id)) || emptyIncomingRugStats();
-        const abstractProfile = abstractProfilesByAddress.get(normalizedChefAddress);
-      const cachedCost = costFromCache(costCache, activeSeason.id, normalizedChefAddress);
-      const estimatedCostWei = estimatedCostPerMillionWei > 0n
-        ? safeDivideBigInt(BigInt(cookiesBaked) * estimatedCostPerMillionWei, 1_000_000n).toString()
-        : "0";
-      const cacheCookiesRaw = BigInt(cachedCost?.cookiesRaw || "0");
-      const missingCookiesRaw = cachedCost?.complete
-        ? 0n
-        : BigInt(cookiesBaked) > cacheCookiesRaw
-          ? BigInt(cookiesBaked) - cacheCookiesRaw
-          : 0n;
-      const ownEstimatedCostPerMillionWei = estimatedCostPerMillionFromCachedCost(cachedCost);
-      const fallbackEstimatedCostPerMillionWei = ownEstimatedCostPerMillionWei > 0n
-        ? ownEstimatedCostPerMillionWei
-        : estimatedCostPerMillionWei;
-      const estimatedMissingCostWei = estimatedCostPerMillionWei > 0n
-        ? safeDivideBigInt(missingCookiesRaw * fallbackEstimatedCostPerMillionWei, 1_000_000n)
-        : 0n;
-      const costWei = cachedCost
-        ? (BigInt(cachedCost.costWei || "0") + estimatedMissingCostWei).toString()
-        : estimatedCostWei;
-
-      return {
-        rank,
-        bakeryId: row.id,
-        bakeryName: row.name,
-        chefAddress,
-          chefName: profileNameByAddress.get(normalizedChefAddress) || abstractProfile?.name || (chefAddress ? shortAddress(chefAddress) : "-"),
-          profileImageUrl: abstractProfileImageUrl(abstractProfile),
-          rankMovement: rankMovementFromCache(rankCache, activeSeason.id, normalizedChefAddress, rank),
-          score,
-          cookiesBaked,
-          cookieBalance: row.cookieBalance || row.txCount || "0",
-        rugAttempts: Number(topChefStats?.rugAttempts || 0),
-        rugLanded: Number(topChefStats?.rugLanded || 0),
-        recentRugsReceived: rugReceivedStats.successful,
-        recentRugAttemptsReceived: rugReceivedStats.attempts,
-        recentRugFailsReceived: rugReceivedStats.failed,
-        boostAttempts: Number(topChefStats?.boostAttempts || 0),
-        boostLanded: Number(topChefStats?.boostLanded || 0),
-        grossPrizeWei,
-        grossPrizeEth: weiToEthNumber(grossPrizeWei),
-        prizeBps,
-        leaderboardSharePct,
-        estimatedCostWei: costWei,
-        estimatedCostEth: weiToEthNumber(costWei),
-        costSource: cachedCost
-          ? cachedCost.complete ? "exact_gas_cache" : "partial_gas_cache"
-          : "abstract_rpc_recent_sample",
-        exactCookTxCount: cachedCost?.cookTxCount || null,
-        exactCostUpdatedAt: cachedCost?.updatedAt || null,
-        exactCostToBlock: cachedCost?.toBlock ?? null
-      };
-    })
+    topFailSummary,
+    rows: mappedRows
   };
 }
 

@@ -78,6 +78,9 @@ const els = {
   ruggedRowCount: document.getElementById("ruggedRowCount"),
   ruggedTableBody: document.getElementById("ruggedTableBody"),
   topFailRowCount: document.getElementById("topFailRowCount"),
+  topFailStreakValue: document.getElementById("topFailStreakValue"),
+  topFailStreakLabel: document.getElementById("topFailStreakLabel"),
+  topFailStreakNote: document.getElementById("topFailStreakNote"),
   topFailPodium: document.getElementById("topFailPodium"),
   topFailTableCount: document.getElementById("topFailTableCount"),
   topFailTableBody: document.getElementById("topFailTableBody"),
@@ -1669,11 +1672,22 @@ function renderTopFail(rows) {
     place: index + 1
   }));
   const podium = [ranked[1], ranked[0], ranked[2]].filter(Boolean);
+  const streakSummary = dashboard?.topFailSummary || null;
 
   els.topFailPodium.innerHTML = "";
   els.topFailTableBody.innerHTML = "";
   els.topFailRowCount.textContent = ranked.length === 0 ? "No failed boost rate" : `Top ${ranked.length} fail rates`;
   els.topFailTableCount.textContent = `${ranked.length} rows`;
+
+  if (streakSummary && Number(streakSummary.longestFailedBoostStreak || 0) > 0) {
+    els.topFailStreakValue.textContent = `${numberFormatter.format(Number(streakSummary.longestFailedBoostStreak || 0))} in a row`;
+    els.topFailStreakLabel.textContent = streakSummary.chefName || streakSummary.chefAddress || "Longest failed boost streak";
+    els.topFailStreakNote.textContent = `${currentBoardLabel()} #${streakSummary.rank} · ${streakSummary.bakeryName || "Bakery"} · ${numberFormatter.format(Number(streakSummary.failCount || 0))} fails / ${numberFormatter.format(Number(streakSummary.boostAttempts || 0))} attempts`;
+  } else {
+    els.topFailStreakValue.textContent = "--";
+    els.topFailStreakLabel.textContent = "Longest failed boost streak";
+    els.topFailStreakNote.textContent = "No recent failed boost streak found.";
+  }
 
   if (ranked.length === 0) {
     const empty = document.createElement("p");
@@ -2055,6 +2069,9 @@ async function refreshDashboard() {
     failEmpty.className = "empty-cell";
     failEmpty.textContent = "Unable to load Top Fail right now.";
     els.topFailPodium.append(failEmpty);
+    els.topFailStreakValue.textContent = "--";
+    els.topFailStreakLabel.textContent = "Longest failed boost streak";
+    els.topFailStreakNote.textContent = "Unable to load streak data right now.";
     const failTr = document.createElement("tr");
     failTr.append(cell("Unable to load Top Fail right now.", "empty-cell"));
     failTr.firstChild.colSpan = 8;
