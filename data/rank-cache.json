@@ -1,9 +1,23 @@
 {
   "version": 1,
   "seasonId": 7,
-  "updatedAt": "2026-05-08T06:24:38.672Z",
-  "previousUpdatedAt": "2026-05-08T00:12:48.691Z",
+  "updatedAt": "2026-05-08T10:57:44.478Z",
+  "previousUpdatedAt": "2026-05-08T06:24:38.672Z",
   "currentRanks": {
+    "0xdb65734df1db12ee8027d774c3228753d568fd9a": 1,
+    "0x2f62e8f06a628d95c0afabd23769665531cbef91": 2,
+    "0xf9005df8f9b0a1f6931922871c7172e01ac88f23": 3,
+    "0xad6be45f6e1107964020cf42fa11765dcc25da2c": 4,
+    "0x8572a06e9c5157864a865f8f443311e1a9d82631": 5,
+    "0x75c6ce8e3083fad4ffa1b1bd325e407a41d612d6": 6,
+    "0xf28506e6bf73b15ee0cf9e800c60cef4af96bab9": 7,
+    "0x1ef3f1ba6060ab1265e487b482f384b26df8c7b6": 8,
+    "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79": 9,
+    "0xeb2207f97a0ca2de5b47367c7b744fdf72d38ae7": 10,
+    "0xfe69bfea6d974db7a555a4a8574afecb079eabea": 11,
+    "0xfeab5b9e34c389e810388a3f7967d44cf5e87912": 12
+  },
+  "previousRanks": {
     "0x2f62e8f06a628d95c0afabd23769665531cbef91": 1,
     "0xf9005df8f9b0a1f6931922871c7172e01ac88f23": 2,
     "0xad6be45f6e1107964020cf42fa11765dcc25da2c": 3,
@@ -15,14 +29,5 @@
     "0xd2b7dde5e7f615fd997d027f1a19a5f2069bc6f2": 9,
     "0xfe69bfea6d974db7a555a4a8574afecb079eabea": 10,
     "0xfeab5b9e34c389e810388a3f7967d44cf5e87912": 11
-  },
-  "previousRanks": {
-    "0x75c6ce8e3083fad4ffa1b1bd325e407a41d612d6": 1,
-    "0xf28506e6bf73b15ee0cf9e800c60cef4af96bab9": 2,
-    "0x1ef3f1ba6060ab1265e487b482f384b26df8c7b6": 3,
-    "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79": 4,
-    "0xd2b7dde5e7f615fd997d027f1a19a5f2069bc6f2": 5,
-    "0xfe69bfea6d974db7a555a4a8574afecb079eabea": 6,
-    "0xeec92fab74ba83d53c6cca91779ae20f9d2bea44": 7
   }
 }
