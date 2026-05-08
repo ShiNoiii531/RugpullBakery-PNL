@@ -2,12 +2,88 @@
   "version": 1,
   "seasonId": 7,
   "status": "complete",
-  "updatedAt": "2026-05-08T10:57:54.459Z",
+  "updatedAt": "2026-05-08T16:02:48.370Z",
   "complete": true,
-  "latestSeenKey": null,
-  "latestSeenTimestamp": null,
+  "latestSeenKey": "rug|1778255943|0xeb2207f97a0ca2de5b47367c7b744fdf72d38ae7|1300|1310|1|Pulled a rug on|Supplier Strike",
+  "latestSeenTimestamp": "1778255943",
   "oldestCursor": null,
-  "scannedEvents": 0,
-  "importedEvents": 0,
-  "bakeries": {}
+  "scannedEvents": 179,
+  "importedEvents": 115,
+  "bakeries": {
+    "1298": {
+      "attempts": 7,
+      "successful": 3,
+      "failed": 4
+    },
+    "1299": {
+      "attempts": 13,
+      "successful": 6,
+      "failed": 7
+    },
+    "1300": {
+      "attempts": 5,
+      "successful": 4,
+      "failed": 1
+    },
+    "1301": {
+      "attempts": 14,
+      "successful": 4,
+      "failed": 10
+    },
+    "1302": {
+      "attempts": 3,
+      "successful": 2,
+      "failed": 1
+    },
+    "1303": {
+      "attempts": 24,
+      "successful": 4,
+      "failed": 20
+    },
+    "1305": {
+      "attempts": 2,
+      "successful": 1,
+      "failed": 1
+    },
+    "1306": {
+      "attempts": 6,
+      "successful": 1,
+      "failed": 5
+    },
+    "1307": {
+      "attempts": 10,
+      "successful": 4,
+      "failed": 6
+    },
+    "1308": {
+      "attempts": 2,
+      "successful": 1,
+      "failed": 1
+    },
+    "1309": {
+      "attempts": 19,
+      "successful": 4,
+      "failed": 15
+    },
+    "1310": {
+      "attempts": 6,
+      "successful": 4,
+      "failed": 2
+    },
+    "1311": {
+      "attempts": 2,
+      "successful": 1,
+      "failed": 1
+    },
+    "1312": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1313": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    }
+  }
 }
