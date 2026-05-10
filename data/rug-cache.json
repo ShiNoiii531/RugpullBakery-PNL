@@ -2,33 +2,33 @@
   "version": 1,
   "seasonId": 7,
   "status": "complete",
-  "updatedAt": "2026-05-10T00:11:25.588Z",
+  "updatedAt": "2026-05-10T08:23:30.011Z",
   "complete": true,
   "latestSeenKey": "rug|1778255943|0xeb2207f97a0ca2de5b47367c7b744fdf72d38ae7|1300|1310|1|Pulled a rug on|Supplier Strike",
   "latestSeenTimestamp": "1778255943",
   "oldestCursor": null,
-  "scannedEvents": 4179,
-  "importedEvents": 2338,
+  "scannedEvents": 4679,
+  "importedEvents": 2581,
   "bakeries": {
     "1298": {
-      "attempts": 308,
-      "successful": 125,
-      "failed": 183
+      "attempts": 334,
+      "successful": 142,
+      "failed": 192
     },
     "1299": {
-      "attempts": 346,
-      "successful": 157,
-      "failed": 189
+      "attempts": 387,
+      "successful": 178,
+      "failed": 209
     },
     "1300": {
-      "attempts": 208,
-      "successful": 122,
-      "failed": 86
+      "attempts": 226,
+      "successful": 132,
+      "failed": 94
     },
     "1301": {
-      "attempts": 393,
-      "successful": 150,
-      "failed": 243
+      "attempts": 428,
+      "successful": 168,
+      "failed": 260
     },
     "1302": {
       "attempts": 12,
@@ -36,9 +36,9 @@
       "failed": 7
     },
     "1303": {
-      "attempts": 279,
-      "successful": 128,
-      "failed": 151
+      "attempts": 316,
+      "successful": 148,
+      "failed": 168
     },
     "1304": {
       "attempts": 24,
@@ -56,9 +56,9 @@
       "failed": 5
     },
     "1307": {
-      "attempts": 116,
-      "successful": 48,
-      "failed": 68
+      "attempts": 120,
+      "successful": 49,
+      "failed": 71
     },
     "1308": {
       "attempts": 3,
@@ -66,19 +66,19 @@
       "failed": 1
     },
     "1309": {
-      "attempts": 402,
-      "successful": 123,
-      "failed": 279
+      "attempts": 458,
+      "successful": 140,
+      "failed": 318
     },
     "1310": {
-      "attempts": 188,
-      "successful": 86,
-      "failed": 102
+      "attempts": 200,
+      "successful": 93,
+      "failed": 107
     },
     "1311": {
-      "attempts": 35,
-      "successful": 20,
-      "failed": 15
+      "attempts": 49,
+      "successful": 30,
+      "failed": 19
     },
     "1312": {
       "attempts": 3,
