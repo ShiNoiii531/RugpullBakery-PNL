@@ -2,33 +2,33 @@
   "version": 1,
   "seasonId": 7,
   "status": "complete",
-  "updatedAt": "2026-05-15T10:05:00.545Z",
+  "updatedAt": "2026-05-15T17:03:04.269Z",
   "complete": true,
   "latestSeenKey": "rug|1778255943|0xeb2207f97a0ca2de5b47367c7b744fdf72d38ae7|1300|1310|1|Pulled a rug on|Supplier Strike",
   "latestSeenTimestamp": "1778255943",
   "oldestCursor": null,
-  "scannedEvents": 13677,
-  "importedEvents": 7112,
+  "scannedEvents": 14177,
+  "importedEvents": 7392,
   "bakeries": {
     "1298": {
-      "attempts": 844,
-      "successful": 427,
-      "failed": 417
+      "attempts": 867,
+      "successful": 439,
+      "failed": 428
     },
     "1299": {
-      "attempts": 1205,
-      "successful": 536,
-      "failed": 669
+      "attempts": 1238,
+      "successful": 549,
+      "failed": 689
     },
     "1300": {
-      "attempts": 749,
-      "successful": 420,
-      "failed": 329
+      "attempts": 770,
+      "successful": 433,
+      "failed": 337
     },
     "1301": {
-      "attempts": 1106,
-      "successful": 478,
-      "failed": 628
+      "attempts": 1149,
+      "successful": 492,
+      "failed": 657
     },
     "1302": {
       "attempts": 12,
@@ -36,14 +36,14 @@
       "failed": 7
     },
     "1303": {
-      "attempts": 794,
-      "successful": 420,
-      "failed": 374
+      "attempts": 819,
+      "successful": 435,
+      "failed": 384
     },
     "1304": {
-      "attempts": 29,
+      "attempts": 33,
       "successful": 7,
-      "failed": 22
+      "failed": 26
     },
     "1305": {
       "attempts": 3,
@@ -56,9 +56,9 @@
       "failed": 5
     },
     "1307": {
-      "attempts": 371,
-      "successful": 178,
-      "failed": 193
+      "attempts": 392,
+      "successful": 190,
+      "failed": 202
     },
     "1308": {
       "attempts": 3,
@@ -66,19 +66,19 @@
       "failed": 1
     },
     "1309": {
-      "attempts": 1157,
-      "successful": 389,
-      "failed": 768
+      "attempts": 1187,
+      "successful": 401,
+      "failed": 786
     },
     "1310": {
-      "attempts": 481,
-      "successful": 236,
-      "failed": 245
+      "attempts": 502,
+      "successful": 248,
+      "failed": 254
     },
     "1311": {
-      "attempts": 128,
-      "successful": 79,
-      "failed": 49
+      "attempts": 147,
+      "successful": 87,
+      "failed": 60
     },
     "1312": {
       "attempts": 3,
@@ -91,16 +91,31 @@
       "failed": 2
     },
     "1314": {
-      "attempts": 212,
-      "successful": 118,
-      "failed": 94
+      "attempts": 243,
+      "successful": 132,
+      "failed": 111
+    },
+    "1317": {
+      "attempts": 1,
+      "successful": 0,
+      "failed": 1
     },
     "1322": {
-      "attempts": 1,
-      "successful": 1,
+      "attempts": 2,
+      "successful": 2,
       "failed": 0
     },
     "1329": {
+      "attempts": 3,
+      "successful": 2,
+      "failed": 1
+    },
+    "1331": {
+      "attempts": 4,
+      "successful": 1,
+      "failed": 3
+    },
+    "1335": {
       "attempts": 1,
       "successful": 1,
       "failed": 0
