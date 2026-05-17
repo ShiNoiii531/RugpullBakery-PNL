@@ -3,9 +3,9 @@
   "status": "partial",
   "seasonId": 8,
   "seasonStartBlock": 62288249,
-  "latestKnownBlock": 62546681,
-  "updatedAt": "2026-05-17T15:43:45.209Z",
-  "top100AddressCount": 17,
+  "latestKnownBlock": 62574577,
+  "updatedAt": "2026-05-17T19:56:58.397Z",
+  "top100AddressCount": 19,
   "completeChefCount": 0,
   "chefs": {
     "0xed4234a5f233b5e642d47caff292bdc0591d5656": {
@@ -111,12 +111,12 @@
     "0xdfb3296753e8a91c7d2e47da0e3d677cd20c9729": {
       "address": "0xdfb3296753e8a91c7d2e47da0e3d677cd20c9729",
       "fromBlock": 62366539,
-      "toBlock": 62396538,
+      "toBlock": 62426538,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-16T22:32:06.289Z"
+      "updatedAt": "2026-05-17T19:56:58.371Z"
     },
     "0x5e7652dc99eff4f8a7ed6553e455b88af72a9fb5": {
       "address": "0x5e7652dc99eff4f8a7ed6553e455b88af72a9fb5",
@@ -217,11 +217,41 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": null
+    },
+    "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79": {
+      "address": "0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79",
+      "fromBlock": 62574577,
+      "toBlock": 62574576,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x0a767e518b131cf5dfd31508afef99ccbd8f829d": {
+      "address": "0x0a767e518b131cf5dfd31508afef99ccbd8f829d",
+      "fromBlock": 62574577,
+      "toBlock": 62574576,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xe90a9bdb63e9ba04a7f3e95140ff803f2f377f5e": {
+      "address": "0xe90a9bdb63e9ba04a7f3e95140ff803f2f377f5e",
+      "fromBlock": 62574577,
+      "toBlock": 62574576,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
     }
   },
   "lastRun": {
-    "startedAt": "2026-05-17T15:43:33.622Z",
-    "completedAt": "2026-05-17T15:43:45.209Z",
+    "startedAt": "2026-05-17T19:56:50.777Z",
+    "completedAt": "2026-05-17T19:56:58.397Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
