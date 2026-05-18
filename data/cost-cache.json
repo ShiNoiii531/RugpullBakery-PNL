@@ -3,9 +3,9 @@
   "status": "partial",
   "seasonId": 8,
   "seasonStartBlock": 62288249,
-  "latestKnownBlock": 62670179,
-  "updatedAt": "2026-05-18T12:50:37.327Z",
-  "top100AddressCount": 25,
+  "latestKnownBlock": 62742005,
+  "updatedAt": "2026-05-18T19:14:10.515Z",
+  "top100AddressCount": 37,
   "completeChefCount": 0,
   "chefs": {
     "0xed4234a5f233b5e642d47caff292bdc0591d5656": {
@@ -41,12 +41,12 @@
     "0x41e5d01a3872d519cc080fa4f57a9430121a4c2f": {
       "address": "0x41e5d01a3872d519cc080fa4f57a9430121a4c2f",
       "fromBlock": 62288249,
-      "toBlock": 62288249,
-      "complete": true,
+      "toBlock": 62318249,
+      "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-16T00:07:54.923Z"
+      "updatedAt": "2026-05-18T19:14:10.489Z"
     },
     "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409": {
       "address": "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409",
@@ -377,11 +377,191 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": null
+    },
+    "0xfc61f1b7701f6765ff548b3bca403cdaa723d260": {
+      "address": "0xfc61f1b7701f6765ff548b3bca403cdaa723d260",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x4db9f40c888af951c35c4a5cf15c52ab3a89270a": {
+      "address": "0x4db9f40c888af951c35c4a5cf15c52ab3a89270a",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xb3d1436ea51d971b17707bb2cb37238e7b3739ff": {
+      "address": "0xb3d1436ea51d971b17707bb2cb37238e7b3739ff",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xe40ebeeee324bfa15be84cedc01138f7e963bb69": {
+      "address": "0xe40ebeeee324bfa15be84cedc01138f7e963bb69",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x857aa8a26b63adbd3984326e78a023d981dd9ef9": {
+      "address": "0x857aa8a26b63adbd3984326e78a023d981dd9ef9",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x12f355fe79ce85750e19005d008400b47c00e10c": {
+      "address": "0x12f355fe79ce85750e19005d008400b47c00e10c",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x7e65babfff24028a33559777c2f095284da34675": {
+      "address": "0x7e65babfff24028a33559777c2f095284da34675",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x1729fa86b4929ff5b391774f005a2660e58274b1": {
+      "address": "0x1729fa86b4929ff5b391774f005a2660e58274b1",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x43708d5d3a33bd40258f916f1b199313cecbe48f": {
+      "address": "0x43708d5d3a33bd40258f916f1b199313cecbe48f",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xfe7c77cdb7faad26cd8dfcc10afd95808ac05ec1": {
+      "address": "0xfe7c77cdb7faad26cd8dfcc10afd95808ac05ec1",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x135b235d2a3ef00e3fa9e6199a15e92f27cb03b0": {
+      "address": "0x135b235d2a3ef00e3fa9e6199a15e92f27cb03b0",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x7e2e92ed93bbb859b6d191059a1725509ac52609": {
+      "address": "0x7e2e92ed93bbb859b6d191059a1725509ac52609",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x12045c8f0000cc9bd9bccb00aef40074a0f6b2e2": {
+      "address": "0x12045c8f0000cc9bd9bccb00aef40074a0f6b2e2",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x190070e5280059d3da560079686b486cd0998500": {
+      "address": "0x190070e5280059d3da560079686b486cd0998500",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x18fa007630b562f2001b00a3c68fc5a58c3d00e0": {
+      "address": "0x18fa007630b562f2001b00a3c68fc5a58c3d00e0",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x12a91bba084600dc10ac3520c604000044760039": {
+      "address": "0x12a91bba084600dc10ac3520c604000044760039",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0x5393271b0e47b3e8637a7a554bb634b97c535021": {
+      "address": "0x5393271b0e47b3e8637a7a554bb634b97c535021",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xf9005df8f9b0a1f6931922871c7172e01ac88f23": {
+      "address": "0xf9005df8f9b0a1f6931922871c7172e01ac88f23",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
     }
   },
   "lastRun": {
-    "startedAt": "2026-05-18T12:50:21.098Z",
-    "completedAt": "2026-05-18T12:50:37.327Z",
+    "startedAt": "2026-05-18T19:13:58.795Z",
+    "completedAt": "2026-05-18T19:14:10.515Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
