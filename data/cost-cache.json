@@ -3,9 +3,9 @@
   "status": "partial",
   "seasonId": 8,
   "seasonStartBlock": 62288249,
-  "latestKnownBlock": 63776676,
-  "updatedAt": "2026-05-22T01:31:48.313Z",
-  "top100AddressCount": 64,
+  "latestKnownBlock": 63839675,
+  "updatedAt": "2026-05-22T06:16:16.507Z",
+  "top100AddressCount": 65,
   "completeChefCount": 0,
   "chefs": {
     "0xed4234a5f233b5e642d47caff292bdc0591d5656": {
@@ -41,22 +41,22 @@
     "0x41e5d01a3872d519cc080fa4f57a9430121a4c2f": {
       "address": "0x41e5d01a3872d519cc080fa4f57a9430121a4c2f",
       "fromBlock": 62288249,
-      "toBlock": 62468249,
+      "toBlock": 62498249,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-21T12:28:56.922Z"
+      "updatedAt": "2026-05-22T06:16:16.482Z"
     },
     "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409": {
       "address": "0x99f32a7fecd5523231e9cc5f3a3cec04187c2409",
       "fromBlock": 62288249,
-      "toBlock": 62468249,
+      "toBlock": 62498249,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-21T12:28:56.922Z"
+      "updatedAt": "2026-05-22T06:16:16.482Z"
     },
     "0x8572a06e9c5157864a865f8f443311e1a9d82631": {
       "address": "0x8572a06e9c5157864a865f8f443311e1a9d82631",
@@ -937,11 +937,21 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": null
+    },
+    "0x8fbdfc54c16a7ddf791a210ca8cecf16f831eeac": {
+      "address": "0x8fbdfc54c16a7ddf791a210ca8cecf16f831eeac",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
     }
   },
   "lastRun": {
-    "startedAt": "2026-05-22T01:31:37.272Z",
-    "completedAt": "2026-05-22T01:31:48.313Z",
+    "startedAt": "2026-05-22T06:16:07.977Z",
+    "completedAt": "2026-05-22T06:16:16.507Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
