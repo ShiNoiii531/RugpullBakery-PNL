@@ -3,8 +3,8 @@
   "status": "partial",
   "seasonId": 8,
   "seasonStartBlock": 62288249,
-  "latestKnownBlock": 64062843,
-  "updatedAt": "2026-05-22T23:12:23.320Z",
+  "latestKnownBlock": 64091497,
+  "updatedAt": "2026-05-23T01:24:28.876Z",
   "top100AddressCount": 70,
   "completeChefCount": 0,
   "chefs": {
@@ -61,12 +61,12 @@
     "0x8572a06e9c5157864a865f8f443311e1a9d82631": {
       "address": "0x8572a06e9c5157864a865f8f443311e1a9d82631",
       "fromBlock": 62340286,
-      "toBlock": 62520285,
+      "toBlock": 62550285,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-22T15:52:01.993Z"
+      "updatedAt": "2026-05-23T01:24:28.850Z"
     },
     "0x060941f82f3dd29542a5e56696a51525dfd9cfbc": {
       "address": "0x060941f82f3dd29542a5e56696a51525dfd9cfbc",
@@ -81,12 +81,12 @@
     "0x5c2a0b64591e3a228ca2d0d281dfe0dfe55666b5": {
       "address": "0x5c2a0b64591e3a228ca2d0d281dfe0dfe55666b5",
       "fromBlock": 62340286,
-      "toBlock": 62520285,
+      "toBlock": 62550285,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-22T15:52:01.993Z"
+      "updatedAt": "2026-05-23T01:24:28.850Z"
     },
     "0xe516ce9be683433d21911dff80f11194599eac6f": {
       "address": "0xe516ce9be683433d21911dff80f11194599eac6f",
@@ -997,11 +997,21 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": null
+    },
+    "0x02323f3fe4c50c1faeaa38e484b71bdbb6c8fb32": {
+      "address": "0x02323f3fe4c50c1faeaa38e484b71bdbb6c8fb32",
+      "fromBlock": 62685675,
+      "toBlock": 62685674,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
     }
   },
   "lastRun": {
-    "startedAt": "2026-05-22T23:12:14.189Z",
-    "completedAt": "2026-05-22T23:12:23.320Z",
+    "startedAt": "2026-05-23T01:24:21.442Z",
+    "completedAt": "2026-05-23T01:24:28.876Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
