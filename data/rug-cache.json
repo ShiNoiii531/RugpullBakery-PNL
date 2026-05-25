@@ -2,13 +2,13 @@
   "version": 1,
   "seasonId": 8,
   "status": "complete",
-  "updatedAt": "2026-05-25T09:38:04.984Z",
+  "updatedAt": "2026-05-25T13:35:41.687Z",
   "complete": true,
   "latestSeenKey": "boost|1779131619|0xf6579fae1b6dedc83ddfc5d0c16ed50c46e7cd4f|1355|1355|1|Activated Chef's Help|Chef's Help",
   "latestSeenTimestamp": "1779131619",
   "oldestCursor": null,
-  "scannedEvents": 26133,
-  "importedEvents": 13827,
+  "scannedEvents": 26728,
+  "importedEvents": 14161,
   "bakeries": {
     "1353": {
       "attempts": 2,
@@ -21,29 +21,29 @@
       "failed": 1
     },
     "1355": {
-      "attempts": 1506,
-      "successful": 646,
-      "failed": 860
+      "attempts": 1535,
+      "successful": 659,
+      "failed": 876
     },
     "1356": {
-      "attempts": 1940,
-      "successful": 671,
-      "failed": 1269
+      "attempts": 1980,
+      "successful": 684,
+      "failed": 1296
     },
     "1357": {
-      "attempts": 1492,
-      "successful": 550,
-      "failed": 942
+      "attempts": 1529,
+      "successful": 561,
+      "failed": 968
     },
     "1358": {
-      "attempts": 1318,
-      "successful": 627,
-      "failed": 691
+      "attempts": 1351,
+      "successful": 638,
+      "failed": 713
     },
     "1359": {
-      "attempts": 308,
-      "successful": 163,
-      "failed": 145
+      "attempts": 310,
+      "successful": 164,
+      "failed": 146
     },
     "1360": {
       "attempts": 1,
@@ -51,9 +51,9 @@
       "failed": 0
     },
     "1361": {
-      "attempts": 1207,
-      "successful": 596,
-      "failed": 611
+      "attempts": 1227,
+      "successful": 607,
+      "failed": 620
     },
     "1362": {
       "attempts": 2,
@@ -66,9 +66,9 @@
       "failed": 3
     },
     "1365": {
-      "attempts": 1286,
-      "successful": 600,
-      "failed": 686
+      "attempts": 1326,
+      "successful": 613,
+      "failed": 713
     },
     "1366": {
       "attempts": 7,
@@ -91,19 +91,19 @@
       "failed": 1
     },
     "1370": {
-      "attempts": 1068,
-      "successful": 514,
-      "failed": 554
+      "attempts": 1105,
+      "successful": 526,
+      "failed": 579
     },
     "1371": {
-      "attempts": 1464,
-      "successful": 611,
-      "failed": 853
+      "attempts": 1497,
+      "successful": 623,
+      "failed": 874
     },
     "1372": {
-      "attempts": 826,
-      "successful": 463,
-      "failed": 363
+      "attempts": 851,
+      "successful": 474,
+      "failed": 377
     },
     "1373": {
       "attempts": 1,
@@ -126,9 +126,9 @@
       "failed": 0
     },
     "1377": {
-      "attempts": 1199,
-      "successful": 564,
-      "failed": 635
+      "attempts": 1236,
+      "successful": 576,
+      "failed": 660
     },
     "1378": {
       "attempts": 3,
@@ -171,8 +171,8 @@
       "failed": 0
     },
     "1388": {
-      "attempts": 21,
-      "successful": 8,
+      "attempts": 22,
+      "successful": 9,
       "failed": 13
     },
     "1389": {
