@@ -3,8 +3,8 @@
   "status": "partial",
   "seasonId": 8,
   "seasonStartBlock": 62288249,
-  "latestKnownBlock": 64972752,
-  "updatedAt": "2026-05-25T23:15:10.976Z",
+  "latestKnownBlock": 64987596,
+  "updatedAt": "2026-05-26T01:27:05.105Z",
   "top100AddressCount": 84,
   "completeChefCount": 0,
   "chefs": {
@@ -311,42 +311,42 @@
     "0x1b3927a1dea0e9770ffb8bf2045b387ef253def6": {
       "address": "0x1b3927a1dea0e9770ffb8bf2045b387ef253def6",
       "fromBlock": 62670179,
-      "toBlock": 62670178,
+      "toBlock": 62700178,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": null
+      "updatedAt": "2026-05-26T01:27:05.079Z"
     },
     "0xecbdd91e19cf3ea0f0aa12134d29c76efaff7ba8": {
       "address": "0xecbdd91e19cf3ea0f0aa12134d29c76efaff7ba8",
       "fromBlock": 62670179,
-      "toBlock": 62670178,
+      "toBlock": 62700178,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": null
+      "updatedAt": "2026-05-26T01:27:05.079Z"
     },
     "0xff965a21f8b7cea51bef14f4e8cdd2e592ef4f1b": {
       "address": "0xff965a21f8b7cea51bef14f4e8cdd2e592ef4f1b",
       "fromBlock": 62670179,
-      "toBlock": 62670178,
+      "toBlock": 62700178,
       "complete": false,
-      "cookTxCount": 0,
-      "cookiesRaw": "0",
-      "gasCostWei": "0",
-      "updatedAt": null
+      "cookTxCount": 2,
+      "cookiesRaw": "20000",
+      "gasCostWei": "18291814750000",
+      "updatedAt": "2026-05-26T01:27:05.079Z"
     },
     "0xf34c30afdfae62d1f3eed5719c96f6c33b62e76f": {
       "address": "0xf34c30afdfae62d1f3eed5719c96f6c33b62e76f",
       "fromBlock": 62670179,
-      "toBlock": 62670178,
+      "toBlock": 62700178,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": null
+      "updatedAt": "2026-05-26T01:27:05.079Z"
     },
     "0xf7da858261b36c8b21acbf4b23d06b7abd2065bb": {
       "address": "0xf7da858261b36c8b21acbf4b23d06b7abd2065bb",
@@ -1220,10 +1220,10 @@
     }
   },
   "lastRun": {
-    "startedAt": "2026-05-25T23:15:01.687Z",
-    "completedAt": "2026-05-25T23:15:10.976Z",
+    "startedAt": "2026-05-26T01:26:54.622Z",
+    "completedAt": "2026-05-26T01:27:05.105Z",
     "blocksScanned": 30000,
-    "txsProcessed": 0,
+    "txsProcessed": 2,
     "stoppedByBudget": true,
     "maxBlocksPerRun": 30000,
     "maxTxsPerRun": 300000,
