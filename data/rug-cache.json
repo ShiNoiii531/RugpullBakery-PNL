@@ -2,12 +2,98 @@
   "version": 1,
   "seasonId": 9,
   "status": "complete",
-  "updatedAt": "2026-05-27T18:06:45.617Z",
+  "updatedAt": "2026-05-27T20:35:14.023Z",
   "complete": true,
-  "latestSeenKey": null,
-  "latestSeenTimestamp": null,
+  "latestSeenKey": "boost|1779914084|0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79|1448|1448|1|Activated Chef's Help|Chef's Help",
+  "latestSeenTimestamp": "1779914084",
   "oldestCursor": null,
-  "scannedEvents": 0,
-  "importedEvents": 0,
-  "bakeries": {}
+  "scannedEvents": 98,
+  "importedEvents": 24,
+  "bakeries": {
+    "1442": {
+      "attempts": 3,
+      "successful": 2,
+      "failed": 1
+    },
+    "1443": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1446": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1447": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1448": {
+      "attempts": 2,
+      "successful": 1,
+      "failed": 1
+    },
+    "1451": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1453": {
+      "attempts": 2,
+      "successful": 1,
+      "failed": 1
+    },
+    "1454": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1455": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1459": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1470": {
+      "attempts": 4,
+      "successful": 1,
+      "failed": 3
+    },
+    "1474": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1475": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1476": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1478": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1484": {
+      "attempts": 1,
+      "successful": 1,
+      "failed": 0
+    },
+    "1485": {
+      "attempts": 1,
+      "successful": 0,
+      "failed": 1
+    }
+  }
 }
