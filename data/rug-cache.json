@@ -2,7 +2,7 @@
   "version": 1,
   "seasonId": 9,
   "status": "complete",
-  "updatedAt": "2026-05-29T11:50:43.901Z",
+  "updatedAt": "2026-05-29T16:03:07.754Z",
   "complete": true,
   "latestSeenKey": "boost|1779914084|0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79|1448|1448|1|Activated Chef's Help|Chef's Help",
   "latestSeenTimestamp": "1779914084",
@@ -10,13 +10,13 @@
     "timestamp": "1779911929",
     "requestId": "150096"
   },
-  "scannedEvents": 5775,
-  "importedEvents": 747,
+  "scannedEvents": 6310,
+  "importedEvents": 773,
   "bakeries": {
     "1440": {
-      "attempts": 113,
-      "successful": 38,
-      "failed": 75
+      "attempts": 118,
+      "successful": 40,
+      "failed": 78
     },
     "1441": {
       "attempts": 26,
@@ -34,9 +34,9 @@
       "failed": 0
     },
     "1444": {
-      "attempts": 67,
-      "successful": 29,
-      "failed": 38
+      "attempts": 70,
+      "successful": 30,
+      "failed": 40
     },
     "1445": {
       "attempts": 6,
@@ -64,9 +64,9 @@
       "failed": 0
     },
     "1452": {
-      "attempts": 128,
-      "successful": 69,
-      "failed": 59
+      "attempts": 135,
+      "successful": 74,
+      "failed": 61
     },
     "1453": {
       "attempts": 2,
@@ -94,8 +94,8 @@
       "failed": 4
     },
     "1465": {
-      "attempts": 1,
-      "successful": 1,
+      "attempts": 2,
+      "successful": 2,
       "failed": 0
     },
     "1470": {
@@ -104,9 +104,9 @@
       "failed": 3
     },
     "1472": {
-      "attempts": 99,
-      "successful": 61,
-      "failed": 38
+      "attempts": 102,
+      "successful": 63,
+      "failed": 39
     },
     "1474": {
       "attempts": 1,
@@ -134,9 +134,9 @@
       "failed": 4
     },
     "1480": {
-      "attempts": 115,
-      "successful": 68,
-      "failed": 47
+      "attempts": 121,
+      "successful": 71,
+      "failed": 50
     },
     "1481": {
       "attempts": 3,
@@ -164,8 +164,8 @@
       "failed": 19
     },
     "1495": {
-      "attempts": 10,
-      "successful": 8,
+      "attempts": 11,
+      "successful": 9,
       "failed": 2
     },
     "1497": {
