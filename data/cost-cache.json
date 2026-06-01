@@ -3,8 +3,8 @@
   "status": "partial",
   "seasonId": 9,
   "seasonStartBlock": 65115493,
-  "latestKnownBlock": 66598424,
-  "updatedAt": "2026-06-01T01:41:13.595Z",
+  "latestKnownBlock": 66670607,
+  "updatedAt": "2026-06-01T07:10:46.154Z",
   "top100AddressCount": 98,
   "completeChefCount": 0,
   "chefs": {
@@ -261,12 +261,12 @@
     "0x75c6ce8e3083fad4ffa1b1bd325e407a41d612d6": {
       "address": "0x75c6ce8e3083fad4ffa1b1bd325e407a41d612d6",
       "fromBlock": 65207069,
-      "toBlock": 65327068,
+      "toBlock": 65357068,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-31T00:09:25.602Z"
+      "updatedAt": "2026-06-01T07:10:46.128Z"
     },
     "0xc742d962d4b4fece18beb2e862a654f579c08260": {
       "address": "0xc742d962d4b4fece18beb2e862a654f579c08260",
@@ -281,32 +281,32 @@
     "0x712bd81f0b46da2445948fc3791dcb33832e3dc5": {
       "address": "0x712bd81f0b46da2445948fc3791dcb33832e3dc5",
       "fromBlock": 65207069,
-      "toBlock": 65327068,
+      "toBlock": 65357068,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-31T00:09:25.602Z"
+      "updatedAt": "2026-06-01T07:10:46.128Z"
     },
     "0x3f064dfdbde340f87944ca481e1ba6b448f824fa": {
       "address": "0x3f064dfdbde340f87944ca481e1ba6b448f824fa",
       "fromBlock": 65207069,
-      "toBlock": 65327068,
+      "toBlock": 65357068,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-31T00:09:25.602Z"
+      "updatedAt": "2026-06-01T07:10:46.128Z"
     },
     "0x8eaba8fd35b6a180bd7abf5d968466b43ba1ad4e": {
       "address": "0x8eaba8fd35b6a180bd7abf5d968466b43ba1ad4e",
       "fromBlock": 65207069,
-      "toBlock": 65327068,
+      "toBlock": 65357068,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-05-31T00:09:25.602Z"
+      "updatedAt": "2026-06-01T07:10:46.128Z"
     },
     "0x4355995495a91e3e099fcdcc113f2a75acafbd91": {
       "address": "0x4355995495a91e3e099fcdcc113f2a75acafbd91",
@@ -1190,8 +1190,8 @@
     }
   },
   "lastRun": {
-    "startedAt": "2026-06-01T01:41:06.051Z",
-    "completedAt": "2026-06-01T01:41:13.595Z",
+    "startedAt": "2026-06-01T07:10:35.483Z",
+    "completedAt": "2026-06-01T07:10:46.154Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
