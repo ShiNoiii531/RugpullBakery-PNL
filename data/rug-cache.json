@@ -2,7 +2,7 @@
   "version": 1,
   "seasonId": 9,
   "status": "complete",
-  "updatedAt": "2026-06-02T17:48:14.206Z",
+  "updatedAt": "2026-06-02T21:19:52.934Z",
   "complete": true,
   "latestSeenKey": "boost|1779914084|0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79|1448|1448|1|Activated Chef's Help|Chef's Help",
   "latestSeenTimestamp": "1779914084",
@@ -10,17 +10,17 @@
     "timestamp": "1779911929",
     "requestId": "150096"
   },
-  "scannedEvents": 27550,
-  "importedEvents": 2654,
+  "scannedEvents": 28177,
+  "importedEvents": 2682,
   "bakeries": {
     "1440": {
-      "attempts": 591,
-      "successful": 332,
-      "failed": 259
+      "attempts": 595,
+      "successful": 334,
+      "failed": 261
     },
     "1441": {
-      "attempts": 55,
-      "successful": 19,
+      "attempts": 56,
+      "successful": 20,
       "failed": 36
     },
     "1442": {
@@ -34,9 +34,9 @@
       "failed": 0
     },
     "1444": {
-      "attempts": 401,
-      "successful": 223,
-      "failed": 178
+      "attempts": 409,
+      "successful": 227,
+      "failed": 182
     },
     "1445": {
       "attempts": 6,
@@ -104,8 +104,8 @@
       "failed": 3
     },
     "1472": {
-      "attempts": 134,
-      "successful": 82,
+      "attempts": 135,
+      "successful": 83,
       "failed": 52
     },
     "1474": {
@@ -134,9 +134,9 @@
       "failed": 4
     },
     "1480": {
-      "attempts": 424,
-      "successful": 277,
-      "failed": 147
+      "attempts": 438,
+      "successful": 285,
+      "failed": 153
     },
     "1481": {
       "attempts": 3,
