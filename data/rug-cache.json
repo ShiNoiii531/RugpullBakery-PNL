@@ -2,7 +2,7 @@
   "version": 1,
   "seasonId": 9,
   "status": "complete",
-  "updatedAt": "2026-06-04T17:32:35.472Z",
+  "updatedAt": "2026-06-04T20:16:51.927Z",
   "complete": true,
   "latestSeenKey": "boost|1779914084|0xcf9437320ed8b11db5554c14e5c93f1d1c4f4d79|1448|1448|1|Activated Chef's Help|Chef's Help",
   "latestSeenTimestamp": "1779914084",
@@ -10,23 +10,23 @@
     "timestamp": "1779911929",
     "requestId": "150096"
   },
-  "scannedEvents": 35894,
-  "importedEvents": 3611,
+  "scannedEvents": 36543,
+  "importedEvents": 3714,
   "bakeries": {
     "1440": {
-      "attempts": 624,
-      "successful": 345,
-      "failed": 279
+      "attempts": 627,
+      "successful": 346,
+      "failed": 281
     },
     "1441": {
-      "attempts": 142,
-      "successful": 45,
-      "failed": 97
+      "attempts": 153,
+      "successful": 48,
+      "failed": 105
     },
     "1442": {
-      "attempts": 523,
-      "successful": 300,
-      "failed": 223
+      "attempts": 531,
+      "successful": 303,
+      "failed": 228
     },
     "1443": {
       "attempts": 1,
@@ -34,9 +34,9 @@
       "failed": 0
     },
     "1444": {
-      "attempts": 733,
-      "successful": 408,
-      "failed": 325
+      "attempts": 765,
+      "successful": 425,
+      "failed": 340
     },
     "1445": {
       "attempts": 6,
@@ -64,9 +64,9 @@
       "failed": 0
     },
     "1452": {
-      "attempts": 262,
-      "successful": 123,
-      "failed": 139
+      "attempts": 272,
+      "successful": 128,
+      "failed": 144
     },
     "1453": {
       "attempts": 2,
@@ -104,9 +104,9 @@
       "failed": 3
     },
     "1472": {
-      "attempts": 321,
-      "successful": 189,
-      "failed": 132
+      "attempts": 344,
+      "successful": 202,
+      "failed": 142
     },
     "1474": {
       "attempts": 1,
@@ -134,9 +134,9 @@
       "failed": 4
     },
     "1480": {
-      "attempts": 601,
-      "successful": 316,
-      "failed": 285
+      "attempts": 617,
+      "successful": 317,
+      "failed": 300
     },
     "1481": {
       "attempts": 3,
