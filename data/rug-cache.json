@@ -2,38 +2,38 @@
   "version": 1,
   "seasonId": 10,
   "status": "complete",
-  "updatedAt": "2026-06-06T15:53:06.309Z",
+  "updatedAt": "2026-06-06T17:22:13.353Z",
   "complete": true,
   "latestSeenKey": "boost|1780696867|0xdb65734df1db12ee8027d774c3228753d568fd9a|1562|1562|1|Activated Secret Recipe|Secret Recipe",
   "latestSeenTimestamp": "1780696867",
   "oldestCursor": null,
-  "scannedEvents": 1382,
-  "importedEvents": 255,
+  "scannedEvents": 1762,
+  "importedEvents": 318,
   "bakeries": {
     "1551": {
-      "attempts": 124,
-      "successful": 58,
-      "failed": 66
+      "attempts": 146,
+      "successful": 69,
+      "failed": 77
     },
     "1554": {
-      "attempts": 4,
-      "successful": 2,
-      "failed": 2
+      "attempts": 6,
+      "successful": 3,
+      "failed": 3
     },
     "1555": {
-      "attempts": 47,
-      "successful": 24,
-      "failed": 23
+      "attempts": 58,
+      "successful": 30,
+      "failed": 28
     },
     "1556": {
-      "attempts": 5,
+      "attempts": 6,
       "successful": 0,
-      "failed": 5
+      "failed": 6
     },
     "1561": {
-      "attempts": 45,
-      "successful": 6,
-      "failed": 39
+      "attempts": 59,
+      "successful": 7,
+      "failed": 52
     },
     "1562": {
       "attempts": 1,
@@ -51,24 +51,24 @@
       "failed": 0
     },
     "1568": {
-      "attempts": 1,
-      "successful": 1,
+      "attempts": 2,
+      "successful": 2,
       "failed": 0
     },
     "1569": {
-      "attempts": 5,
-      "successful": 5,
+      "attempts": 6,
+      "successful": 6,
       "failed": 0
     },
     "1570": {
-      "attempts": 5,
-      "successful": 5,
+      "attempts": 6,
+      "successful": 6,
       "failed": 0
     },
     "1571": {
-      "attempts": 16,
-      "successful": 9,
-      "failed": 7
+      "attempts": 26,
+      "successful": 15,
+      "failed": 11
     }
   }
 }
