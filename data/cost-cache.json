@@ -3,9 +3,9 @@
   "status": "partial",
   "seasonId": 10,
   "seasonStartBlock": 67614320,
-  "latestKnownBlock": 67795921,
-  "updatedAt": "2026-06-05T23:47:51.953Z",
-  "top100AddressCount": 13,
+  "latestKnownBlock": 67834219,
+  "updatedAt": "2026-06-06T04:13:17.438Z",
+  "top100AddressCount": 14,
   "completeChefCount": 0,
   "chefs": {
     "0xae44abde9b1e06d8bc81eb0d55a522691bd34e28": {
@@ -31,12 +31,12 @@
     "0x3a98653ff7c9b75b165437bd4ba86dca77fd7095": {
       "address": "0x3a98653ff7c9b75b165437bd4ba86dca77fd7095",
       "fromBlock": 67657172,
-      "toBlock": 67717171,
+      "toBlock": 67747171,
       "complete": false,
       "cookTxCount": 0,
       "cookiesRaw": "0",
       "gasCostWei": "0",
-      "updatedAt": "2026-06-05T23:47:51.928Z"
+      "updatedAt": "2026-06-06T04:13:17.412Z"
     },
     "0xc2948e9257e65533991ed0b0d9c987840614101f": {
       "address": "0xc2948e9257e65533991ed0b0d9c987840614101f",
@@ -247,11 +247,31 @@
       "cookiesRaw": "0",
       "gasCostWei": "0",
       "updatedAt": null
+    },
+    "0x164cb4eacf03e4635f7c040d28e2fb2f129bb462": {
+      "address": "0x164cb4eacf03e4635f7c040d28e2fb2f129bb462",
+      "fromBlock": 67775876,
+      "toBlock": 67775875,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
+    },
+    "0xcb48b3d5a1d189ad49277b086d58908c5998024c": {
+      "address": "0xcb48b3d5a1d189ad49277b086d58908c5998024c",
+      "fromBlock": 67775876,
+      "toBlock": 67775875,
+      "complete": false,
+      "cookTxCount": 0,
+      "cookiesRaw": "0",
+      "gasCostWei": "0",
+      "updatedAt": null
     }
   },
   "lastRun": {
-    "startedAt": "2026-06-05T23:47:39.074Z",
-    "completedAt": "2026-06-05T23:47:51.953Z",
+    "startedAt": "2026-06-06T04:13:10.088Z",
+    "completedAt": "2026-06-06T04:13:17.438Z",
     "blocksScanned": 30000,
     "txsProcessed": 0,
     "stoppedByBudget": true,
