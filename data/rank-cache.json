@@ -1,8 +1,8 @@
 {
   "version": 1,
   "seasonId": 10,
-  "updatedAt": "2026-06-12T21:15:30.982Z",
-  "previousUpdatedAt": "2026-06-12T19:14:35.852Z",
+  "updatedAt": "2026-06-12T22:59:28.287Z",
+  "previousUpdatedAt": "2026-06-12T21:15:30.982Z",
   "currentRanks": {
     "0x77dc0db95e1758d67462ec6faa3399ee048cf8c1": 1,
     "0xf2f7e708ef447f9a445120ea0dcf5b4b5d19ac1b": 2,
@@ -105,7 +105,8 @@
     "0x849fbf8a8e11579c9252a96a096dd047615ba4c7": 46,
     "0x0d176589ceb5f06466cb6bbbf127e0fb0fb460a9": 47,
     "0xdd8722e99cf2ebe47ba36235fa2f97a3dc2817f3": 48,
-    "0x85efbd63b02ddefd44356b4c63c5d7cd0b5b851e": 49,
-    "0xec85f6f8ecd131f19dc80f39b7262c8d0e23fc4a": 50
+    "0xc630be22453db6323d45a4876f89e142dcc9b1cf": 49,
+    "0x85efbd63b02ddefd44356b4c63c5d7cd0b5b851e": 50,
+    "0xec85f6f8ecd131f19dc80f39b7262c8d0e23fc4a": 51
   }
 }
