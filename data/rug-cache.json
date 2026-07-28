@@ -2,7 +2,7 @@
   "version": 1,
   "seasonId": 10,
   "status": "complete",
-  "updatedAt": "2026-07-28T03:24:27.757Z",
+  "updatedAt": "2026-07-28T06:10:33.477Z",
   "complete": true,
   "latestSeenKey": "boost|1780696867|0xdb65734df1db12ee8027d774c3228753d568fd9a|1562|1562|1|Activated Secret Recipe|Secret Recipe",
   "latestSeenTimestamp": "1780696867",
@@ -10,13 +10,13 @@
     "timestamp": "1780696853",
     "requestId": "159186"
   },
-  "scannedEvents": 271566,
-  "importedEvents": 2560,
+  "scannedEvents": 272120,
+  "importedEvents": 2564,
   "bakeries": {
     "1551": {
-      "attempts": 1134,
+      "attempts": 1136,
       "successful": 126,
-      "failed": 1008
+      "failed": 1010
     },
     "1554": {
       "attempts": 18,
@@ -69,8 +69,8 @@
       "failed": 0
     },
     "1571": {
-      "attempts": 587,
-      "successful": 521,
+      "attempts": 588,
+      "successful": 522,
       "failed": 66
     },
     "1578": {
@@ -79,8 +79,8 @@
       "failed": 0
     },
     "1579": {
-      "attempts": 468,
-      "successful": 449,
+      "attempts": 469,
+      "successful": 450,
       "failed": 19
     },
     "1581": {
