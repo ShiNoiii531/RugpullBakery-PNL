@@ -22,8 +22,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
+          node-version: '24.22.1'
       - name: Update gas cost cache
         env:
           COST_CACHE_MAX_BLOCKS: 30000

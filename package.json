@@ -10,6 +10,6 @@
     "update:rug-cache": "node scripts/update-rug-cache.mjs"
   },
   "engines": {
-    "node": "20.x"
+    "node": "^24.22.1"
   }
 }
